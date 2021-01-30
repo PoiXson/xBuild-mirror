@@ -355,7 +355,7 @@ for dev in ${devs[@]}; do
 		devSource "$dev"
 	elif [ -f "${dev}.dev" ]; then
 		devSource "${dev}.dev"
-	elif [ -f *"${dev}.dev" ]; then
+	elif [ -f *-"${dev}.dev" ]; then
 		dev=$( ls -1v *"${dev}.dev" | head -n1 )
 		devSource "$dev"
 	else
