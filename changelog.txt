@@ -1,6 +1,15 @@
 Project-Tools - A collection of commonly used scripts for building and managing software projects
 
 
+2021-01-31 - 2.0.1
+==================
+* added support for composer and maven projects
+* added separate --debug and --debug-flags flags
+* rewrote workspace.sh script with features matching autobuild.sh
+* added /etc/profile.d/project-tools-aliases.sh script
+  - contains aliases to clear screen before running workspace or autobuild scripts
+
+
 2021-01-30 - 2.0.0
 ==================
 * moved workspace and autobuild scripts from shellscripts package
