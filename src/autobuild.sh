@@ -45,9 +45,9 @@ function DisplayHelp() {
 	echo
 	echo -e "${COLOR_BROWN}Options:${COLOR_RESET}"
 	echo -e "  ${COLOR_GREEN}-n, --build-number${COLOR_RESET}     Build number to use for packaging"
+	echo -e "  ${COLOR_GREEN}-D, --debug-flags${COLOR_RESET}      Build with debug flags"
 	echo                                "                           note: defaults to 'x'"
-	echo -e "  ${COLOR_GREEN}-d, --debug${COLOR_RESET}            Build with debug flags"
-	echo
+	echo -e "  ${COLOR_GREEN}-d, --debug${COLOR_RESET}            Enable debug logs"
 	echo -e "  ${COLOR_GREEN}-h, --help${COLOR_RESET}             Display this help message and exit"
 	echo
 	exit 1
@@ -234,6 +234,7 @@ if [ $# -eq 0 ]; then
 	exit 1
 fi
 ACTIONS=""
+DEBUG_FLAGS=$NO
 while [ $# -gt 0 ]; do
 	case "$1" in
 	# build number
@@ -243,6 +244,9 @@ while [ $# -gt 0 ]; do
 	;;
 	--build-number=*)
 		BUILD_NUMBER="${1#*=}"
+	;;
+	-D|--debug-flag|--debug-flags)
+		DEBUG_FLAGS=$YES
 	;;
 	# debug mode
 	-d|--debug)
