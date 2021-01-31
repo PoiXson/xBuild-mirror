@@ -9,7 +9,7 @@ Suggests : rpmbuild, automake, composer
 
 BuildArch : noarch
 Packager  : PoiXson <support@poixson.com>
-License   : GPL 3.0
+License   : GPLv3
 URL       : https://poixson.com/
 
 Prefix: %{_bindir}/pxn/scripts
@@ -26,7 +26,7 @@ echo
 echo "Install.."
 
 # delete existing rpm's
-%{__rm} -fv --preserve-root "%{_rpmdir}/%{name}-"*.rpm
+%{__rm} -fv --preserve-root  "%{_rpmdir}/%{name}-"*.rpm
 
 # create dirs
 %{__install} -d -m 0755  "%{buildroot}%{prefix}/"  || exit 1

@@ -182,9 +182,10 @@ function doDist() {
 				-bb "SPECS/${SPEC_NAME}.spec" \
 					|| exit 1
 		\popd >/dev/null
+		\cp -f  "$PWD/rpmbuild/RPMS/"*.rpm  "$PWD/"  || exit 1
 		echo "==============================================="
 		echo "Packages ready for distribution:"
-		\ls -lAsh "$PWD/rpmbuild/RPMS/"  || exit 1
+		\ls -1 "$PWD/rpmbuild/RPMS/"  || exit 1
 		echo "==============================================="
 		echo
 		did_something=$YES
