@@ -115,39 +115,55 @@ function doClean() {
 
 # auto configure
 function doConfig() {
-	title "Auto-Configure"
-	if [[ ! -f"$PWD/configure.ac" ]]; then
-		notice "configure.ac file not found, skipping.."
+	title C "Configure"
+	did_something=$NO
+	# automake
+	if [ -f "$PWD/configure.ac" ]; then
+		\autoreconf -v --install  || exit 1
 		echo
-		return
+		did_something=$YES
 	fi
-	if [[ ! -f "$PWD/Makefile.am" ]]; then
-		notice "Makefile.am file not found, skipping.."
+	# composer
+	if [ -f "$PWD/composer.json" ]; then
+		if [[ $DEBUG_FLAG -eq $YES ]] \
+		|| [[ ! -f "$PWD/composer.lock" ]]; then
+			\composer update  || exit 1
+		else
+			\composer install  || exit 1
+		fi
 		echo
-		return
+		did_something=$YES
 	fi
-	\autoreconf -v --install  || exit 1
-	echo
+	if [ $did_something -eq $NO ]; then
+		notice "Nothing found to configure.."
+		echo
+	fi
 }
 
 
 
 # build
 function doBuild() {
-	title "Build"
+	title C "Build"
 	did_something=$NO
+	# automake
 	if [ -f "$PWD/configure" ]; then
-		if [ $DEBUG -eq $YES ]; then
+		if [ $DEBUG_FLAGS -eq $YES ]; then
 			./configure --enable-debug  || exit 1
 		else
 			./configure                 || exit 1
 		fi
 		echo
 	fi
+	# make
 	if [ -f "$PWD/Makefile" ]; then
 		\make  || exit 1
 		echo
 		did_something=$YES
+	fi
+	# maven
+	if [ -f "$PWD/pom.xml" ]; then
+		\mvn clean install  || exit 1
 	fi
 	if [ $did_something -eq $NO ]; then
 		notice "Nothing found to build.."
