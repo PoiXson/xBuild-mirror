@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 ##===============================================================================
-## Copyright (c) 2020 PoiXson, Mattsoft
+## Copyright (c) 2020-2021 PoiXson, Mattsoft
 ## <https://poixson.com> <https://mattsoft.net>
 ## Released under the GPL 3.0
 ##
@@ -21,162 +21,52 @@
 ## =============================================================================
 # workspace.sh
 
-
-#\php check_tab_indent.php || exit 1
-
-
-function DisplayHelp() {
-	echo "Usage:"
-	echo "  workspace [options] <workspace-groups>"
-	echo
-	echo "Options:"
-	echo "  -a, --all                      Use all .dev files found"
-	echo
-	echo "  -c, --cleanup                  Cleanup workspace; delete generated files"
-	echo "  -p, --pp, --pull-push          Run 'git pull' and 'git push'"
-	echo "  -g, --gg, --git-gui            Open git-gui for each workspace"
-	echo
-	echo "  --mcp, --mvn-clean-package     Run 'mvn clean package' on each workspace"
-	echo "  --mci, --mvn-clean-install     Run 'mvn clean install' on each workspace"
-	echo
-	echo "  --ci, --composer-install       Run 'composer install' on each workspace"
-	echo "  --cu, --composer-update        Run 'composer update' on each workspace"
-	echo
-	echo "  --rpm, --build-rpm             Run 'build-rpm' on each workspace"
-	echo
-	echo "  -C, --no-clear                 Don't clear the screen before doing work"
-	echo "  -h, --help                     Display this help message"
-	echo
-}
+source /usr/bin/pxn/scripts/common.sh
 
 
-YES=1
-NO=0
-NO_CLEAR=$NO
-ENABLE_C=$NO
-ENABLE_PP=$NO
-ENABLE_GG=$NO
-ENABLE_MCP=$NO
-ENABLE_MCI=$NO
-ENABLE_CI=$NO
-ENABLE_CU=$NO
-ENABLE_RPM=$NO
-while [ $# -gt 0 ]; do
-	case "$1" in
-	# all workspaces
-	-a|--all)
-		devs=($( \ls -1v *.dev ))
-	;;
-	# cleanup
-	-c|--clean|--cleanup)
-		ENABLE_C=$YES
-	;;
-	# git pull/push
-	-p|--pp|--pull-push|--push-pull)
-		ENABLE_PP=$YES
-	;;
-	# git-gui
-	-g|--gg|--git-gui)
-		ENABLE_GG=$YES
-	;;
-	# mvn clean package
-	--mcp|--mvn-clean-package)
-		ENABLE_MCP=$YES
-	;;
-	# mvn clean install
-	--mci|--mvn-clean-install)
-		ENABLE_MCI=$YES
-	;;
-	# composer install
-	--ci|--composer-install)
-		ENABLE_CI=$YES
-	;;
-	# composer update
-	--cu|--composer-update)
-		ENABLE_CU=$YES
-	;;
-	# build rpm
-	--rpm|--build-rpm|--rpm-build)
-		ENABLE_RPM=$YES
-	;;
-	# don't clear screen
-	-C|--no-clear)
-		NO_CLEAR=$YES
-	;;
-	# display help
-	-h|--help)
-		if [ $NO_CLEAR -ne $YES ]; then
-			\clear
-		fi
-		DisplayHelp
-		exit 1
-	;;
-	-*)
-		echo "Unknown argument: $1"
-		exit 1
-	;;
-	*)
-		devs=( "${devs[@]}" "$1" )
-	;;
-	esac
-	\shift
-done
 
-
-if [ $NO_CLEAR -ne $YES ]; then
-	\clear
-fi
-
-
-if [[ -z $devs ]]; then
-	echo
-	echo "You must select a .dev group file"
-	echo
-	DisplayHelp
+PWD=$(pwd)
+if [ -z $PWD ]; then
+	failure "Failed to find current working directory"
 	exit 1
 fi
 
 
-# no options selected
-if	[[ $ENABLE_C   -ne $YES ]] && \
-	[[ $ENABLE_PP  -ne $YES ]] && \
-	[[ $ENABLE_GG  -ne $YES ]] && \
-	[[ $ENABLE_MCP -ne $YES ]] && \
-	[[ $ENABLE_MCI -ne $YES ]] && \
-	[[ $ENABLE_CI  -ne $YES ]] && \
-	[[ $ENABLE_CU  -ne $YES ]] && \
-	[[ $ENABLE_RPM -ne $YES ]]; then
-		echo
-		echo "No options selected"
-		echo
-		DisplayHelp
-		exit 1
-fi
 
-
-# .gitconfig file
-if [ -f "./.gitconfig" ]; then
-	\cp -fv "./.gitconfig" ~/  || exit 1
-fi
-
-
-function title() {
-	MAX_SIZE=1
-	for ARG in "$@"; do
-		local _S=${#ARG}
-		if [ $_S -gt $MAX_SIZE ]; then
-			MAX_SIZE=$_S
-		fi
-	done
-	local _A=$(($MAX_SIZE+4))
+function DisplayHelp() {
+	echo -e "${COLOR_BROWN}Usage:${COLOR_RESET}"
+	echo    "  workspace [options] <workspace-groups>"
 	echo
-	echo -n " +"; eval "printf %.0s'-' {1..$_A}"; echo "+ "
-	for LINE in "${@}"; do
-		local _S=$(($MAX_SIZE-${#LINE}))
-		echo -n " |  ${LINE}"; eval "printf ' '%.0s {0..$_S}"; echo " | "
+	echo -e "${COLOR_BROWN}Workspace Groups:${COLOR_RESET}"
+	let count=0
+	for FILE in $( \ls -1v "$PWD/"*.dev 2>/dev/null ); do
+		NAME="${FILE%%.dev}"
+		NAME="${NAME##*/}"
+		echo -e "  ${COLOR_GREEN}$NAME${COLOR_RESET}"
+		count=$((count+1))
 	done
-	echo -n " +"; eval "printf %.0s'-' {1..$_A}"; echo "+ "
+	if [ $count -eq 0 ]; then
+		echo "  No .dev files found here"
+	fi
+	echo
+	echo -e "${COLOR_BROWN}Options:${COLOR_RESET}"
+	echo -e "  ${COLOR_GREEN}-a, --all${COLOR_RESET}                   Use all .dev files found"
+	echo -e "  ${COLOR_GREEN}-D, --debug-flags${COLOR_RESET}           Build with debug flags"
+	echo
+	echo -e "  ${COLOR_GREEN}-c, --clean, --cleanup${COLOR_RESET}      Cleanup workspace; delete generated files"
+	echo
+	echo -e "  ${COLOR_GREEN}-p, --pp, --pull-push${COLOR_RESET}       Run 'git pull' and 'git push'"
+	echo -e "  ${COLOR_GREEN}-g, --gg, --git-gui${COLOR_RESET}         Open git-gui for each project"
+	echo
+	echo -e "  ${COLOR_GREEN}-b, --build, --compile${COLOR_RESET}      Compile the projects"
+	echo -e "  ${COLOR_GREEN}-i, --dist, --distribute${COLOR_RESET}    Build distributable packages"
+	echo
+	echo -e "  ${COLOR_GREEN}-d, --debug${COLOR_RESET}                 Enable debug logs"
+	echo -e "  ${COLOR_GREEN}-h, --help${COLOR_RESET}                  Display this help message and exit"
+	echo
+	exit 1
 }
+
 
 
 function Workspace() {
@@ -187,185 +77,274 @@ function Workspace() {
 		WS_NAME="$1"
 	fi
 }
+
+function doWorkspaceCleanup() {
+	# reset workspace vars
+	WS_NAME=""
+	WS_REPO=""
+	\sleep 0.4
+}
+
 function doWorkspace() {
 	if [ -z $WS_NAME ]; then
 		return
 	fi
-	title "$WS_NAME"
+	title B "$WS_NAME"
+	echo
+	did_something=$NO
+	fresh_clone=$NO
+
+	# project dir not found
+	if [[ ! -d "$PWD/$WS_NAME" ]]; then
+		# clone repo
+		if [[ $DO_PP -eq $YES ]] \
+		&& [[ ! -z $WS_REPO ]]; then
+			title C "Cloning repo.."
+			\git clone "$WS_REPO" "$WS_NAME"  || exit 1
+			did_something=$YES
+			count_ops=$((count_ops+1))
+			fresh_clone=$YES
+		else
+			notice "bypassed - project not found"
+			echo
+			return;
+		fi
+		echo
+	fi
+
 	# cleanup
-	if [ $ENABLE_C -eq $YES ]; then
-		if [ -d "$WS_NAME/" ]; then
-			\pushd "$WS_NAME/"  || exit 1
-				if [ -d "target/" ]; then
-					\rm -Rvf --preserve-root "target"    || exit 1
-					\sleep 0.2
-					echo
-				fi
-				if [ -d "vendor/" ]; then
-					\rm -Rvf --preserve-root "vendor"    || exit 1
-					\sleep 0.2
-					echo
-				fi
-				if [ -d "rpmbuild/" ]; then
-					\rm -Rvf --preserve-root "rpmbuild"  || exit 1
-					\sleep 0.2
-					echo
-				fi
-				if [ -d "coverage/" ]; then
-					\rm -Rvf --preserve-root "coverage"  || exit 1
-					\sleep 0.2
-					echo
-				fi
-			\popd
-			\sleep 0.2
-		else
-			echo " > bypass - workspace not found"
-		fi
+	if [ $DO_CLEAN -eq $YES ]; then
+		\pushd "$PWD/$WS_NAME/" >/dev/null  || exit 1
+			\autobuild clean  || exit 1
+			did_something=$YES
+			count_ops=$((count_ops+1))
+		\popd >/dev/null
+		echo
 	fi
+
 	# git pull/push
-	if [ $ENABLE_PP -eq $YES ]; then
-		if [ -d "$WS_NAME" ]; then
-			\pushd "$WS_NAME/"  || exit 1
-				echo
-				echo " > Pulling repo.."
+	if [[ $DO_PP -eq $YES ]] \
+	&& [[ $fresh_clone -eq $NO ]]; then
+		if [ -d "$PWD/$WS_NAME/.git" ]; then
+			\pushd "$PWD/$WS_NAME/" >/dev/null  || exit 1
+				# git pull
+				title C "pull"
 				\git pull  || exit 1
-				echo
-				echo " > Pushing repo.."
+				# git push
+				title C "push"
 				\git push  || exit 1
-				echo
-			\popd
-		elif [ ! -z $WS_VCS ]; then
-			echo
-			echo " > Cloning repo.."
-			\git clone "$WS_VCS" "$WS_NAME"  || exit 1
+				did_something=$YES
+				count_ops=$((count_ops+1))
+			\popd >/dev/null
 			echo
 		else
-			echo " > bypass - .git not found"
+			notice "bypass - .git/ not found"
 		fi
 	fi
+
 	# update static files
-	if [ -d "$WS_NAME/" ]; then
-		if [[ -f "./.gitignore" ]]; then
-			\cp "./.gitignore" "$WS_NAME/"  || exit 1
-			if [ -f "./.gitattributes" ]; then
-				\cp "./.gitattributes" "$WS_NAME/"  || exit 1
-			fi
-		fi
-		if [ -f "./phpunit.xml" ]; then
-			if [ -f "$WS_NAME/phpunit.xml" ]; then
-				\cp "./phpunit.xml" "$WS_NAME/"  || exit 1
-			fi
+	if [ -f "$PWD/.gitignore" ]; then
+		\cp  "$PWD/.gitignore"  "$PWD/$WS_NAME/"  || exit 1
+	fi
+	if [ -f "$PWD/.gitattributes" ]; then
+		\cp  "$PWD/.gitattributes"  "$PWD/$WS_NAME/"  || exit 1
+	fi
+	if [ -f "$PWD/phpunit.xml" ]; then
+		if [ -f "$PWD/$WS_NAME/phpunit.xml" ]; then
+			\cp  "$PWD/phpunit.xml"  "$PWD/$WS_NAME/"  || exit 1
 		fi
 	fi
-	# maven
-	if [[ $ENABLE_MCP -eq $YES ]] || [[ $ENABLE_MCI -eq $YES ]]; then
-		if [ -f "$WS_NAME/pom.xml" ];then
-			# mvn clean package
-			if [ $ENABLE_MCP -eq $YES ]; then
-				\pushd "$WS_NAME/" || exit 1
-				echo
-				\mvn clean package || exit 1
-				echo
-				\popd
-			fi
-			# mvn clean install
-			if [ $ENABLE_MCI -eq $YES ]; then
-				\pushd "$WS_NAME/" || exit 1
-				echo
-				\mvn clean install || exit 1
-				echo
-				\popd
-			fi
-		else
-			echo " > bypass - pom.xml not found"
-		fi
+
+	# build/compile
+	if [ $DO_BUILD -eq $YES ]; then
+		\pushd "$PWD/$WS_NAME/" >/dev/null  || exit 1
+			\autobuild config build  || exit 1
+			did_something=$YES
+			count_ops=$((count_ops+1))
+		\popd >/dev/null
+		echo
 	fi
-	# composer
-	if [[ $ENABLE_CI -eq $YES ]] || [[ $ENABLE_CU -eq $YES ]]; then
-		if [ -f "$WS_NAME/composer.json" ]; then
-			# composer install
-			if [ $ENABLE_CI -eq $YES ]; then
-				\pushd "$WS_NAME/"  || exit 1
-					echo
-					\composer install  || exit 1
-					echo
-				\popd
-			fi
-			# composer update
-			if [ $ENABLE_CU -eq $YES ]; then
-				\pushd "$WS_NAME/"  || exit 1
-					echo
-					\composer update  || exit 1
-					echo
-				\popd
-			fi
-		else
-			echo " > bypass - composer.json not found"
+
+	# distributable
+	if [ $DO_DIST -eq $YES ]; then
+		\pushd "$PWD/$WS_NAME/" >/dev/null  || exit 1
+			\autobuild dist  || exit 1
+			did_something=$YES
+			count_ops=$((count_ops+1))
+		\popd >/dev/null
+		if [ -d "$PWD/rpms" ]; then
+			\cp -v  "$PWD/$WS_NAME/rpmbuild/RPMS/"*.rpm  "$PWD/rpms/"  || exit 1
 		fi
+		echo
 	fi
-	# build-rpm
-	if [ $ENABLE_RPM -eq $YES ];then
-		if [ -f "$WS_NAME/"*.spec ]; then
-			\pushd "$WS_NAME/"  || exit 1
-				echo
-				\build-rpm --no-clear  || exit 1
-				echo
-			\popd
-			if [ ! -d rpms/ ]; then
-				\mkdir -pv rpms/  || exit 1
-			fi
-			\cp "$WS_NAME/rpmbuild/RPMS/"*.rpm rpms/  || exit 1
-		else
-			echo " > bypass - x.spec not found"
-		fi
-	fi
+
 	# git-gui
-	if [ $ENABLE_GG -eq $YES ]; then
-		if [ -d "$WS_NAME/.git/" ]; then
-			\pushd "$WS_NAME"  || exit 1
+	if [ $DO_GG -eq $YES ]; then
+		if [ -d "$PWD/$WS_NAME/.git" ]; then
+			\pushd "$PWD/$WS_NAME/" >/dev/null  || exit 1
 				/usr/libexec/git-core/git-gui &
+				echo "git-gui "$!
 				\sleep 0.2
-			\popd
+				echo
+				did_something=$YES
+				count_ops=$((count_ops+1))
+			\popd >/dev/null
 		fi
+	fi
+
+	if [ $did_something -eq $NO ]; then
+		echo "Nothing to do.."
+		echo
+	else
+		count_prg=$((count_prg+1))
 	fi
 	# cleanup vars
 	doWorkspaceCleanup
 }
-function doWorkspaceCleanup() {
-	# reset workspace vars
-	WS_NAME=""
-	WS_VCS=""
-	\sleep 0.4
-	echo
-}
 
 
-function devSource() {
-	doWorkspaceCleanup
-	dev="$1"
-	if [[ ! -f "$dev" ]]; then
-		echo "File not found: $dev"
+
+# parse args
+echo
+if [ $# -eq 0 ]; then
+	DisplayHelp
+	exit 1
+fi
+DEV_FILES=""
+DEBUG_FLAGS=$NO
+DO_CLEAN=$NO
+DO_PP=$NO
+DO_GG=$NO
+DO_BUILD=$NO
+DO_DIST=$NO
+while [ $# -gt 0 ]; do
+	case "$1" in
+	# all workspace groups
+	-a|--all)
+		DEV_FILES=$( \ls -1v *.dev 2>/dev/null )
+	;;
+	# debug mode
+	-D|--debug-flag|--debug-flags)
+		DEBUG_FLAGS=$YES
+	;;
+	# cleanup
+	-c|--clean|--cleanup)
+		DO_CLEAN=$YES
+	;;
+	# git pull/push
+	-p|--pp|--pull-push|--push-pull)
+		DO_PP=$YES
+	;;
+	# git-gui
+	-g|--gg|--git-gui)
+		DO_GG=$YES
+	;;
+	# --build
+	-b|--build|--compile)
+		DO_BUILD=$YES
+	;;
+	# --dist
+	-i|--dist|--distribute)
+		DO_DIST=$YES
+	;;
+	# debug mode
+	-d|--debug)
+		DEBUG=$YES
+	;;
+	# display help
+	-h|--help)
+		DisplayHelp
 		exit 1
-	fi
-	source "./$dev"  || exit 1
-	Workspace
-}
-for dev in ${devs[@]}; do
-	if [ -f "$dev" ]; then
-		devSource "$dev"
-	elif [ -f "${dev}.dev" ]; then
-		devSource "${dev}.dev"
-	elif [ -f *-"${dev}.dev" ]; then
-		dev=$( ls -1v *"${dev}.dev" | head -n1 )
-		devSource "$dev"
-	else
-		echo "Dev file not found: $dev"
+	;;
+	-*)
+		failure "Unknown argument: $1"
+		echo
+		DisplayHelp
 		exit 1
-	fi
+	;;
+	*)
+		if [ -f "$1" ]; then
+			DEV_FILES="${DEV_FILES} $1"
+		elif [ -f "${1}.dev" ]; then
+			DEV_FILES="${DEV_FILES} ${1}.dev"
+		elif [ -f *"-${1}.dev" ]; then
+			DEV_FILES="${DEV_FILES} "$( ls -1v *"${1}.dev" 2>/dev/null | head -n1 )
+		else
+			count=$( \ls -1 *.dev 2>/dev/null | wc -l )
+			if [[ $count -eq 0 ]]; then
+				failure "No workspace group .dev files found here"
+			else
+				failure "Unknown workspace group: $1"
+			fi
+			echo
+			exit 1
+		fi
+	;;
+	esac
+	\shift
 done
 
 
-echo;echo
-echo "Finished!"
-echo;echo
+
+# no options selected
+if	[[ $DO_CLEAN -ne $YES ]] && \
+	[[ $DO_PP    -ne $YES ]] && \
+	[[ $DO_GG    -ne $YES ]] && \
+	[[ $DO_BUILD -ne $YES ]] && \
+	[[ $DO_DIST  -ne $YES ]]; then
+		failure "No actions selected"
+		echo
+		DisplayHelp
+		exit 1
+fi
+if [[ -z $DEV_FILES ]]; then
+	failure "No workspace group .dev selected"
+	echo
+	DisplayHelp
+	exit 1
+fi
+
+
+
+# install .gitconfig file
+if [ -f "./.gitconfig" ]; then
+	\cp -fv "./.gitconfig" ~/  || exit 1
+fi
+
+
+
+function LoadDevSource() {
+	doWorkspaceCleanup
+	dev="$1"
+	if [[ ! -f "$PWD/$dev" ]]; then
+		failure "File not found: $dev"
+		echo
+		exit 1
+	fi
+	# load .dev file
+	source "$PWD/$dev"  || exit 1
+	# perform work on projects
+	Workspace
+}
+
+# perform actions
+let count_prg=0
+let count_ops=0
+for DEV in $DEV_FILES; do
+	LoadDevSource "$DEV"
+done
+
+
+
+if [[ $count_prg -eq 0 ]] \
+&& [[ $count_ops -eq 0 ]]; then
+	warning "No actions performed"
+else
+	echo -e " ${COLOR_GREEN}Performed $count_ops operations on $count_prg projects${COLOR_RESET}"
+fi
+
+
+
+echo -e "${COLOR_BLUE}Done${COLOR_RESET}"
+echo
 exit 0
