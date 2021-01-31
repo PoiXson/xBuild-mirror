@@ -35,13 +35,13 @@ fi
 
 function DisplayHelp() {
 	echo -e "${COLOR_BROWN}Usage:${COLOR_RESET}"
-	echo    "  autobuild [options]"
+	echo    "  autobuild [options] <actions>"
 	echo
 	echo -e "${COLOR_BROWN}Actions:${COLOR_RESET}"
 	echo -e "  ${COLOR_GREEN}clean${COLOR_RESET}                  Clean the project, removing build files"
-	echo -e "  ${COLOR_GREEN}config${COLOR_RESET}                 "
+	echo -e "  ${COLOR_GREEN}config${COLOR_RESET}                 Perform autoreconf"
 	echo -e "  ${COLOR_GREEN}build${COLOR_RESET}                  Compile the project"
-	echo -e "  ${COLOR_GREEN}dist${COLOR_RESET}                   "
+	echo -e "  ${COLOR_GREEN}dist${COLOR_RESET}                   Build distributable packages"
 	echo
 	echo -e "${COLOR_BROWN}Options:${COLOR_RESET}"
 	echo -e "  ${COLOR_GREEN}-n, --build-number${COLOR_RESET}     Build number to use for packaging"
@@ -57,7 +57,7 @@ function DisplayHelp() {
 
 # clean
 function doClean() {
-	title "Clean"
+	title C "Clean"
 	did_something=$NO
 	# make clean project
 	if [ -f "$PWD/Makefile.am" ]; then
@@ -68,7 +68,7 @@ function doClean() {
 		fi
 		# remove .deps dirs
 		RESULT=$( \find "$PWD" -type d -name .deps )
-		count=0
+		let count=0
 		for ENTRY in $RESULT; do
 			[[ -f "$ENTRY" ]] && \rm -v                   "$ENTRY" && count=$((count+1))
 			[[ -d "$ENTRY" ]] && \rm -vrf --preserve-root "$ENTRY" && count=$((count+1))
@@ -178,7 +178,7 @@ function doDist() {
 	did_something=$NO
 	# make dist
 	if [ -f "$PWD/Makefile" ]; then
-		title "Distribute"
+		title C "Distribute"
 		\make dist       || exit 1
 		\make distcheck  || exit 1
 		echo
@@ -186,7 +186,7 @@ function doDist() {
 	fi
 	# build rpm
 	if [ ! -z $SPEC_FILE ]; then
-		title "RPM Build"
+		title C "RPM Build"
 		\mkdir -p "$PWD"/rpmbuild/{BUILD,BUILDROOT,SOURCES,SPECS,RPMS,SRPMS,TMP}  || exit 1
 		\cp -vf  "$SPEC_FILE"  "$PWD/rpmbuild/SPECS/"  || exit 1
 		\pushd "$PWD/rpmbuild/" >/dev/null  || exit 1
@@ -207,7 +207,7 @@ function doDist() {
 		did_something=$YES
 	fi
 	if [ $did_something -eq $NO ]; then
-		title "Distribute"
+		title C "Distribute"
 		echo "Nothing to do.."
 		echo
 	fi
@@ -298,4 +298,5 @@ done
 
 
 echo -e "${COLOR_BROWN}Done${COLOR_RESET}"
+echo
 exit 0
