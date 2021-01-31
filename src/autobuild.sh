@@ -269,6 +269,9 @@ while [ $# -gt 0 ]; do
 	esac
 	\shift
 done
+if [ $DEBUG_FLAGS -eq $YES ]; then
+	notice "Enabled debug flags"
+fi
 
 
 

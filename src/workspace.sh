@@ -50,19 +50,19 @@ function DisplayHelp() {
 	fi
 	echo
 	echo -e "${COLOR_BROWN}Options:${COLOR_RESET}"
-	echo -e "  ${COLOR_GREEN}-a, --all${COLOR_RESET}                   Use all .dev files found"
-	echo -e "  ${COLOR_GREEN}-D, --debug-flags${COLOR_RESET}           Build with debug flags"
+	echo -e "  ${COLOR_GREEN}-a, --all${COLOR_RESET}                 Use all .dev files found"
+	echo -e "  ${COLOR_GREEN}-D, --debug-flags${COLOR_RESET}         Build with debug flags"
 	echo
-	echo -e "  ${COLOR_GREEN}-c, --clean, --cleanup${COLOR_RESET}      Cleanup workspace; delete generated files"
+	echo -e "  ${COLOR_GREEN}-c, --clean, --cleanup${COLOR_RESET}    Cleanup workspace; delete generated files"
 	echo
-	echo -e "  ${COLOR_GREEN}-p, --pp, --pull-push${COLOR_RESET}       Run 'git pull' and 'git push'"
-	echo -e "  ${COLOR_GREEN}-g, --gg, --git-gui${COLOR_RESET}         Open git-gui for each project"
+	echo -e "  ${COLOR_GREEN}-p, --pp, --pull-push${COLOR_RESET}     Run 'git pull' and 'git push'"
+	echo -e "  ${COLOR_GREEN}-g, --gg, --git-gui${COLOR_RESET}       Open git-gui for each project"
 	echo
-	echo -e "  ${COLOR_GREEN}-b, --build, --compile${COLOR_RESET}      Compile the projects"
-	echo -e "  ${COLOR_GREEN}-i, --dist, --distribute${COLOR_RESET}    Build distributable packages"
+	echo -e "  ${COLOR_GREEN}-b, --build, --compile${COLOR_RESET}    Compile the projects"
+	echo -e "  ${COLOR_GREEN}-i, --dist, --distribute${COLOR_RESET}  Build distributable packages"
 	echo
-	echo -e "  ${COLOR_GREEN}-d, --debug${COLOR_RESET}                 Enable debug logs"
-	echo -e "  ${COLOR_GREEN}-h, --help${COLOR_RESET}                  Display this help message and exit"
+	echo -e "  ${COLOR_GREEN}-d, --debug${COLOR_RESET}               Enable debug logs"
+	echo -e "  ${COLOR_GREEN}-h, --help${COLOR_RESET}                Display this help message and exit"
 	echo
 	exit 1
 }
@@ -283,6 +283,9 @@ while [ $# -gt 0 ]; do
 	esac
 	\shift
 done
+if [ $DEBUG_FLAGS -eq $YES ]; then
+	notice "Enabled debug flags"
+fi
 
 
 
