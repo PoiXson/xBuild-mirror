@@ -1,0 +1,10 @@
+Project-Tools - A collection of commonly used scripts for building and managing software projects
+
+
+2021-01-30 - 2.0.0
+==================
+* moved workspace and autobuild scripts from shellscripts package
+* new and improved autobuild script, replacing build-rpm script
+  * supports building with composer, automake, and rpmbuild
+  * maven support planned for next release
+* fixes to workspace script
