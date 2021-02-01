@@ -69,38 +69,38 @@ function DisplayHelp() {
 
 
 
-function Workspace() {
-	if [ ! -z $WS_NAME ]; then
-		doWorkspace
+function Project() {
+	if [ ! -z $PROJECT_NAME ]; then
+		doProject
 	fi
 	if [ ! -z $1 ]; then
-		WS_NAME="$1"
+		PROJECT_NAME="$1"
 	fi
 }
 
-function doWorkspaceCleanup() {
-	# reset workspace vars
-	WS_NAME=""
-	WS_REPO=""
+function doCleanupVars() {
+	# reset project vars
+	PROJECT_NAME=""
+	REPO=""
 	\sleep 0.4
 }
 
-function doWorkspace() {
-	if [ -z $WS_NAME ]; then
+function doProject() {
+	if [ -z $PROJECT_NAME ]; then
 		return
 	fi
-	title B "$WS_NAME"
+	title B "$PROJECT_NAME"
 	echo
 	did_something=$NO
 	fresh_clone=$NO
 
 	# project dir not found
-	if [[ ! -d "$PWD/$WS_NAME" ]]; then
+	if [[ ! -d "$PWD/$PROJECT_NAME" ]]; then
 		# clone repo
 		if [[ $DO_PP -eq $YES ]] \
-		&& [[ ! -z $WS_REPO ]]; then
+		&& [[ ! -z $REPO ]]; then
 			title C "Cloning repo.."
-			\git clone "$WS_REPO" "$WS_NAME"  || exit 1
+			\git clone "$REPO" "$PROJECT_NAME"  || exit 1
 			did_something=$YES
 			count_ops=$((count_ops+1))
 			fresh_clone=$YES
@@ -114,7 +114,7 @@ function doWorkspace() {
 
 	# cleanup
 	if [ $DO_CLEAN -eq $YES ]; then
-		\pushd "$PWD/$WS_NAME/" >/dev/null  || exit 1
+		\pushd "$PWD/$PROJECT_NAME/" >/dev/null  || exit 1
 			\autobuild clean  || exit 1
 			did_something=$YES
 			count_ops=$((count_ops+1))
@@ -125,8 +125,8 @@ function doWorkspace() {
 	# git pull/push
 	if [[ $DO_PP -eq $YES ]] \
 	&& [[ $fresh_clone -eq $NO ]]; then
-		if [ -d "$PWD/$WS_NAME/.git" ]; then
-			\pushd "$PWD/$WS_NAME/" >/dev/null  || exit 1
+		if [ -d "$PWD/$PROJECT_NAME/.git" ]; then
+			\pushd "$PWD/$PROJECT_NAME/" >/dev/null  || exit 1
 				# git pull
 				title C "pull"
 				\git pull  || exit 1
@@ -144,20 +144,20 @@ function doWorkspace() {
 
 	# update static files
 	if [ -f "$PWD/.gitignore" ]; then
-		\cp  "$PWD/.gitignore"  "$PWD/$WS_NAME/"  || exit 1
+		\cp  "$PWD/.gitignore"  "$PWD/$PROJECT_NAME/"  || exit 1
 	fi
 	if [ -f "$PWD/.gitattributes" ]; then
-		\cp  "$PWD/.gitattributes"  "$PWD/$WS_NAME/"  || exit 1
+		\cp  "$PWD/.gitattributes"  "$PWD/$PROJECT_NAME/"  || exit 1
 	fi
 	if [ -f "$PWD/phpunit.xml" ]; then
-		if [ -f "$PWD/$WS_NAME/phpunit.xml" ]; then
-			\cp  "$PWD/phpunit.xml"  "$PWD/$WS_NAME/"  || exit 1
+		if [ -f "$PWD/$PROJECT_NAME/phpunit.xml" ]; then
+			\cp  "$PWD/phpunit.xml"  "$PWD/$PROJECT_NAME/"  || exit 1
 		fi
 	fi
 
 	# build/compile
 	if [ $DO_BUILD -eq $YES ]; then
-		\pushd "$PWD/$WS_NAME/" >/dev/null  || exit 1
+		\pushd "$PWD/$PROJECT_NAME/" >/dev/null  || exit 1
 			\autobuild config build  || exit 1
 			did_something=$YES
 			count_ops=$((count_ops+1))
@@ -167,21 +167,21 @@ function doWorkspace() {
 
 	# distributable
 	if [ $DO_DIST -eq $YES ]; then
-		\pushd "$PWD/$WS_NAME/" >/dev/null  || exit 1
+		\pushd "$PWD/$PROJECT_NAME/" >/dev/null  || exit 1
 			\autobuild dist  || exit 1
 			did_something=$YES
 			count_ops=$((count_ops+1))
 		\popd >/dev/null
 		if [ -d "$PWD/rpms" ]; then
-			\cp -v  "$PWD/$WS_NAME/rpmbuild/RPMS/"*.rpm  "$PWD/rpms/"  || exit 1
+			\cp -v  "$PWD/$PROJECT_NAME/rpmbuild/RPMS/"*.rpm  "$PWD/rpms/"  || exit 1
 		fi
 		echo
 	fi
 
 	# git-gui
 	if [ $DO_GG -eq $YES ]; then
-		if [ -d "$PWD/$WS_NAME/.git" ]; then
-			\pushd "$PWD/$WS_NAME/" >/dev/null  || exit 1
+		if [ -d "$PWD/$PROJECT_NAME/.git" ]; then
+			\pushd "$PWD/$PROJECT_NAME/" >/dev/null  || exit 1
 				/usr/libexec/git-core/git-gui &
 				echo "git-gui "$!
 				\sleep 0.2
@@ -199,7 +199,7 @@ function doWorkspace() {
 		count_prg=$((count_prg+1))
 	fi
 	# cleanup vars
-	doWorkspaceCleanup
+	doCleanupVars
 }
 
 
@@ -317,7 +317,7 @@ fi
 
 
 function LoadDevSource() {
-	doWorkspaceCleanup
+	doCleanupVars
 	dev="$1"
 	if [[ ! -f "$PWD/$dev" ]]; then
 		failure "File not found: $dev"
@@ -327,7 +327,7 @@ function LoadDevSource() {
 	# load .dev file
 	source "$PWD/$dev"  || exit 1
 	# perform work on projects
-	Workspace
+	Project
 }
 
 # perform actions
