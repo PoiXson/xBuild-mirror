@@ -39,9 +39,12 @@ function DisplayHelp() {
 	echo
 	echo -e "${COLOR_BROWN}Actions:${COLOR_RESET}"
 	echo -e "  ${COLOR_GREEN}clean${COLOR_RESET}                  Clean the project, removing build files"
-	echo -e "  ${COLOR_GREEN}config${COLOR_RESET}                 Perform autoreconf"
-	echo -e "  ${COLOR_GREEN}build${COLOR_RESET}                  Compile the project"
+	echo -e "  ${COLOR_GREEN}config${COLOR_RESET}                 Generate files needed to build the project"
+	echo -e                             "                           autoreconf or composer"
+	echo -e "  ${COLOR_GREEN}build${COLOR_RESET}                  Compile the project; using tools such as "
+	echo -e                             "                           make or mvn"
 	echo -e "  ${COLOR_GREEN}dist${COLOR_RESET}                   Build distributable packages"
+	echo -e                             "                           make dist or rpmbuild"
 	echo
 	echo -e "${COLOR_BROWN}Options:${COLOR_RESET}"
 	echo -e "  ${COLOR_GREEN}-n, --build-number${COLOR_RESET}     Build number to use for packaging"

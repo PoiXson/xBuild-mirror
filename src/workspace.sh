@@ -35,7 +35,7 @@ fi
 
 function DisplayHelp() {
 	echo -e "${COLOR_BROWN}Usage:${COLOR_RESET}"
-	echo    "  workspace [options] <workspace-groups>"
+	echo    "  workspace [options] <file.dev>"
 	echo
 	echo -e "${COLOR_BROWN}Workspace Groups:${COLOR_RESET}"
 	let count=0
@@ -51,15 +51,14 @@ function DisplayHelp() {
 	echo
 	echo -e "${COLOR_BROWN}Options:${COLOR_RESET}"
 	echo -e "  ${COLOR_GREEN}-a, --all${COLOR_RESET}                 Use all .dev files found"
-	echo -e "  ${COLOR_GREEN}-D, --debug-flags${COLOR_RESET}         Build with debug flags"
-	echo
 	echo -e "  ${COLOR_GREEN}-c, --clean, --cleanup${COLOR_RESET}    Cleanup workspace; delete generated files"
 	echo
 	echo -e "  ${COLOR_GREEN}-p, --pp, --pull-push${COLOR_RESET}     Run 'git pull' and 'git push'"
 	echo -e "  ${COLOR_GREEN}-g, --gg, --git-gui${COLOR_RESET}       Open git-gui for each project"
 	echo
-	echo -e "  ${COLOR_GREEN}-b, --build, --compile${COLOR_RESET}    Compile the projects"
-	echo -e "  ${COLOR_GREEN}-i, --dist, --distribute${COLOR_RESET}  Build distributable packages"
+	echo -e "  ${COLOR_GREEN}-D, --debug-flags${COLOR_RESET}         Build with debug flags"
+	echo -e "  ${COLOR_GREEN}-b, --build, --compile${COLOR_RESET}    Compile the projects with 'autobuild config build'"
+	echo -e "  ${COLOR_GREEN}-i, --dist, --distribute${COLOR_RESET}  Build distributable packages with 'autobuild dist'"
 	echo
 	echo -e "  ${COLOR_GREEN}-d, --debug${COLOR_RESET}               Enable debug logs"
 	echo -e "  ${COLOR_GREEN}-h, --help${COLOR_RESET}                Display this help message and exit"
@@ -219,7 +218,7 @@ DO_BUILD=$NO
 DO_DIST=$NO
 while [ $# -gt 0 ]; do
 	case "$1" in
-	# all workspace groups
+	# all project groups
 	-a|--all)
 		DEV_FILES=$( \ls -1v *.dev 2>/dev/null )
 	;;
@@ -272,9 +271,9 @@ while [ $# -gt 0 ]; do
 		else
 			count=$( \ls -1 *.dev 2>/dev/null | wc -l )
 			if [[ $count -eq 0 ]]; then
-				failure "No workspace group .dev files found here"
+				failure "No project group .dev files found here"
 			else
-				failure "Unknown workspace group: $1"
+				failure "Unknown project group: $1"
 			fi
 			echo
 			exit 1
@@ -301,7 +300,7 @@ if	[[ $DO_CLEAN -ne $YES ]] && \
 		exit 1
 fi
 if [[ -z $DEV_FILES ]]; then
-	failure "No workspace group .dev selected"
+	failure "No project group .dev selected"
 	echo
 	DisplayHelp
 	exit 1
