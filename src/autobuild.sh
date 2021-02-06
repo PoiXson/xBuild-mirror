@@ -43,6 +43,8 @@ function DisplayHelp() {
 	echo -e                             "                           autoreconf or composer"
 	echo -e "  ${COLOR_GREEN}build${COLOR_RESET}                  Compile the project; using tools such as "
 	echo -e                             "                           make or mvn"
+	echo -e "  ${COLOR_GREEN}test${COLOR_RESET}                   Perform testing"
+	echo -e                             "                           make check or phpunit"
 	echo -e "  ${COLOR_GREEN}dist${COLOR_RESET}                   Build distributable packages"
 	echo -e                             "                           make dist or rpmbuild"
 	echo
@@ -176,6 +178,34 @@ function doBuild() {
 
 
 
+# testing
+function doTests() {
+	title C "Testing"
+	did_something=$NO
+	# make check
+	if [ -f "$PWD/Makefile" ]; then
+		\make check  || exit 1
+		echo
+
+#TODO: exec test program
+
+		did_something=$YES
+	fi
+	# phpunit
+	if [ -f "$PWD/phpunit.xml" ]; then
+		\phpunit  || exit 1
+		echo
+		did_something=$YES
+	fi
+	# nothing to do
+	if [ $did_something -eq $NO ]; then
+		notice "Nothing found to test.."
+		echo
+	fi
+}
+
+
+
 # distribute
 function doDist() {
 	did_something=$NO
@@ -293,6 +323,7 @@ for ACT in $ACTIONS; do
 	dist)
 		doDist
 	;;
+	test)   doTests  ;;
 	*)
 		failure "Unknown action: $ACT"
 		echo
