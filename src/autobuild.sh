@@ -110,6 +110,7 @@ function doClean() {
 			did_something=$YES
 		fi
 	fi
+	# nothing to do
 	if [ $did_something -eq $NO ]; then
 		echo "Nothing to do.."
 		echo
@@ -139,6 +140,7 @@ function doConfig() {
 		echo
 		did_something=$YES
 	fi
+	# nothing to do
 	if [ $did_something -eq $NO ]; then
 		notice "Nothing found to configure.."
 		echo
@@ -170,6 +172,7 @@ function doBuild() {
 	if [ -f "$PWD/pom.xml" ]; then
 		\mvn clean install  || exit 1
 	fi
+	# nothing to do
 	if [ $did_something -eq $NO ]; then
 		notice "Nothing found to build.."
 		echo
@@ -238,6 +241,7 @@ function doDist() {
 		echo
 		did_something=$YES
 	fi
+	# nothing to do
 	if [ $did_something -eq $NO ]; then
 		title C "Distribute"
 		echo "Nothing to do.."
@@ -310,19 +314,11 @@ fi
 # perform actions
 for ACT in $ACTIONS; do
 	case "$ACT" in
-	clean)
-		doClean
-	;;
-	config)
-		doConfig
-	;;
-	build)
-		doBuild
-	;;
-	dist)
-		doDist
-	;;
+	clean)  doClean  ;;
+	config) doConfig ;;
+	build)  doBuild  ;;
 	test)   doTests  ;;
+	dist)   doDist   ;;
 	*)
 		failure "Unknown action: $ACT"
 		echo
