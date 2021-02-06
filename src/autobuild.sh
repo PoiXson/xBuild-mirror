@@ -80,7 +80,7 @@ function doClean() {
 		done
 		# remove more files
 		CLEAN_PATHS=". src"
-		CLEAN_FILES="autom4te.cache aclocal.m4 compile configure depcomp install-sh Makefile.in missing"
+		CLEAN_FILES="autom4te.cache aclocal.m4 compile configure config.log config.guess config.status config.sub depcomp install-sh ltmain.sh Makefile Makefile.in missing"
 		for DIR in $CLEAN_PATHS; do
 			\pushd "$DIR" >/dev/null || continue
 				for ENTRY in $CLEAN_FILES; do
