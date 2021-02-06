@@ -117,7 +117,7 @@ function doClean() {
 	fi
 	# nothing to do
 	if [ $did_something -eq $NO ]; then
-		echo "Nothing to do.."
+		notice "Nothing to clean.."
 		echo
 	fi
 }
@@ -168,6 +168,7 @@ function doBuild() {
 			./configure                 || exit 1
 		fi
 		echo
+		did_something=$YES
 		did_something_session=$YES
 	fi
 	# make
@@ -180,6 +181,8 @@ function doBuild() {
 	# maven
 	if [ -f "$PWD/pom.xml" ]; then
 		\mvn clean install  || exit 1
+		echo
+		did_something=$YES
 		did_something_session=$YES
 	fi
 	# nothing to do
@@ -202,7 +205,7 @@ function doTests() {
 
 #TODO: exec test program
 
-		did_something=$YES
+#		did_something=$YES
 #		did_something_session=$YES
 	fi
 	# phpunit
@@ -258,7 +261,7 @@ function doDist() {
 	# nothing to do
 	if [ $did_something -eq $NO ]; then
 		title C "Distribute"
-		echo "Nothing to do.."
+		notice "Nothing to distribute.."
 		echo
 	fi
 }
