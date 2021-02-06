@@ -213,7 +213,6 @@ function doDist() {
 	if [ -f "$PWD/Makefile" ]; then
 		title C "Distribute"
 		\make dist       || exit 1
-		\make distcheck  || exit 1
 		echo
 		did_something=$YES
 	fi
