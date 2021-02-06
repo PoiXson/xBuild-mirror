@@ -57,6 +57,7 @@ function DisplayHelp() {
 	echo
 	exit 1
 }
+did_something_session=$NO
 
 
 
@@ -70,6 +71,7 @@ function doClean() {
 			\make distclean
 			echo
 			did_something=$YES
+			did_something_session=$YES
 		fi
 		# remove .deps dirs
 		RESULT=$( \find "$PWD" -type d -name .deps )
@@ -92,6 +94,7 @@ function doClean() {
 		if [ $count -gt 0 ]; then
 			echo
 			did_something=$YES
+			did_something_session=$YES
 		fi
 	fi
 	# clean rpm project
@@ -100,6 +103,7 @@ function doClean() {
 			\rm -vrf --preserve-root rpmbuild
 			echo
 			did_something=$YES
+			did_something_session=$YES
 		fi
 	fi
 	# clean php project
@@ -108,6 +112,7 @@ function doClean() {
 			\rm -vrf --preserve-root vendor
 			echo
 			did_something=$YES
+			did_something_session=$YES
 		fi
 	fi
 	# nothing to do
@@ -128,6 +133,7 @@ function doConfig() {
 		\autoreconf -v --install  || exit 1
 		echo
 		did_something=$YES
+		did_something_session=$YES
 	fi
 	# composer
 	if [ -f "$PWD/composer.json" ]; then
@@ -139,6 +145,7 @@ function doConfig() {
 		fi
 		echo
 		did_something=$YES
+		did_something_session=$YES
 	fi
 	# nothing to do
 	if [ $did_something -eq $NO ]; then
@@ -161,16 +168,19 @@ function doBuild() {
 			./configure                 || exit 1
 		fi
 		echo
+		did_something_session=$YES
 	fi
 	# make
 	if [ -f "$PWD/Makefile" ]; then
 		\make  || exit 1
 		echo
 		did_something=$YES
+		did_something_session=$YES
 	fi
 	# maven
 	if [ -f "$PWD/pom.xml" ]; then
 		\mvn clean install  || exit 1
+		did_something_session=$YES
 	fi
 	# nothing to do
 	if [ $did_something -eq $NO ]; then
@@ -193,12 +203,14 @@ function doTests() {
 #TODO: exec test program
 
 		did_something=$YES
+#		did_something_session=$YES
 	fi
 	# phpunit
 	if [ -f "$PWD/phpunit.xml" ]; then
 		\phpunit  || exit 1
 		echo
 		did_something=$YES
+		did_something_session=$YES
 	fi
 	# nothing to do
 	if [ $did_something -eq $NO ]; then
@@ -218,6 +230,7 @@ function doDist() {
 		\make dist       || exit 1
 		echo
 		did_something=$YES
+		did_something_session=$YES
 	fi
 	# build rpm
 	if [ ! -z $SPEC_FILE ]; then
@@ -240,6 +253,7 @@ function doDist() {
 		echo "==============================================="
 		echo
 		did_something=$YES
+		did_something_session=$YES
 	fi
 	# nothing to do
 	if [ $did_something -eq $NO ]; then
@@ -329,6 +343,12 @@ done
 
 
 
+
+if [ $did_something_session -ne $YES ]; then
+	failure "Did nothing"
+	echo
+	exit 1
+fi
 echo -e "${COLOR_BROWN}Done${COLOR_RESET}"
 echo
 exit 0
