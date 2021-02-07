@@ -60,6 +60,8 @@ function DisplayHelp() {
 did_something_session=$NO
 TIME_START=0
 TIME_LAST=0
+HAS_CLEAN=$NO
+HAS_OTHERTHAN_CLEAN=$NO
 
 
 
@@ -78,6 +80,7 @@ function display_time() {
 
 # clean
 function doClean() {
+	HAS_CLEAN=$YES
 	title C "Clean"
 	did_something=$NO
 	# make clean project
@@ -171,6 +174,7 @@ function doConfig() {
 	# nothing to do
 	if [ $did_something -eq $YES ]; then
 		display_time "Configure"
+		HAS_OTHERTHAN_CLEAN=$YES
 	else
 		notice "Nothing found to configure.."
 		echo
@@ -211,6 +215,7 @@ function doBuild() {
 	# nothing to do
 	if [ $did_something -eq $YES ]; then
 		display_time "Build"
+		HAS_OTHERTHAN_CLEAN=$YES
 	else
 		notice "Nothing found to build.."
 		echo
@@ -243,6 +248,7 @@ function doTests() {
 	# nothing to do
 	if [ $did_something -eq $YES ]; then
 		display_time "Testing"
+		HAS_OTHERTHAN_CLEAN=$YES
 	else
 		notice "Nothing found to test.."
 		echo
@@ -288,6 +294,7 @@ function doDist() {
 	# nothing to do
 	if [ $did_something -eq $YES ]; then
 		display_time "Distributable"
+		HAS_OTHERTHAN_CLEAN=$YES
 	else
 		title C "Distribute"
 		notice "Nothing to distribute.."
@@ -378,9 +385,11 @@ done
 
 
 if [ $did_something_session -ne $YES ]; then
-	failure "Did nothing"
-	echo
-	exit 1
+	if [[ $HAS_CLEAN -ne $YES ]] || [[ $HAS_OTHERTHAN_CLEAN -eq $YES ]]; then
+		failure "Did nothing"
+		echo
+		exit 1
+	fi
 fi
 TIME_END=$(date +%s%N)
 elapsed=$( echo "scale=3;($TIME_END - $TIME_START) / 1000 / 1000 / 1000" | bc )
