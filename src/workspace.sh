@@ -65,6 +65,7 @@ function DisplayHelp() {
 	echo
 	exit 1
 }
+TIME_START=0
 
 
 
@@ -315,6 +316,7 @@ fi
 
 
 
+TIME_START=$(date +%s%N)
 function LoadDevSource() {
 	doCleanupVars
 	dev="$1"
@@ -342,11 +344,12 @@ if [[ $count_prg -eq 0 ]] \
 && [[ $count_ops -eq 0 ]]; then
 	warning "No actions performed"
 else
-	echo -e " ${COLOR_GREEN}Performed $count_ops operations on $count_prg projects${COLOR_RESET}"
+	echo -e "${COLOR_GREEN}Performed $count_ops operations on $count_prg projects${COLOR_RESET}"
 fi
-
-
-
-echo -e "${COLOR_BLUE}Done${COLOR_RESET}"
+TIME_END=$(date +%s%N)
+elapsed=$( echo "scale=3;($TIME_END - $TIME_START) / 1000 / 1000 / 1000" | bc )
+[[ "$elapsed" == "."* ]] && \
+	elapsed="0$elapsed"
+echo -e "${COLOR_GREEN}Finished in $elapsed seconds${COLOR_RESET}"
 echo
 exit 0
