@@ -58,6 +58,21 @@ function DisplayHelp() {
 	exit 1
 }
 did_something_session=$NO
+TIME_START=0
+TIME_LAST=0
+
+
+
+function display_time() {
+	TIME_CURRENT=$(date +%s%N)
+	elapsed=$( echo "scale=3;($TIME_CURRENT - $TIME_LAST) / 1000 / 1000 / 1000" | bc )
+	if [[ "$elapsed" == "."* ]]; then
+		elapsed="0$elapsed"
+	fi
+	echo -e "${COLOR_CYAN}$1 in $elapsed seconds${COLOR_RESET}"
+	echo
+	TIME_LAST=$TIME_CURRENT
+}
 
 
 
@@ -116,7 +131,9 @@ function doClean() {
 		fi
 	fi
 	# nothing to do
-	if [ $did_something -eq $NO ]; then
+	if [ $did_something -eq $YES ]; then
+		display_time "Clean"
+	else
 		notice "Nothing to clean.."
 		echo
 	fi
@@ -148,7 +165,9 @@ function doConfig() {
 		did_something_session=$YES
 	fi
 	# nothing to do
-	if [ $did_something -eq $NO ]; then
+	if [ $did_something -eq $YES ]; then
+		display_time "Configure"
+	else
 		notice "Nothing found to configure.."
 		echo
 	fi
@@ -186,7 +205,9 @@ function doBuild() {
 		did_something_session=$YES
 	fi
 	# nothing to do
-	if [ $did_something -eq $NO ]; then
+	if [ $did_something -eq $YES ]; then
+		display_time "Build"
+	else
 		notice "Nothing found to build.."
 		echo
 	fi
@@ -216,7 +237,9 @@ function doTests() {
 		did_something_session=$YES
 	fi
 	# nothing to do
-	if [ $did_something -eq $NO ]; then
+	if [ $did_something -eq $YES ]; then
+		display_time "Testing"
+	else
 		notice "Nothing found to test.."
 		echo
 	fi
@@ -259,7 +282,9 @@ function doDist() {
 		did_something_session=$YES
 	fi
 	# nothing to do
-	if [ $did_something -eq $NO ]; then
+	if [ $did_something -eq $YES ]; then
+		display_time "Distributable"
+	else
 		title C "Distribute"
 		notice "Nothing to distribute.."
 		echo
@@ -329,6 +354,8 @@ fi
 
 
 # perform actions
+TIME_START=$(date +%s%N)
+TIME_LAST=$TIME_START
 for ACT in $ACTIONS; do
 	case "$ACT" in
 	clean)  doClean  ;;
@@ -346,12 +373,16 @@ done
 
 
 
-
 if [ $did_something_session -ne $YES ]; then
 	failure "Did nothing"
 	echo
 	exit 1
 fi
-echo -e "${COLOR_BROWN}Done${COLOR_RESET}"
+TIME_END=$(date +%s%N)
+elapsed=$( echo "scale=3;($TIME_END - $TIME_START) / 1000 / 1000 / 1000" | bc )
+if [[ "$elapsed" == "."* ]]; then
+	elapsed="0$elapsed"
+fi
+echo -e "${COLOR_BROWN}Done in $elapsed seconds${COLOR_RESET}"
 echo
 exit 0
