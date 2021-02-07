@@ -360,6 +360,7 @@ while [ $# -gt 0 ]; do
 done
 if [ $DEBUG_FLAGS -eq $YES ]; then
 	notice "Enabled debug flags"
+	echo
 fi
 
 
@@ -393,9 +394,8 @@ if [ $did_something_session -ne $YES ]; then
 fi
 TIME_END=$(date +%s%N)
 elapsed=$( echo "scale=3;($TIME_END - $TIME_START) / 1000 / 1000 / 1000" | bc )
-if [[ "$elapsed" == "."* ]]; then
+[[ "$elapsed" == "."* ]] && \
 	elapsed="0$elapsed"
-fi
-echo -e "${COLOR_BROWN}Finished in $elapsed seconds${COLOR_RESET}"
+echo -e " ${COLOR_BROWN}Finished in $elapsed seconds${COLOR_RESET}"
 echo
 exit 0
