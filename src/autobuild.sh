@@ -143,6 +143,10 @@ function doClean() {
 
 # auto configure
 function doConfig() {
+	if [ -f "$PWD/make-symlinks.sh" ]; then
+		title C "Make Symlinks"
+		sh  "$PWD/make-symlinks.sh"  || exit 1
+	fi
 	title C "Configure"
 	did_something=$NO
 	# automake

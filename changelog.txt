@@ -4,6 +4,7 @@ Project-Tools - A collection of commonly used scripts for building and managing 
 2021-xx-xx - 2.0.4
 ==================
 * added elapsed time logging to autobuild script
+* auto run make-symlinks.sh script if found
 
 
 2021-02-06 - 2.0.3
