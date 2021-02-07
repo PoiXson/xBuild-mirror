@@ -69,7 +69,7 @@ function display_time() {
 	if [[ "$elapsed" == "."* ]]; then
 		elapsed="0$elapsed"
 	fi
-	echo -e "${COLOR_CYAN}$1 in $elapsed seconds${COLOR_RESET}"
+	echo -e " ${COLOR_CYAN}$1 in $elapsed seconds${COLOR_RESET}"
 	echo
 	TIME_LAST=$TIME_CURRENT
 }
@@ -80,15 +80,12 @@ function display_time() {
 function doClean() {
 	title C "Clean"
 	did_something=$NO
-	# clean only is ok, don't fail
-	did_something_session=$YES
 	# make clean project
 	if [ -f "$PWD/Makefile.am" ]; then
 		if [ -f "$PWD/Makefile" ]; then
 			\make distclean
 			echo
 			did_something=$YES
-			#did_something_session=$YES
 		fi
 		# remove .deps dirs
 		RESULT=$( \find "$PWD" -type d -name .deps )
@@ -111,7 +108,6 @@ function doClean() {
 		if [ $count -gt 0 ]; then
 			echo
 			did_something=$YES
-			#did_something_session=$YES
 		fi
 	fi
 	# clean rpm project
@@ -120,7 +116,6 @@ function doClean() {
 			\rm -vrf --preserve-root rpmbuild
 			echo
 			did_something=$YES
-			#did_something_session=$YES
 		fi
 	fi
 	# clean php project
@@ -129,16 +124,18 @@ function doClean() {
 			\rm -vrf --preserve-root vendor
 			echo
 			did_something=$YES
-			#did_something_session=$YES
 		fi
 	fi
 	# nothing to do
 	if [ $did_something -eq $YES ]; then
 		display_time "Clean"
+		#did_something_session=$YES
 	else
 		notice "Nothing to clean.."
 		echo
 	fi
+	# clean only is ok, don't fail
+	did_something_session=$YES
 }
 
 
@@ -156,7 +153,6 @@ function doConfig() {
 		\autoreconf -v --install  || exit 1
 		echo
 		did_something=$YES
-		did_something_session=$YES
 	fi
 	# composer
 	if [ -f "$PWD/composer.json" ]; then
@@ -168,11 +164,11 @@ function doConfig() {
 		fi
 		echo
 		did_something=$YES
-		did_something_session=$YES
 	fi
 	# nothing to do
 	if [ $did_something -eq $YES ]; then
 		display_time "Configure"
+		did_something_session=$YES
 	else
 		notice "Nothing found to configure.."
 		echo
@@ -194,25 +190,23 @@ function doBuild() {
 		fi
 		echo
 		did_something=$YES
-		did_something_session=$YES
 	fi
 	# make
 	if [ -f "$PWD/Makefile" ]; then
 		\make  || exit 1
 		echo
 		did_something=$YES
-		did_something_session=$YES
 	fi
 	# maven
 	if [ -f "$PWD/pom.xml" ]; then
 		\mvn clean install  || exit 1
 		echo
 		did_something=$YES
-		did_something_session=$YES
 	fi
 	# nothing to do
 	if [ $did_something -eq $YES ]; then
 		display_time "Build"
+		did_something_session=$YES
 	else
 		notice "Nothing found to build.."
 		echo
@@ -233,18 +227,17 @@ function doTests() {
 #TODO: exec test program
 
 #		did_something=$YES
-#		did_something_session=$YES
 	fi
 	# phpunit
 	if [ -f "$PWD/phpunit.xml" ]; then
 		\phpunit  || exit 1
 		echo
 		did_something=$YES
-		did_something_session=$YES
 	fi
 	# nothing to do
 	if [ $did_something -eq $YES ]; then
 		display_time "Testing"
+		did_something_session=$YES
 	else
 		notice "Nothing found to test.."
 		echo
@@ -262,7 +255,6 @@ function doDist() {
 		\make dist       || exit 1
 		echo
 		did_something=$YES
-		did_something_session=$YES
 	fi
 	# build rpm
 	if [ ! -z $SPEC_FILE ]; then
@@ -285,11 +277,11 @@ function doDist() {
 		echo "==============================================="
 		echo
 		did_something=$YES
-		did_something_session=$YES
 	fi
 	# nothing to do
 	if [ $did_something -eq $YES ]; then
 		display_time "Distributable"
+		did_something_session=$YES
 	else
 		title C "Distribute"
 		notice "Nothing to distribute.."
