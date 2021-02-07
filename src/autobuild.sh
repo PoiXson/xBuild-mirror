@@ -387,6 +387,6 @@ elapsed=$( echo "scale=3;($TIME_END - $TIME_START) / 1000 / 1000 / 1000" | bc )
 if [[ "$elapsed" == "."* ]]; then
 	elapsed="0$elapsed"
 fi
-echo -e "${COLOR_BROWN}Done in $elapsed seconds${COLOR_RESET}"
+echo -e "${COLOR_BROWN}Finished in $elapsed seconds${COLOR_RESET}"
 echo
 exit 0
