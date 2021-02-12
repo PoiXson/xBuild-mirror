@@ -143,15 +143,17 @@ function doProject() {
 	fi
 
 	# update static files
-	if [ -f "$PWD/.gitignore" ]; then
-		\cp  "$PWD/.gitignore"  "$PWD/$PROJECT_NAME/"  || exit 1
-	fi
-	if [ -f "$PWD/.gitattributes" ]; then
-		\cp  "$PWD/.gitattributes"  "$PWD/$PROJECT_NAME/"  || exit 1
-	fi
-	if [ -f "$PWD/phpunit.xml" ]; then
-		if [ -f "$PWD/$PROJECT_NAME/phpunit.xml" ]; then
-			\cp  "$PWD/phpunit.xml"  "$PWD/$PROJECT_NAME/"  || exit 1
+	if [ -d "$PWD/.git" ]; then
+		if [ -f "$PWD/.gitignore" ]; then
+			\cp  "$PWD/.gitignore"  "$PWD/$PROJECT_NAME/"  || exit 1
+		fi
+		if [ -f "$PWD/.gitattributes" ]; then
+			\cp  "$PWD/.gitattributes"  "$PWD/$PROJECT_NAME/"  || exit 1
+		fi
+		if [ -f "$PWD/phpunit.xml" ]; then
+			if [ -f "$PWD/$PROJECT_NAME/phpunit.xml" ]; then
+				\cp  "$PWD/phpunit.xml"  "$PWD/$PROJECT_NAME/"  || exit 1
+			fi
 		fi
 	fi
 
