@@ -38,6 +38,7 @@ echo "Install.."
 # create symlinks
 %{__ln_s} -f  "%{prefix}/workspace.sh"  "%{buildroot}%{_bindir}/workspace"  || exit 1
 %{__ln_s} -f  "%{prefix}/autobuild.sh"  "%{buildroot}%{_bindir}/autobuild"  || exit 1
+%{__ln_s} -f  "%{prefix}/genautotools.sh  "%{buildroot}%{_bindir}/genautotools"  || exit 1
 # create profile.d symlink
 %{__ln_s} -f "%{prefix}/project-tools-aliases.sh"  "%{buildroot}%{_sysconfdir}/profile.d/project-tools-aliases.sh"  || exit 1
 
@@ -49,8 +50,10 @@ echo "Install.."
 %dir %{prefix}/
 %{prefix}/workspace.sh
 %{prefix}/autobuild.sh
+%{prefix}/genautotools.sh
 %{prefix}/project-tools-aliases.sh
 # symlinks
 %{_bindir}/workspace
 %{_bindir}/autobuild
+%{_bindir}/genautotools
 %{_sysconfdir}/profile.d/project-tools-aliases.sh
