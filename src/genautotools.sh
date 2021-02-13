@@ -63,6 +63,7 @@ fi
 OUT_FILE="$PWD/configure.ac"
 echo -n > "$OUT_FILE"  || exit 1
 
+# project info
 LINE="AC_INIT(["
 if [[ $IS_STATIC_LIB -eq $YES ]] || [[ $IS_DYNAMIC_LIB -eq $YES ]]; then
 	LINE="${LINE}lib"
@@ -84,6 +85,7 @@ AC_LANG(C)
 
 EOF
 [[ $? -ne 0 ]] && exit 1
+
 # AC_CONFIG_SRCDIR - assert files exist
 if [[ ! -z $EXPECT_FILES ]]; then
 	echo "# expected files" >> "$OUT_FILE"
@@ -147,12 +149,14 @@ notice "Generated $OUT_FILE with [$LINE_COUNT] lines"
 OUT_FILE="$PWD/Makefile.am"
 echo -n > "$OUT_FILE"  || exit 1
 
+# project is bin or lib
 if [[ $IS_BIN -eq $YES ]]; then
 	echo "bin_PROGRAMS = ${PROJECT_NAME}" >> "$OUT_FILE"  || exit 1
 elif [[ $IS_STATIC_LIB -eq $YES ]] || [[ $IS_DYNAMIC_LIB -eq $YES ]]; then
 	echo "lib_LTLIBRARIES = lib${PROJECT_NAME}.la" >> "$OUT_FILE"  || exit 1
 fi
 
+# dependency libraries
 if [[ ! -z $DEPEND_LIBS ]]; then
 	if [[ $IS_STATIC_LIB -eq $YES ]] || [[ $IS_DYNAMIC_LIB -eq $YES ]]; then
 		LINE="lib${PROJECT_NAME/-/_}_la_LIBADD ="
@@ -165,6 +169,7 @@ if [[ ! -z $DEPEND_LIBS ]]; then
 	echo "$LINE" >> "$OUT_FILE"  || exit 1
 fi
 
+# projectdir=src
 if [[ $IS_BIN -eq $YES ]]; then
 	echo "${PROJECT_NAME}dir = src" >> "$OUT_FILE"  || exit 1
 fi
