@@ -27,7 +27,9 @@ source /usr/bin/pxn/scripts/common.sh  || exit 1
 
 PWD=$(pwd)
 if [ -z $PWD ]; then
+	echo
 	failure "Failed to find current working directory"
+	echo
 	exit 1
 fi
 
@@ -89,6 +91,7 @@ function doProject() {
 	if [ -z $PROJECT_NAME ]; then
 		return
 	fi
+	echo
 	title B "$PROJECT_NAME"
 	echo
 	did_something=$NO

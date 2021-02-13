@@ -27,7 +27,9 @@ source /usr/bin/pxn/scripts/common.sh  || exit 1
 
 PWD=$(pwd)
 if [ -z $PWD ]; then
+	echo
 	failure "Failed to find current working directory"
+	echo
 	exit 1
 fi
 
@@ -145,6 +147,7 @@ function doConfig() {
 	if [ -f "$PWD/make-symlinks.sh" ]; then
 		title C "Make Symlinks"
 		sh  "$PWD/make-symlinks.sh"  || exit 1
+		echo
 	fi
 	title C "Configure"
 	did_something=$NO
@@ -252,7 +255,7 @@ function doDist() {
 	# make dist
 	if [ -f "$PWD/Makefile" ]; then
 		title C "Distribute"
-		\make dist       || exit 1
+		\make dist  || exit 1
 		echo
 		did_something=$YES
 	fi
