@@ -21,7 +21,7 @@
 ## =============================================================================
 # workspace.sh
 
-source /usr/bin/pxn/scripts/common.sh
+source /usr/bin/pxn/scripts/common.sh  || exit 1
 
 
 
