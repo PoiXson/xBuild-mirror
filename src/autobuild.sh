@@ -130,7 +130,7 @@ function doClean() {
 	fi
 	# nothing to do
 	if [ $did_something -eq $YES ]; then
-		display_time "Clean"
+		display_time "Cleaned"
 		#did_something_session=$YES
 	else
 		notice "Nothing to clean.."
@@ -170,7 +170,7 @@ function doConfig() {
 	fi
 	# nothing to do
 	if [ $did_something -eq $YES ]; then
-		display_time "Configure"
+		display_time "Configured"
 		did_something_session=$YES
 	else
 		notice "Nothing found to configure.."
@@ -208,7 +208,7 @@ function doBuild() {
 	fi
 	# nothing to do
 	if [ $did_something -eq $YES ]; then
-		display_time "Build"
+		display_time "Built"
 		did_something_session=$YES
 	else
 		notice "Nothing found to build.."
@@ -239,7 +239,7 @@ function doTests() {
 	fi
 	# nothing to do
 	if [ $did_something -eq $YES ]; then
-		display_time "Testing"
+		display_time "Tested"
 		did_something_session=$YES
 	else
 		notice "Nothing found to test.."
