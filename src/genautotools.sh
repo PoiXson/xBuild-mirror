@@ -166,6 +166,10 @@ if [[ ! -z $DEPEND_LIBS ]]; then
 	echo "$LINE" >> "$OUT_FILE"  || exit 1
 fi
 
+if [[ $IS_BIN -eq $YES ]]; then
+	echo "${PROJECT_NAME}dir = src" >> "$OUT_FILE"  || exit 1
+fi
+
 # static library
 if [[ $IS_STATIC_LIB -eq $YES ]]; then
 	echo "lib${PROJECT_NAME/-/_}_la_LDFLAGS = -static" >> "$OUT_FILE"  || exit 1
