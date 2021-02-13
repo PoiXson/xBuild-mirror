@@ -109,9 +109,13 @@ elif [[ $IS_DYNAMIC_LIB -eq $YES ]]; then
 	echo                                    >> "$OUT_FILE"  || exit 1
 fi
 
+PEDANTIC=""
+if [[ $NO_PEDANTIC -ne $YES ]]; then
+	PEDANTIC=" -pedantic-errors"
+fi
 cat >> "$OUT_FILE" <<EOF
 AM_INIT_AUTOMAKE([subdir-objects foreign])
-AM_CFLAGS="-Wall -Werror -pedantic-errors"
+AM_CFLAGS="-Wall -Werror${PEDANTIC}"
 AC_ARG_ENABLE([debug],
 	[AS_HELP_STRING([--enable-debug],
 		[enable debug data generation (default=no)])],
