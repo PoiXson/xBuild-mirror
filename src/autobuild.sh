@@ -153,6 +153,10 @@ function doConfig() {
 	fi
 	title C "Configure"
 	did_something=$NO
+	if [ -f "$PWD/autotools.conf" ]; then
+		\genautotools
+		echo
+	fi
 	# automake
 	if [ -f "$PWD/configure.ac" ]; then
 		\autoreconf -v --install  || exit 1
