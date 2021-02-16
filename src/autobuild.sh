@@ -49,6 +49,8 @@ function DisplayHelp() {
 	echo -e                             "                           make check or phpunit"
 	echo -e "  ${COLOR_GREEN}dist${COLOR_RESET}                   Build distributable packages"
 	echo -e                             "                           make dist or rpmbuild"
+	echo -e "  ${COLOR_GREEN}run${COLOR_RESET}                    Run the application which was just built"
+	echo -e                             "                           anything after this is used as an argument for the app"
 	echo
 	echo -e "${COLOR_BROWN}Options:${COLOR_RESET}"
 	echo -e "  ${COLOR_GREEN}-n, --build-number${COLOR_RESET}     Build number to use for packaging"
@@ -294,6 +296,20 @@ function doDist() {
 
 
 
+# run
+function doRun() {
+	if [ ! -f "$PWD/test.sh" ]; then
+		echo "test.sh not found, cannot run from here"
+		exit 1
+	fi
+	title C "Running.."
+	echo " v v v v v v v v v v "
+	sh test.sh "$@"
+	echo " ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ "
+}
+
+
+
 # find .spec file
 SPEC_FILE_COUNT=$(\ls -1 "$PWD/"*.spec 2>/dev/null | \wc -l)
 if [ $SPEC_FILE_COUNT -eq 1 ]; then
@@ -314,6 +330,7 @@ if [ $# -eq 0 ]; then
 fi
 ACTIONS=""
 DEBUG_FLAGS=$NO
+RUN_ARGS=""
 while [ $# -gt 0 ]; do
 	case "$1" in
 	# build number
@@ -344,6 +361,19 @@ while [ $# -gt 0 ]; do
 	;;
 	*)
 		ACTIONS="$ACTIONS $1"
+		# everything after this is an argument for the app
+		if [ "$1" == "run" ]; then
+			shift
+			while [ $# -gt 0 ]; do
+				if [ -z $RUN_ARGS ]; then
+					RUN_ARGS="$1"
+				else
+					RUN_ARGS="$RUN_ARGS $1"
+				fi
+				shift
+			done
+			break;
+		fi
 	;;
 	esac
 	\shift
@@ -365,6 +395,7 @@ for ACT in $ACTIONS; do
 	build)  doBuild  ;;
 	test)   doTests  ;;
 	dist)   doDist   ;;
+	run)    doRun $RUN_ARGS ;;
 	*)
 		failure "Unknown action: $ACT"
 		echo
