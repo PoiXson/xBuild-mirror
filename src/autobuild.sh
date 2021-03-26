@@ -151,14 +151,15 @@ function doConfig() {
 		sh  "$PWD/make-symlinks.sh"  || exit 1
 		echo
 	fi
-	title C "Configure"
 	did_something=$NO
 	if [ -f "$PWD/autotools.conf" ]; then
+		title C "genautotools"
 		\genautotools
 		echo
 	fi
 	# automake
 	if [ -f "$PWD/configure.ac" ]; then
+		title C "Configure"
 		\autoreconf -v --install  || exit 1
 		echo
 		did_something=$YES
@@ -167,8 +168,10 @@ function doConfig() {
 	if [ -f "$PWD/composer.json" ]; then
 		if [[ $DEBUG_FLAG -eq $YES ]] \
 		|| [[ ! -f "$PWD/composer.lock" ]]; then
+			title C "Composer Update"
 			\composer update  || exit 1
 		else
+			title C "Composer Install"
 			\composer install  || exit 1
 		fi
 		echo
