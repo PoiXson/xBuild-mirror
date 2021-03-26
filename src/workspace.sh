@@ -84,7 +84,7 @@ function doCleanupVars() {
 	# reset project vars
 	PROJECT_NAME=""
 	REPO=""
-	\sleep 0.4
+	\sleep 0.2
 }
 
 function doProject() {
