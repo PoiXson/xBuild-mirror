@@ -347,11 +347,23 @@ function doDist() {
 				-bb "SPECS/${SPEC_NAME}.spec" \
 					|| exit 1
 		\popd >/dev/null
-		\cp -f  "$PTH/rpmbuild/RPMS/"*.rpm  "$PTH/"  || exit 1
-		echo "==============================================="
-		echo "Packages ready for distribution:"
-		\ls -1 "$PTH/rpmbuild/RPMS/"  || exit 1
-		echo "==============================================="
+		\pushd "$PTH/rpmbuild/RPMS/" >/dev/null  || exit 1
+			PACKAGES=$( \ls -1 *.rpm )
+		\popd >/dev/null
+		if [[ -z $PACKAGES ]]; then
+			failure "Failed to find finished rpm packages: $PTH/rpmbuild/RPMS/"
+			exit 1
+		fi
+		PACKAGES_ALL="$PACKAGES_ALL $PACKAGES"
+		for ENTRY in $PACKAGES; do
+			\cp -fv  "$PTH/rpmbuild/RPMS/$ENTRY"  "$PWD/"  || exit 1
+		done
+		echo "-----------------------------------------------"
+		echo " Packages ready for distribution:"
+		for ENTRY in $PACKAGES; do
+			echo "   $ENTRY"
+		done
+		echo "-----------------------------------------------"
 		echo
 		did_something=$YES
 	fi
@@ -399,6 +411,7 @@ fi
 ACTIONS=""
 DEBUG_FLAGS=$NO
 RUN_ARGS=""
+PACKAGES_ALL=""
 while [ $# -gt 0 ]; do
 	case "$1" in
 	# build number
@@ -499,4 +512,13 @@ elapsed=$( echo "scale=3;($TIME_END - $TIME_START) / 1000 / 1000 / 1000" | bc )
 	elapsed="0$elapsed"
 echo -e " ${COLOR_BROWN}Finished in $elapsed seconds${COLOR_RESET}"
 echo
+if [[ ! -z $PACKAGES_ALL ]]; then
+	echo -e "${COLOR_CYAN}===============================================${COLOR_RESET}"
+	echo -e " ${COLOR_CYAN}Packages:${COLOR_RESET}"
+	for ENTRY in $PACKAGES_ALL; do
+		echo -e "   ${COLOR_BROWN}$ENTRY${COLOR_RESET}"
+	done
+	echo -e "${COLOR_CYAN}===============================================${COLOR_RESET}"
+	echo
+fi
 exit 0
