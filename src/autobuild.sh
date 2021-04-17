@@ -325,6 +325,8 @@ function doDist() {
 		failure "$SPEC_FILE_COUNT .spec files were found here"
 		exit 1
 	fi
+	SPEC_FILE=""
+	SPEC_NAME=""
 	if [ $SPEC_FILE_COUNT -eq 1 ]; then
 		SPEC_FILE=$( \ls -1 "$PTH/"*.spec )
 		SPEC_NAME="${SPEC_FILE%%.*}"
