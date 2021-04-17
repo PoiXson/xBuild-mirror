@@ -115,12 +115,10 @@ function doClean() {
 		fi
 	fi
 	# clean rpm project
-	if [ ! -z $SPEC_FILE ]; then
-		if [ -d "$PWD/rpmbuild" ]; then
-			\rm -vrf --preserve-root rpmbuild
-			echo
-			did_something=$YES
-		fi
+	if [ -d "$PTH/rpmbuild" ]; then
+		\rm -vrf --preserve-root rpmbuild
+		echo
+		did_something=$YES
 	fi
 	# clean php project
 	if [ -f "$PWD/composer.json" ]; then
@@ -268,6 +266,17 @@ function doDist() {
 		echo
 		did_something=$YES
 	fi
+	# find .spec file
+	SPEC_FILE_COUNT=$( \ls -1 "$PTH/"*.spec 2>/dev/null | \wc -l )
+	if [ $SPEC_FILE_COUNT -gt 1 ]; then
+		failure "$SPEC_FILE_COUNT .spec files were found here"
+		exit 1
+	fi
+	if [ $SPEC_FILE_COUNT -eq 1 ]; then
+		SPEC_FILE=$( \ls -1 "$PTH/"*.spec )
+		SPEC_NAME="${SPEC_FILE%%.*}"
+		SPEC_NAME="${SPEC_NAME##*/}"
+	fi
 	# build rpm
 	if [ ! -z $SPEC_FILE ]; then
 		title C "RPM Build"
@@ -314,18 +323,6 @@ function doRun() {
 	sh test.sh "$@"
 	echo " ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ "
 }
-
-
-
-# find .spec file
-SPEC_FILE_COUNT=$(\ls -1 "$PWD/"*.spec 2>/dev/null | \wc -l)
-if [ $SPEC_FILE_COUNT -eq 1 ]; then
-	SPEC_FILE=$(\ls -1 "$PWD/"*.spec)
-	SPEC_NAME="${SPEC_FILE%%.*}"
-	SPEC_NAME="${SPEC_NAME##*/}"
-elif [ $SPEC_FILE_COUNT -gt 1 ]; then
-	warning "$SPEC_FILE_COUNT .spec files were found here"
-fi
 
 
 
