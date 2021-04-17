@@ -87,34 +87,37 @@ function doClean() {
 	else
 		PTH="$PWD/$1"
 	fi
-	\pushd "$PTH" >/dev/null || exit 1
 	title C "Clean" $1
 	did_something=$NO
 	# make clean project
 	if [ -f "$PTH/Makefile.am" ]; then
 		if [ -f "$PTH/Makefile" ]; then
-			\make distclean
+			\pushd "$PTH" >/dev/null || exit 1
+				\make distclean
+			\popd >/dev/null
 			echo
 			did_something=$YES
 		fi
-		# remove .deps dirs
-		RESULT=$( \find "$PTH" -type d -name .deps )
 		let count=0
-		for ENTRY in $RESULT; do
-			[[ -f "$ENTRY" ]] && \rm -v                   "$ENTRY" && count=$((count+1))
-			[[ -d "$ENTRY" ]] && \rm -vrf --preserve-root "$ENTRY" && count=$((count+1))
-		done
-		# remove more files
-		CLEAN_PATHS=". src"
-		CLEAN_FILES="autom4te.cache aclocal.m4 compile configure config.log config.guess config.status config.sub depcomp install-sh ltmain.sh Makefile Makefile.in missing"
-		for DIR in $CLEAN_PATHS; do
-			\pushd "$DIR" >/dev/null || continue
-				for ENTRY in $CLEAN_FILES; do
-					[[ -f "$ENTRY" ]] && \rm -v                   "$ENTRY" && count=$((count+1))
-					[[ -d "$ENTRY" ]] && \rm -vrf --preserve-root "$ENTRY" && count=$((count+1))
-				done
-			\popd >/dev/null
-		done
+		\pushd "$PTH" >/dev/null || exit 1
+			# remove .deps dirs
+			RESULT=$( \find "$PTH" -type d -name .deps )
+			for ENTRY in $RESULT; do
+				[[ -f "$ENTRY" ]] && \rm -v                   "$ENTRY" && count=$((count+1))
+				[[ -d "$ENTRY" ]] && \rm -vrf --preserve-root "$ENTRY" && count=$((count+1))
+			done
+			# remove more files
+			CLEAN_PATHS=". src"
+			CLEAN_FILES="autom4te.cache aclocal.m4 compile configure config.log config.guess config.status config.sub depcomp install-sh ltmain.sh Makefile Makefile.in missing"
+			for DIR in $CLEAN_PATHS; do
+				\pushd "$DIR" >/dev/null || continue
+					for ENTRY in $CLEAN_FILES; do
+						[[ -f "$ENTRY" ]] && \rm -v                   "$ENTRY" && count=$((count+1))
+						[[ -d "$ENTRY" ]] && \rm -vrf --preserve-root "$ENTRY" && count=$((count+1))
+					done
+				\popd >/dev/null
+			done
+		\popd >/dev/null
 		if [ $count -gt 0 ]; then
 			echo
 			did_something=$YES
@@ -122,14 +125,18 @@ function doClean() {
 	fi
 	# clean rpm project
 	if [ -d "$PTH/rpmbuild" ]; then
-		\rm -vrf --preserve-root rpmbuild
+		\pushd "$PTH" >/dev/null || exit 1
+			\rm -vrf --preserve-root rpmbuild
+		\popd >/dev/null
 		echo
 		did_something=$YES
 	fi
 	# clean php project
 	if [ -f "$PTH/composer.json" ]; then
 		if [ -d "$PTH/vendor" ]; then
-			\rm -vrf --preserve-root vendor
+			\pushd "$PTH" >/dev/null || exit 1
+				\rm -vrf --preserve-root vendor
+			\popd >/dev/null
 			echo
 			did_something=$YES
 		fi
@@ -144,7 +151,6 @@ function doClean() {
 	fi
 	# clean only is ok, don't fail
 	did_something_session=$YES
-	\popd >/dev/null
 }
 
 
@@ -156,27 +162,33 @@ function doConfig() {
 	else
 		PTH="$PWD/$1"
 	fi
-	\pushd "$PTH" >/dev/null || exit 1
 	if [ -f "$PTH/make-symlinks.sh" ]; then
 		title C "Make Symlinks" $1
-		sh  "$PTH/make-symlinks.sh"  || exit 1
+		\pushd "$PTH" >/dev/null || exit 1
+			sh  "$PTH/make-symlinks.sh"  || exit 1
+		\popd >/dev/null
 		echo
 	fi
 	did_something=$NO
 	if [ -f "$PTH/autotools.conf" ]; then
 		title C "genautotools" $1
-		\genautotools
+		\pushd "$PTH" >/dev/null || exit 1
+			\genautotools
+		\popd >/dev/null
 		echo
 	fi
 	# automake
 	if [ -f "$PTH/configure.ac" ]; then
 		title C "Configure" $1
-		\autoreconf -v --install  || exit 1
+		\pushd "$PTH" >/dev/null || exit 1
+			\autoreconf -v --install  || exit 1
+		\popd >/dev/null
 		echo
 		did_something=$YES
 	fi
 	# composer
 	if [ -f "$PTH/composer.json" ]; then
+		\pushd "$PTH" >/dev/null || exit 1
 		if [[ $DEBUG_FLAG -eq $YES ]] \
 		|| [[ ! -f "$PTH/composer.lock" ]]; then
 			title C "Composer Update" $1
@@ -185,6 +197,7 @@ function doConfig() {
 			title C "Composer Install" $1
 			\composer install  || exit 1
 		fi
+		\popd >/dev/null
 		echo
 		did_something=$YES
 	fi
@@ -196,7 +209,6 @@ function doConfig() {
 		notice "Nothing found to configure.."
 		echo
 	fi
-	\popd >/dev/null
 }
 
 
@@ -208,28 +220,33 @@ function doBuild() {
 	else
 		PTH="$PWD/$1"
 	fi
-	\pushd "$PTH" >/dev/null || exit 1
 	title C "Build" $1
 	did_something=$NO
 	# automake
 	if [ -f "$PTH/configure" ]; then
-		if [ $DEBUG_FLAGS -eq $YES ]; then
-			./configure --enable-debug  || exit 1
-		else
-			./configure                 || exit 1
-		fi
+		\pushd "$PTH" >/dev/null || exit 1
+			if [ $DEBUG_FLAGS -eq $YES ]; then
+				./configure --enable-debug  || exit 1
+			else
+				./configure                 || exit 1
+			fi
+		\popd >/dev/null
 		echo
 		did_something=$YES
 	fi
 	# make
 	if [ -f "$PTH/Makefile" ]; then
-		\make  || exit 1
+		\pushd "$PTH" >/dev/null || exit 1
+			\make  || exit 1
+		\popd >/dev/null
 		echo
 		did_something=$YES
 	fi
 	# maven
 	if [ -f "$PTH/pom.xml" ]; then
-		\mvn clean install  || exit 1
+		\pushd "$PTH" >/dev/null || exit 1
+			\mvn clean install  || exit 1
+		\popd >/dev/null
 		echo
 		did_something=$YES
 	fi
@@ -241,7 +258,6 @@ function doBuild() {
 		notice "Nothing found to build.."
 		echo
 	fi
-	\popd >/dev/null
 }
 
 
@@ -253,12 +269,13 @@ function doTests() {
 	else
 		PTH="$PWD/$1"
 	fi
-	\pushd "$PTH" >/dev/null || exit 1
 	title C "Testing" $1
 	did_something=$NO
 	# make check
 	if [ -f "$PTH/Makefile" ]; then
-		\make check  || exit 1
+		\pushd "$PTH" >/dev/null || exit 1
+			\make check  || exit 1
+		\popd >/dev/null
 		echo
 
 #TODO: exec test program
@@ -267,7 +284,9 @@ function doTests() {
 	fi
 	# phpunit
 	if [ -f "$PTH/phpunit.xml" ]; then
-		\phpunit  || exit 1
+		\pushd "$PTH" >/dev/null || exit 1
+			\phpunit  || exit 1
+		\popd >/dev/null
 		echo
 		did_something=$YES
 	fi
@@ -279,7 +298,6 @@ function doTests() {
 		notice "Nothing found to test.."
 		echo
 	fi
-	\popd >/dev/null
 }
 
 
@@ -291,12 +309,13 @@ function doDist() {
 	else
 		PTH="$PWD/$1"
 	fi
-	\pushd "$PTH" >/dev/null || exit 1
 	did_something=$NO
 	# make dist
 	if [ -f "$PTH/Makefile" ]; then
 		title C "Distribute" $1
-		\make dist  || exit 1
+		\pushd "$PTH" >/dev/null || exit 1
+			\make dist  || exit 1
+		\popd >/dev/null
 		echo
 		did_something=$YES
 	fi
@@ -343,7 +362,6 @@ function doDist() {
 		notice "Nothing to distribute.."
 		echo
 	fi
-	\popd >/dev/null
 }
 
 
@@ -355,16 +373,16 @@ function doRun() {
 	else
 		PTH="$PWD/$1"
 	fi
-	\pushd "$PTH" >/dev/null || exit 1
 	shift
 	if [ ! -f "$PTH/test.sh" ]; then
 		echo "test.sh not found, cannot run from here"
 		exit 1
 	fi
 	title C "Running.." $1
-	echo " v v v v v v v v v v "
-	sh test.sh "$@"
-	echo " ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ "
+	\pushd "$PTH" >/dev/null || exit 1
+		echo " v v v v v v v v v v "
+		sh test.sh "$@"
+		echo " ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ "
 	\popd >/dev/null
 }
 
