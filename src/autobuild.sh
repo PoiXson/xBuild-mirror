@@ -87,7 +87,7 @@ function doClean() {
 	else
 		PTH="$PWD/$1"
 	fi
-	title C "Clean" $1
+	title C "Clean"
 	did_something=$NO
 	# make clean project
 	if [ -f "$PTH/Makefile.am" ]; then
@@ -163,7 +163,7 @@ function doConfig() {
 		PTH="$PWD/$1"
 	fi
 	if [ -f "$PTH/make-symlinks.sh" ]; then
-		title C "Make Symlinks" $1
+		title C "Make Symlinks"
 		\pushd "$PTH" >/dev/null || exit 1
 			sh  "$PTH/make-symlinks.sh"  || exit 1
 		\popd >/dev/null
@@ -171,7 +171,7 @@ function doConfig() {
 	fi
 	did_something=$NO
 	if [ -f "$PTH/autotools.conf" ]; then
-		title C "genautotools" $1
+		title C "genautotools"
 		\pushd "$PTH" >/dev/null || exit 1
 			\genautotools
 		\popd >/dev/null
@@ -179,7 +179,7 @@ function doConfig() {
 	fi
 	# automake
 	if [ -f "$PTH/configure.ac" ]; then
-		title C "Configure" $1
+		title C "Configure"
 		\pushd "$PTH" >/dev/null || exit 1
 			\autoreconf -v --install  || exit 1
 		\popd >/dev/null
@@ -191,10 +191,10 @@ function doConfig() {
 		\pushd "$PTH" >/dev/null || exit 1
 		if [[ $DEBUG_FLAG -eq $YES ]] \
 		|| [[ ! -f "$PTH/composer.lock" ]]; then
-			title C "Composer Update" $1
+			title C "Composer Update"
 			\composer update  || exit 1
 		else
-			title C "Composer Install" $1
+			title C "Composer Install"
 			\composer install  || exit 1
 		fi
 		\popd >/dev/null
@@ -220,7 +220,7 @@ function doBuild() {
 	else
 		PTH="$PWD/$1"
 	fi
-	title C "Build" $1
+	title C "Build"
 	did_something=$NO
 	# automake
 	if [ -f "$PTH/configure" ]; then
@@ -269,7 +269,7 @@ function doTests() {
 	else
 		PTH="$PWD/$1"
 	fi
-	title C "Testing" $1
+	title C "Testing"
 	did_something=$NO
 	# make check
 	if [ -f "$PTH/Makefile" ]; then
@@ -312,7 +312,7 @@ function doDist() {
 	did_something=$NO
 	# make dist
 	if [ -f "$PTH/Makefile" ]; then
-		title C "Distribute" $1
+		title C "Distribute"
 		\pushd "$PTH" >/dev/null || exit 1
 			\make dist  || exit 1
 		\popd >/dev/null
@@ -332,7 +332,7 @@ function doDist() {
 	fi
 	# build rpm
 	if [ ! -z $SPEC_FILE ]; then
-		title C "RPM Build" $1
+		title C "RPM Build"
 		\mkdir -p "$PTH"/rpmbuild/{BUILD,BUILDROOT,SOURCES,SPECS,RPMS,SRPMS,TMP}  || exit 1
 		\cp -vf  "$SPEC_FILE"  "$PTH/rpmbuild/SPECS/"  || exit 1
 		\pushd "$PTH/rpmbuild/" >/dev/null  || exit 1
@@ -358,7 +358,7 @@ function doDist() {
 		display_time "Distributable"
 		did_something_session=$YES
 	else
-		title C "Distribute" $1
+		title C "Distribute"
 		notice "Nothing to distribute.."
 		echo
 	fi
@@ -378,7 +378,7 @@ function doRun() {
 		echo "test.sh not found, cannot run from here"
 		exit 1
 	fi
-	title C "Running.." $1
+	title C "Running.."
 	\pushd "$PTH" >/dev/null || exit 1
 		echo " v v v v v v v v v v "
 		sh test.sh "$@"
@@ -455,6 +455,10 @@ fi
 function PROJECT() {
 	TIME_START=$( \date "+%s%N" )
 	TIME_LAST=$TIME_START
+	if [[ ! -z $1 ]]; then
+		title B "$1"
+		echo
+	fi
 	for ACT in $ACTIONS; do
 		case "$ACT" in
 		clean)  doClean  $1 ;;
