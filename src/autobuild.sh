@@ -82,17 +82,23 @@ function display_time() {
 
 # clean
 function doClean() {
-	title C "Clean"
+	if [[ -z $1 ]]; then
+		PTH="$PWD"
+	else
+		PTH="$PWD/$1"
+	fi
+	\pushd "$PTH" >/dev/null || exit 1
+	title C "Clean" $1
 	did_something=$NO
 	# make clean project
-	if [ -f "$PWD/Makefile.am" ]; then
-		if [ -f "$PWD/Makefile" ]; then
+	if [ -f "$PTH/Makefile.am" ]; then
+		if [ -f "$PTH/Makefile" ]; then
 			\make distclean
 			echo
 			did_something=$YES
 		fi
 		# remove .deps dirs
-		RESULT=$( \find "$PWD" -type d -name .deps )
+		RESULT=$( \find "$PTH" -type d -name .deps )
 		let count=0
 		for ENTRY in $RESULT; do
 			[[ -f "$ENTRY" ]] && \rm -v                   "$ENTRY" && count=$((count+1))
@@ -121,8 +127,8 @@ function doClean() {
 		did_something=$YES
 	fi
 	# clean php project
-	if [ -f "$PWD/composer.json" ]; then
-		if [ -d "$PWD/vendor" ]; then
+	if [ -f "$PTH/composer.json" ]; then
+		if [ -d "$PTH/vendor" ]; then
 			\rm -vrf --preserve-root vendor
 			echo
 			did_something=$YES
@@ -138,38 +144,45 @@ function doClean() {
 	fi
 	# clean only is ok, don't fail
 	did_something_session=$YES
+	\popd >/dev/null
 }
 
 
 
 # auto configure
 function doConfig() {
-	if [ -f "$PWD/make-symlinks.sh" ]; then
-		title C "Make Symlinks"
-		sh  "$PWD/make-symlinks.sh"  || exit 1
+	if [[ -z $1 ]]; then
+		PTH="$PWD"
+	else
+		PTH="$PWD/$1"
+	fi
+	\pushd "$PTH" >/dev/null || exit 1
+	if [ -f "$PTH/make-symlinks.sh" ]; then
+		title C "Make Symlinks" $1
+		sh  "$PTH/make-symlinks.sh"  || exit 1
 		echo
 	fi
 	did_something=$NO
-	if [ -f "$PWD/autotools.conf" ]; then
-		title C "genautotools"
+	if [ -f "$PTH/autotools.conf" ]; then
+		title C "genautotools" $1
 		\genautotools
 		echo
 	fi
 	# automake
-	if [ -f "$PWD/configure.ac" ]; then
-		title C "Configure"
+	if [ -f "$PTH/configure.ac" ]; then
+		title C "Configure" $1
 		\autoreconf -v --install  || exit 1
 		echo
 		did_something=$YES
 	fi
 	# composer
-	if [ -f "$PWD/composer.json" ]; then
+	if [ -f "$PTH/composer.json" ]; then
 		if [[ $DEBUG_FLAG -eq $YES ]] \
-		|| [[ ! -f "$PWD/composer.lock" ]]; then
-			title C "Composer Update"
+		|| [[ ! -f "$PTH/composer.lock" ]]; then
+			title C "Composer Update" $1
 			\composer update  || exit 1
 		else
-			title C "Composer Install"
+			title C "Composer Install" $1
 			\composer install  || exit 1
 		fi
 		echo
@@ -183,16 +196,23 @@ function doConfig() {
 		notice "Nothing found to configure.."
 		echo
 	fi
+	\popd >/dev/null
 }
 
 
 
 # build
 function doBuild() {
-	title C "Build"
+	if [[ -z $1 ]]; then
+		PTH="$PWD"
+	else
+		PTH="$PWD/$1"
+	fi
+	\pushd "$PTH" >/dev/null || exit 1
+	title C "Build" $1
 	did_something=$NO
 	# automake
-	if [ -f "$PWD/configure" ]; then
+	if [ -f "$PTH/configure" ]; then
 		if [ $DEBUG_FLAGS -eq $YES ]; then
 			./configure --enable-debug  || exit 1
 		else
@@ -202,13 +222,13 @@ function doBuild() {
 		did_something=$YES
 	fi
 	# make
-	if [ -f "$PWD/Makefile" ]; then
+	if [ -f "$PTH/Makefile" ]; then
 		\make  || exit 1
 		echo
 		did_something=$YES
 	fi
 	# maven
-	if [ -f "$PWD/pom.xml" ]; then
+	if [ -f "$PTH/pom.xml" ]; then
 		\mvn clean install  || exit 1
 		echo
 		did_something=$YES
@@ -221,16 +241,23 @@ function doBuild() {
 		notice "Nothing found to build.."
 		echo
 	fi
+	\popd >/dev/null
 }
 
 
 
 # testing
 function doTests() {
-	title C "Testing"
+	if [[ -z $1 ]]; then
+		PTH="$PWD"
+	else
+		PTH="$PWD/$1"
+	fi
+	\pushd "$PTH" >/dev/null || exit 1
+	title C "Testing" $1
 	did_something=$NO
 	# make check
-	if [ -f "$PWD/Makefile" ]; then
+	if [ -f "$PTH/Makefile" ]; then
 		\make check  || exit 1
 		echo
 
@@ -239,7 +266,7 @@ function doTests() {
 #		did_something=$YES
 	fi
 	# phpunit
-	if [ -f "$PWD/phpunit.xml" ]; then
+	if [ -f "$PTH/phpunit.xml" ]; then
 		\phpunit  || exit 1
 		echo
 		did_something=$YES
@@ -252,16 +279,23 @@ function doTests() {
 		notice "Nothing found to test.."
 		echo
 	fi
+	\popd >/dev/null
 }
 
 
 
 # distribute
 function doDist() {
+	if [[ -z $1 ]]; then
+		PTH="$PWD"
+	else
+		PTH="$PWD/$1"
+	fi
+	\pushd "$PTH" >/dev/null || exit 1
 	did_something=$NO
 	# make dist
-	if [ -f "$PWD/Makefile" ]; then
-		title C "Distribute"
+	if [ -f "$PTH/Makefile" ]; then
+		title C "Distribute" $1
 		\make dist  || exit 1
 		echo
 		did_something=$YES
@@ -279,22 +313,23 @@ function doDist() {
 	fi
 	# build rpm
 	if [ ! -z $SPEC_FILE ]; then
-		title C "RPM Build"
-		\mkdir -p "$PWD"/rpmbuild/{BUILD,BUILDROOT,SOURCES,SPECS,RPMS,SRPMS,TMP}  || exit 1
-		\cp -vf  "$SPEC_FILE"  "$PWD/rpmbuild/SPECS/"  || exit 1
-		\pushd "$PWD/rpmbuild/" >/dev/null  || exit 1
+		title C "RPM Build" $1
+		\mkdir -p "$PTH"/rpmbuild/{BUILD,BUILDROOT,SOURCES,SPECS,RPMS,SRPMS,TMP}  || exit 1
+		\cp -vf  "$SPEC_FILE"  "$PTH/rpmbuild/SPECS/"  || exit 1
+		\pushd "$PTH/rpmbuild/" >/dev/null  || exit 1
 			\rpmbuild \
 				${BUILD_NUMBER:+ --define="build_number $BUILD_NUMBER"} \
-				--define="_topdir $PWD" \
-				--define="_tmppath $PWD/TMP" \
+				--define="_topdir $PTH" \
+				--define="_tmppath $PTH/TMP" \
 				--define="_binary_payload w9.gzdio" \
+				--undefine=_disable_source_fetch \
 				-bb "SPECS/${SPEC_NAME}.spec" \
 					|| exit 1
 		\popd >/dev/null
-		\cp -f  "$PWD/rpmbuild/RPMS/"*.rpm  "$PWD/"  || exit 1
+		\cp -f  "$PTH/rpmbuild/RPMS/"*.rpm  "$PTH/"  || exit 1
 		echo "==============================================="
 		echo "Packages ready for distribution:"
-		\ls -1 "$PWD/rpmbuild/RPMS/"  || exit 1
+		\ls -1 "$PTH/rpmbuild/RPMS/"  || exit 1
 		echo "==============================================="
 		echo
 		did_something=$YES
@@ -304,24 +339,33 @@ function doDist() {
 		display_time "Distributable"
 		did_something_session=$YES
 	else
-		title C "Distribute"
+		title C "Distribute" $1
 		notice "Nothing to distribute.."
 		echo
 	fi
+	\popd >/dev/null
 }
 
 
 
 # run
 function doRun() {
-	if [ ! -f "$PWD/test.sh" ]; then
+	if [[ -z $1 ]]; then
+		PTH="$PWD"
+	else
+		PTH="$PWD/$1"
+	fi
+	\pushd "$PTH" >/dev/null || exit 1
+	shift
+	if [ ! -f "$PTH/test.sh" ]; then
 		echo "test.sh not found, cannot run from here"
 		exit 1
 	fi
-	title C "Running.."
+	title C "Running.." $1
 	echo " v v v v v v v v v v "
 	sh test.sh "$@"
 	echo " ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ "
+	\popd >/dev/null
 }
 
 
@@ -390,23 +434,33 @@ fi
 
 
 # perform actions
-TIME_START=$(date +%s%N)
-TIME_LAST=$TIME_START
-for ACT in $ACTIONS; do
-	case "$ACT" in
-	clean)  doClean  ;;
-	config) doConfig ;;
-	build)  doBuild  ;;
-	test)   doTests  ;;
-	dist)   doDist   ;;
-	run)    doRun $RUN_ARGS ;;
-	*)
-		failure "Unknown action: $ACT"
-		echo
-		exit 1
-	;;
-	esac
-done
+function PROJECT() {
+	TIME_START=$( \date "+%s%N" )
+	TIME_LAST=$TIME_START
+	for ACT in $ACTIONS; do
+		case "$ACT" in
+		clean)  doClean  $1 ;;
+		config) doConfig $1 ;;
+		build)  doBuild  $1 ;;
+		test)   doTests  $1 ;;
+		dist)   doDist   $1 ;;
+		run)    doRun "$1" $RUN_ARGS ;;
+		*)
+			failure "Unknown action: $ACT"
+			echo
+			exit 1
+		;;
+		esac
+	done
+}
+
+# multiple projects
+if [[ -f "$PWD/automulti.conf"  ]]; then
+	source "$PWD/automulti.conf" || exit 1
+# one project
+else
+	PROJECT
+fi
 
 
 
