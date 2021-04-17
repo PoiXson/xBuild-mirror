@@ -1,6 +1,13 @@
 Project-Tools - A collection of commonly used scripts for building and managing software projects
 
 
+2021-04-17 - 2.0.9
+==================
+* improved handling of built rpm files
+* improved logging when automulti.conf file is used
+* fixed bug - need to clear SPEC_FILE and SPEC_NAME variables
+
+
 2021-04-17 - 2.0.8
 ==================
 * added support for automulti.conf file - for use with multi-directory projects
