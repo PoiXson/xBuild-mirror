@@ -319,8 +319,8 @@ function doDist() {
 		\pushd "$PTH/rpmbuild/" >/dev/null  || exit 1
 			\rpmbuild \
 				${BUILD_NUMBER:+ --define="build_number $BUILD_NUMBER"} \
-				--define="_topdir $PTH" \
-				--define="_tmppath $PTH/TMP" \
+				--define="_topdir $PTH/rpmbuild" \
+				--define="_tmppath $PTH/rpmbuild/TMP" \
 				--define="_binary_payload w9.gzdio" \
 				--undefine=_disable_source_fetch \
 				-bb "SPECS/${SPEC_NAME}.spec" \
