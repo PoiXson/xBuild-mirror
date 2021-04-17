@@ -25,7 +25,7 @@ source /usr/bin/pxn/scripts/common.sh  || exit 1
 
 
 
-PWD=$(pwd)
+PWD=$( pwd )
 if [ -z $PWD ]; then
 	echo
 	failure "Failed to find current working directory"
@@ -68,7 +68,7 @@ TIME_LAST=0
 
 
 function display_time() {
-	TIME_CURRENT=$(date +%s%N)
+	TIME_CURRENT=$( \date +%s%N )
 	elapsed=$( echo "scale=3;($TIME_CURRENT - $TIME_LAST) / 1000 / 1000 / 1000" | bc )
 	if [[ "$elapsed" == "."* ]]; then
 		elapsed="0$elapsed"
@@ -469,7 +469,7 @@ if [ $did_something_session -ne $YES ]; then
 	echo
 	exit 1
 fi
-TIME_END=$(date +%s%N)
+TIME_END=$( \date +%s%N )
 elapsed=$( echo "scale=3;($TIME_END - $TIME_START) / 1000 / 1000 / 1000" | bc )
 [[ "$elapsed" == "."* ]] && \
 	elapsed="0$elapsed"
