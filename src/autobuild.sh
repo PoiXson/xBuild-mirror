@@ -127,7 +127,8 @@ function doClean() {
 	# clean rpm project
 	if [ -d "$PTH/rpmbuild" ]; then
 		\pushd "$PTH" >/dev/null || exit 1
-			\rm -vrf --preserve-root rpmbuild
+			echo -n "rm rpmbuild.. "
+			\rm -vrf --preserve-root rpmbuild | wc -l
 		\popd >/dev/null
 		echo
 		did_something=$YES
@@ -136,7 +137,8 @@ function doClean() {
 	if [ -f "$PTH/composer.json" ]; then
 		if [ -d "$PTH/vendor" ]; then
 			\pushd "$PTH" >/dev/null || exit 1
-				\rm -vrf --preserve-root vendor
+				echo -n "rm vendor.. "
+				\rm -vrf --preserve-root vendor | wc -l
 			\popd >/dev/null
 			echo
 			did_something=$YES
@@ -176,7 +178,6 @@ function doConfig() {
 		\pushd "$PTH" >/dev/null || exit 1
 			\genautotools
 		\popd >/dev/null
-		echo
 	fi
 	# automake
 	if [ -f "$PTH/configure.ac" ]; then
