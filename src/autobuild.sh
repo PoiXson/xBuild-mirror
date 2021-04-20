@@ -330,7 +330,7 @@ function doDist() {
 	SPEC_NAME=""
 	if [ $SPEC_FILE_COUNT -eq 1 ]; then
 		SPEC_FILE=$( \ls -1 "$PTH/"*.spec )
-		SPEC_NAME="${SPEC_FILE%%.*}"
+		SPEC_NAME="${SPEC_FILE%.*}"
 		SPEC_NAME="${SPEC_NAME##*/}"
 	fi
 	# build rpm
