@@ -54,6 +54,7 @@ function DisplayHelp() {
 	echo
 	echo -e "${COLOR_BROWN}Options:${COLOR_RESET}"
 	echo -e "  ${COLOR_GREEN}-n, --build-number${COLOR_RESET}     Build number to use for packaging"
+	echo -e "  ${COLOR_GREEN}-A, --no-multi${COLOR_RESET}         Disable use of automulti.conf"
 	echo -e "  ${COLOR_GREEN}-D, --debug-flags${COLOR_RESET}      Build with debug flags"
 	echo                                "                           note: defaults to 'x'"
 	echo -e "  ${COLOR_GREEN}-d, --debug${COLOR_RESET}            Enable debug logs"
@@ -409,6 +410,7 @@ if [ $# -eq 0 ]; then
 	exit 1
 fi
 ACTIONS=""
+NO_MULTI=$NO
 DEBUG_FLAGS=$NO
 RUN_ARGS=""
 PACKAGES_ALL=""
@@ -421,6 +423,9 @@ while [ $# -gt 0 ]; do
 	;;
 	--build-number=*)
 		BUILD_NUMBER="${1#*=}"
+	;;
+	-A|--no-multi)
+		NO_MULTI=$YES
 	;;
 	-D|--debug-flag|--debug-flags)
 		DEBUG_FLAGS=$YES
@@ -492,7 +497,8 @@ function PROJECT() {
 }
 
 # multiple projects
-if [[ -f "$PWD/automulti.conf"  ]]; then
+if [[ -f "$PWD/automulti.conf"  ]] \
+&& [[ $NO_MULTI -eq $NO ]]; then
 	source "$PWD/automulti.conf" || exit 1
 # one project
 else
