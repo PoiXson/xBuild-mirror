@@ -3,9 +3,10 @@ Version : 2.0.%{?build_number}%{!?build_number:x}
 Release : 1
 Summary : A collection of commonly used scripts for building and managing software projects
 
-Requires : shellscripts
+Requires : shellscripts >= 2.0.6
 Requires : bash, zip, unzip, grep
-Suggests : rpmbuild, automake, composer
+Requires : autogen autoconf libtool
+Requires : rpmbuild, automake, composer
 
 BuildArch : noarch
 Packager  : PoiXson <support@poixson.com>
