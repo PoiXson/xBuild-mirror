@@ -6,4 +6,3 @@ alias workspace='clear;workspace'
 alias genautotools='clear;genautotools'
 
 alias phpunit='vendor/bin/phpunit -v --coverage-html coverage/html'
-alias phpunit='clear;phpunit'
