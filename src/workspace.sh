@@ -25,8 +25,7 @@ source /usr/bin/pxn/scripts/common.sh  || exit 1
 
 
 
-PWD=$(pwd)
-if [ -z $PWD ]; then
+if [ -z $WDIR ]; then
 	echo
 	failure "Failed to find current working directory"
 	echo
@@ -41,7 +40,7 @@ function DisplayHelp() {
 	echo
 	echo -e "${COLOR_BROWN}Workspace Groups:${COLOR_RESET}"
 	let count=0
-	for FILE in $( \ls -1v "$PWD/"*.dev 2>/dev/null ); do
+	for FILE in $( \ls -1v "$WDIR/"*.dev 2>/dev/null ); do
 		NAME="${FILE%%.dev}"
 		NAME="${NAME##*/}"
 		echo -e "  ${COLOR_GREEN}$NAME${COLOR_RESET}"
@@ -98,7 +97,7 @@ function doProject() {
 	fresh_clone=$NO
 
 	# project dir not found
-	if [[ ! -d "$PWD/$PROJECT_NAME" ]]; then
+	if [[ ! -d "$WDIR/$PROJECT_NAME" ]]; then
 		# clone repo
 		if [[ $DO_PP -eq $YES ]] \
 		&& [[ ! -z $REPO ]]; then
@@ -117,7 +116,7 @@ function doProject() {
 
 	# cleanup
 	if [ $DO_CLEAN -eq $YES ]; then
-		\pushd "$PWD/$PROJECT_NAME/" >/dev/null  || exit 1
+		\pushd "$WDIR/$PROJECT_NAME/" >/dev/null  || exit 1
 			\autobuild clean  || exit 1
 			did_something=$YES
 			count_ops=$((count_ops+1))
@@ -128,8 +127,8 @@ function doProject() {
 	# git pull/push
 	if [[ $DO_PP -eq $YES ]] \
 	&& [[ $fresh_clone -eq $NO ]]; then
-		if [ -d "$PWD/$PROJECT_NAME/.git" ]; then
-			\pushd "$PWD/$PROJECT_NAME/" >/dev/null  || exit 1
+		if [ -d "$WDIR/$PROJECT_NAME/.git" ]; then
+			\pushd "$WDIR/$PROJECT_NAME/" >/dev/null  || exit 1
 				# git pull
 				title C "pull"
 				\git pull  || exit 1
@@ -146,23 +145,23 @@ function doProject() {
 	fi
 
 	# update static files
-	if [ -d "$PWD/.git" ]; then
-		if [ -f "$PWD/.gitignore" ]; then
-			\cp  "$PWD/.gitignore"  "$PWD/$PROJECT_NAME/"  || exit 1
+	if [ -d "$WDIR/.git" ]; then
+		if [ -f "$WDIR/.gitignore" ]; then
+			\cp  "$WDIR/.gitignore"  "$WDIR/$PROJECT_NAME/"  || exit 1
 		fi
-		if [ -f "$PWD/.gitattributes" ]; then
-			\cp  "$PWD/.gitattributes"  "$PWD/$PROJECT_NAME/"  || exit 1
+		if [ -f "$WDIR/.gitattributes" ]; then
+			\cp  "$WDIR/.gitattributes"  "$WDIR/$PROJECT_NAME/"  || exit 1
 		fi
-		if [ -f "$PWD/phpunit.xml" ]; then
-			if [ -f "$PWD/$PROJECT_NAME/phpunit.xml" ]; then
-				\cp  "$PWD/phpunit.xml"  "$PWD/$PROJECT_NAME/"  || exit 1
+		if [ -f "$WDIR/phpunit.xml" ]; then
+			if [ -f "$WDIR/$PROJECT_NAME/phpunit.xml" ]; then
+				\cp  "$WDIR/phpunit.xml"  "$WDIR/$PROJECT_NAME/"  || exit 1
 			fi
 		fi
 	fi
 
 	# build/compile
 	if [ $DO_BUILD -eq $YES ]; then
-		\pushd "$PWD/$PROJECT_NAME/" >/dev/null  || exit 1
+		\pushd "$WDIR/$PROJECT_NAME/" >/dev/null  || exit 1
 			\autobuild config build  || exit 1
 			did_something=$YES
 			count_ops=$((count_ops+1))
@@ -172,21 +171,21 @@ function doProject() {
 
 	# distributable
 	if [ $DO_DIST -eq $YES ]; then
-		\pushd "$PWD/$PROJECT_NAME/" >/dev/null  || exit 1
+		\pushd "$WDIR/$PROJECT_NAME/" >/dev/null  || exit 1
 			\autobuild dist  || exit 1
 			did_something=$YES
 			count_ops=$((count_ops+1))
 		\popd >/dev/null
-		if [ -d "$PWD/rpms" ]; then
-			\cp -v  "$PWD/$PROJECT_NAME/rpmbuild/RPMS/"*.rpm  "$PWD/rpms/"  || exit 1
+		if [ -d "$WDIR/rpms" ]; then
+			\cp -v  "$WDIR/$PROJECT_NAME/rpmbuild/RPMS/"*.rpm  "$WDIR/rpms/"  || exit 1
 		fi
 		echo
 	fi
 
 	# git-gui
 	if [ $DO_GG -eq $YES ]; then
-		if [ -d "$PWD/$PROJECT_NAME/.git" ]; then
-			\pushd "$PWD/$PROJECT_NAME/" >/dev/null  || exit 1
+		if [ -d "$WDIR/$PROJECT_NAME/.git" ]; then
+			\pushd "$WDIR/$PROJECT_NAME/" >/dev/null  || exit 1
 				/usr/libexec/git-core/git-gui &
 				echo "git-gui "$!
 				\sleep 0.2
@@ -325,13 +324,13 @@ TIME_START=$(date +%s%N)
 function LoadDevSource() {
 	doCleanupVars
 	dev="$1"
-	if [[ ! -f "$PWD/$dev" ]]; then
+	if [[ ! -f "$WDIR/$dev" ]]; then
 		failure "File not found: $dev"
 		echo
 		exit 1
 	fi
 	# load .dev file
-	source "$PWD/$dev"  || exit 1
+	source "$WDIR/$dev"  || exit 1
 	# perform work on projects
 	Project
 }

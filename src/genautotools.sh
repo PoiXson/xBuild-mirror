@@ -4,8 +4,7 @@ echo
 
 
 
-PWD=$(\pwd)
-if [ -z $PWD ]; then
+if [ -z $WDIR ]; then
 	failure "Failed to find current working directory"
 	echo
 	exit 1
@@ -14,12 +13,12 @@ fi
 
 
 # load autotools.conf
-if [ ! -f "$PWD/autotools.conf" ]; then
+if [ ! -f "$WDIR/autotools.conf" ]; then
 	echo "autotools.conf file not found here"
 	echo
 	exit 1
 fi
-source "$PWD/autotools.conf"  || exit 1
+source "$WDIR/autotools.conf"  || exit 1
 
 
 
@@ -60,7 +59,7 @@ fi
 
 
 ### generate configure.ac
-OUT_FILE="$PWD/configure.ac"
+OUT_FILE="$WDIR/configure.ac"
 echo -n > "$OUT_FILE"  || exit 1
 
 # project info
@@ -146,7 +145,7 @@ notice "Generated $OUT_FILE with [$LINE_COUNT] lines"
 
 
 ### generate Makefile.am
-OUT_FILE="$PWD/Makefile.am"
+OUT_FILE="$WDIR/Makefile.am"
 echo -n > "$OUT_FILE"  || exit 1
 
 # project is bin or lib
@@ -188,7 +187,7 @@ fi
 echo >> "$OUT_FILE"  || exit 1
 
 # testing
-if [[ -f "$PWD/tests/tests.c" ]] && [[ ! -z $TEST_BINARY ]]; then
+if [[ -f "$WDIR/tests/tests.c" ]] && [[ ! -z $TEST_BINARY ]]; then
 	echo "check_PROGRAMS = $TEST_BINARY"                >> "$OUT_FILE"  || exit 1
 	echo "${TEST_BINARY/-/_}_LDADD = -l${PROJECT_NAME}" >> "$OUT_FILE"  || exit 1
 	echo "${TEST_BINARY/-/_}_SOURCES = tests/tests.c"   >> "$OUT_FILE"  || exit 1

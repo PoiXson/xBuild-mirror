@@ -25,8 +25,7 @@ source /usr/bin/pxn/scripts/common.sh  || exit 1
 
 
 
-PWD=$( pwd )
-if [ -z $PWD ]; then
+if [ -z $WDIR ]; then
 	echo
 	failure "Failed to find current working directory"
 	echo
@@ -84,9 +83,9 @@ function display_time() {
 # clean
 function doClean() {
 	if [[ -z $1 ]]; then
-		PTH="$PWD"
+		PTH="$WDIR"
 	else
-		PTH="$PWD/$1"
+		PTH="$WDIR/$1"
 	fi
 	title C "Clean"
 	did_something=$NO
@@ -161,9 +160,9 @@ function doClean() {
 # auto configure
 function doConfig() {
 	if [[ -z $1 ]]; then
-		PTH="$PWD"
+		PTH="$WDIR"
 	else
-		PTH="$PWD/$1"
+		PTH="$WDIR/$1"
 	fi
 	if [ -f "$PTH/make-symlinks.sh" ]; then
 		title C "Make Symlinks"
@@ -218,9 +217,9 @@ function doConfig() {
 # build
 function doBuild() {
 	if [[ -z $1 ]]; then
-		PTH="$PWD"
+		PTH="$WDIR"
 	else
-		PTH="$PWD/$1"
+		PTH="$WDIR/$1"
 	fi
 	title C "Build"
 	did_something=$NO
@@ -267,9 +266,9 @@ function doBuild() {
 # testing
 function doTests() {
 	if [[ -z $1 ]]; then
-		PTH="$PWD"
+		PTH="$WDIR"
 	else
-		PTH="$PWD/$1"
+		PTH="$WDIR/$1"
 	fi
 	title C "Testing"
 	did_something=$NO
@@ -307,9 +306,9 @@ function doTests() {
 # distribute
 function doDist() {
 	if [[ -z $1 ]]; then
-		PTH="$PWD"
+		PTH="$WDIR"
 	else
-		PTH="$PWD/$1"
+		PTH="$WDIR/$1"
 	fi
 	did_something=$NO
 	# make dist
@@ -358,7 +357,7 @@ function doDist() {
 		fi
 		PACKAGES_ALL="$PACKAGES_ALL $PACKAGES"
 		for ENTRY in $PACKAGES; do
-			\cp -fv  "$PTH/rpmbuild/RPMS/$ENTRY"  "$PWD/"  || exit 1
+			\cp -fv  "$PTH/rpmbuild/RPMS/$ENTRY"  "$WDIR/"  || exit 1
 		done
 		echo "-----------------------------------------------"
 		echo " Packages ready for distribution:"
@@ -385,9 +384,9 @@ function doDist() {
 # run
 function doRun() {
 	if [[ -z $1 ]]; then
-		PTH="$PWD"
+		PTH="$WDIR"
 	else
-		PTH="$PWD/$1"
+		PTH="$WDIR/$1"
 	fi
 	shift
 	if [ ! -f "$PTH/test.sh" ]; then
@@ -498,9 +497,9 @@ function PROJECT() {
 }
 
 # multiple projects
-if [[ -f "$PWD/automulti.conf"  ]] \
+if [[ -f "$WDIR/automulti.conf"  ]] \
 && [[ $NO_MULTI -eq $NO ]]; then
-	source "$PWD/automulti.conf" || exit 1
+	source "$WDIR/automulti.conf" || exit 1
 # one project
 else
 	PROJECT
