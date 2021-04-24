@@ -268,11 +268,11 @@ while [ $# -gt 0 ]; do
 	;;
 	*)
 		if [ -f "$1" ]; then
-			DEV_FILES="${DEV_FILES} $1"
+			DEV_FILES="$DEV_FILES $1"
 		elif [ -f "${1}.dev" ]; then
-			DEV_FILES="${DEV_FILES} ${1}.dev"
+			DEV_FILES="$DEV_FILES ${1}.dev"
 		elif [ -f *"-${1}.dev" ]; then
-			DEV_FILES="${DEV_FILES} "$( ls -1v *"${1}.dev" 2>/dev/null | head -n1 )
+			DEV_FILES="$DEV_FILES "$( \ls -1v *"${1}.dev" 2>/dev/null | \head -n1 )
 		else
 			count=$( \ls -1 *.dev 2>/dev/null | wc -l )
 			if [[ $count -eq 0 ]]; then
