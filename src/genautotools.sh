@@ -14,7 +14,7 @@ fi
 
 # load autotools.conf
 if [ ! -f "$WDIR/autotools.conf" ]; then
-	echo "autotools.conf file not found here"
+	failure "autotools.conf file not found here"
 	echo
 	exit 1
 fi
