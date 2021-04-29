@@ -473,7 +473,6 @@ fi
 
 # perform actions
 function PROJECT() {
-	TIME_START=$( \date "+%s%N" )
 	TIME_LAST=$( \date "+%s%N" )
 	if [[ ! -z $1 ]]; then
 		title B "$1"
@@ -495,6 +494,7 @@ function PROJECT() {
 		esac
 	done
 }
+TIME_START=$( \date "+%s%N" )
 
 # multiple projects
 if [[ -f "$WDIR/automulti.conf"  ]] \
