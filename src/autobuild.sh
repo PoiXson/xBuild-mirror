@@ -53,7 +53,11 @@ function DisplayHelp() {
 	echo
 	echo -e "${COLOR_BROWN}Options:${COLOR_RESET}"
 	echo -e "  ${COLOR_GREEN}-n, --build-number${COLOR_RESET}     Build number to use for packaging"
+	echo
+	echo -e "  ${COLOR_GREEN}-m, --multi${COLOR_RESET}            Use automulti.conf to build sub-projects"
 	echo -e "  ${COLOR_GREEN}-A, --no-multi${COLOR_RESET}         Disable use of automulti.conf"
+	echo -e                             "                           note: default is auto detect"
+	echo
 	echo -e "  ${COLOR_GREEN}-D, --debug-flags${COLOR_RESET}      Build with debug flags"
 	echo                                "                           note: defaults to 'x'"
 	echo -e "  ${COLOR_GREEN}-d, --debug${COLOR_RESET}            Enable debug logs"
@@ -410,6 +414,7 @@ if [ $# -eq 0 ]; then
 	exit 1
 fi
 ACTIONS=""
+YES_MULTI=$NO
 NO_MULTI=$NO
 DEBUG_FLAGS=$NO
 RUN_ARGS=""
@@ -423,6 +428,9 @@ while [ $# -gt 0 ]; do
 	;;
 	--build-number=*)
 		BUILD_NUMBER="${1#*=}"
+	;;
+	-m|--multi)
+		YES_MULTI=$YES
 	;;
 	-A|--no-multi)
 		NO_MULTI=$YES
@@ -497,8 +505,11 @@ function PROJECT() {
 TIME_START=$( \date "+%s%N" )
 
 # multiple projects
-if [[ -f "$WDIR/automulti.conf"  ]] \
-&& [[ $NO_MULTI -eq $NO ]]; then
+if [[ $YES_MULTI -eq $YES ]]; then
+	source "$WDIR/automulti.conf" || exit 1
+# detect multiple projects
+elif [[ $NO_MULTI -eq $NO ]] \
+&&   [[ -f "$WDIR/automulti.conf" ]]; then
 	source "$WDIR/automulti.conf" || exit 1
 # one project
 else
