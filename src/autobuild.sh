@@ -94,6 +94,7 @@ function doClean() {
 	PTH=$( \realpath "$PTH" )
 	[[ -z $PTH ]] && exit 1
 	title C "Clean"
+	echo "Path: $PTH"
 	did_something=$NO
 	# make clean project
 	if [ -f "$PTH/Makefile.am" ]; then
@@ -174,6 +175,7 @@ function doConfig() {
 	[[ -z $PTH ]] && exit 1
 	if [ -f "$PTH/make-symlinks.sh" ]; then
 		title C "Make Symlinks"
+		echo "Path: $PTH"
 		\pushd "$PTH" >/dev/null || exit 1
 			sh  "$PTH/make-symlinks.sh"  || exit 1
 		\popd >/dev/null
@@ -182,6 +184,7 @@ function doConfig() {
 	did_something=$NO
 	if [ -f "$PTH/autotools.conf" ]; then
 		title C "genautotools"
+		echo "Path: $PTH"
 		\pushd "$PTH" >/dev/null || exit 1
 			\genautotools
 		\popd >/dev/null
@@ -189,6 +192,7 @@ function doConfig() {
 	# automake
 	if [ -f "$PTH/configure.ac" ]; then
 		title C "Configure"
+		echo "Path: $PTH"
 		\pushd "$PTH" >/dev/null || exit 1
 			\autoreconf -v --install  || exit 1
 		\popd >/dev/null
@@ -201,9 +205,11 @@ function doConfig() {
 		if [[ $DEBUG_FLAG -eq $YES ]] \
 		|| [[ ! -f "$PTH/composer.lock" ]]; then
 			title C "Composer Update"
+			echo "Path: $PTH"
 			\composer update  || exit 1
 		else
 			title C "Composer Install"
+			echo "Path: $PTH"
 			\composer install  || exit 1
 		fi
 		\popd >/dev/null
@@ -232,6 +238,7 @@ function doBuild() {
 	PTH=$( \realpath "$PTH" )
 	[[ -z $PTH ]] && exit 1
 	title C "Build"
+	echo "Path: $PTH"
 	did_something=$NO
 	# automake
 	if [ -f "$PTH/configure" ]; then
@@ -283,6 +290,7 @@ function doTests() {
 	PTH=$( \realpath "$PTH" )
 	[[ -z $PTH ]] && exit 1
 	title C "Testing"
+	echo "Path: $PTH"
 	did_something=$NO
 	# make check
 	if [ -f "$PTH/Makefile" ]; then
@@ -328,6 +336,7 @@ function doDist() {
 	# make dist
 	if [ -f "$PTH/Makefile" ]; then
 		title C "Distribute"
+		echo "Path: $PTH"
 		\pushd "$PTH" >/dev/null || exit 1
 			\make dist  || exit 1
 		\popd >/dev/null
@@ -350,6 +359,7 @@ function doDist() {
 	# build rpm
 	if [ ! -z $SPEC_FILE ]; then
 		title C "RPM Build"
+		echo "Path: $PTH"
 		\mkdir -p "$PTH"/rpmbuild/{BUILD,BUILDROOT,SOURCES,SPECS,RPMS,SRPMS,TMP}  || exit 1
 		\cp -vf  "$SPEC_FILE"  "$PTH/rpmbuild/SPECS/"  || exit 1
 		\pushd "$PTH/rpmbuild/" >/dev/null  || exit 1
@@ -410,6 +420,7 @@ function doRun() {
 		exit 1
 	fi
 	title C "Running.."
+	echo "Path: $PTH"
 	\pushd "$PTH" >/dev/null || exit 1
 		echo " v v v v v v v v v v "
 		sh test.sh "$@"
