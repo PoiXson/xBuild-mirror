@@ -68,7 +68,7 @@ TIME_LAST=0
 
 
 function display_time() {
-	TIME_CURRENT=$( \date +%s%N )
+	TIME_CURRENT=$( \date "+%s%N" )
 	elapsed=$( echo "scale=3;($TIME_CURRENT - $TIME_LAST) / 1000 / 1000 / 1000" | bc )
 	if [[ "$elapsed" == "."* ]]; then
 		elapsed="0$elapsed"
@@ -474,7 +474,7 @@ fi
 # perform actions
 function PROJECT() {
 	TIME_START=$( \date "+%s%N" )
-	TIME_LAST=$TIME_START
+	TIME_LAST=$( \date "+%s%N" )
 	if [[ ! -z $1 ]]; then
 		title B "$1"
 		echo
@@ -512,7 +512,7 @@ if [ $did_something_session -ne $YES ]; then
 	echo
 	exit 1
 fi
-TIME_END=$( \date +%s%N )
+TIME_END=$( \date "+%s%N" )
 elapsed=$( echo "scale=3;($TIME_END - $TIME_START) / 1000 / 1000 / 1000" | bc )
 [[ "$elapsed" == "."* ]] && \
 	elapsed="0$elapsed"
