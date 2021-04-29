@@ -91,6 +91,8 @@ function doClean() {
 	else
 		PTH="$WDIR/$1"
 	fi
+	PTH=$( \realpath "$PTH" )
+	[[ -z $PTH ]] && exit 1
 	title C "Clean"
 	did_something=$NO
 	# make clean project
@@ -168,6 +170,8 @@ function doConfig() {
 	else
 		PTH="$WDIR/$1"
 	fi
+	PTH=$( \realpath "$PTH" )
+	[[ -z $PTH ]] && exit 1
 	if [ -f "$PTH/make-symlinks.sh" ]; then
 		title C "Make Symlinks"
 		\pushd "$PTH" >/dev/null || exit 1
@@ -225,6 +229,8 @@ function doBuild() {
 	else
 		PTH="$WDIR/$1"
 	fi
+	PTH=$( \realpath "$PTH" )
+	[[ -z $PTH ]] && exit 1
 	title C "Build"
 	did_something=$NO
 	# automake
@@ -274,6 +280,8 @@ function doTests() {
 	else
 		PTH="$WDIR/$1"
 	fi
+	PTH=$( \realpath "$PTH" )
+	[[ -z $PTH ]] && exit 1
 	title C "Testing"
 	did_something=$NO
 	# make check
@@ -314,6 +322,8 @@ function doDist() {
 	else
 		PTH="$WDIR/$1"
 	fi
+	PTH=$( \realpath "$PTH" )
+	[[ -z $PTH ]] && exit 1
 	did_something=$NO
 	# make dist
 	if [ -f "$PTH/Makefile" ]; then
@@ -392,6 +402,8 @@ function doRun() {
 	else
 		PTH="$WDIR/$1"
 	fi
+	PTH=$( \realpath "$PTH" )
+	[[ -z $PTH ]] && exit 1
 	shift
 	if [ ! -f "$PTH/test.sh" ]; then
 		echo "test.sh not found, cannot run from here"
