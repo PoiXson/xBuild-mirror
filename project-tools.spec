@@ -6,7 +6,9 @@ Summary : A collection of commonly used scripts for building and managing softwa
 Requires : shellscripts >= 2.0.6
 Requires : bash, zip, unzip, grep
 Requires : autogen autoconf libtool
-Requires : rpmbuild, automake, composer
+Requires : /usr/bin/rpmbuild
+Requires : /usr/bin/automake
+Requires : composer
 
 BuildArch : noarch
 Packager  : PoiXson <support@poixson.com>
