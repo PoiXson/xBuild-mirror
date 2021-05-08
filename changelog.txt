@@ -1,6 +1,16 @@
 Project-Tools - A collection of commonly used scripts for building and managing software projects
 
 
+2021-05-08 - 2.0.11
+===================
+* added -m and -A flags to autobuild.sh script - enable/disable/auto multi mode
+* improvements to autobuild.sh script
+  * checks to ensure paths exist
+  * log paths at each step
+  * fixed time profiling
+* fixed dependency for rpmbuild
+
+
 2021-04-23 - 2.0.10
 ===================
 * fixed scripts to use $WDIR variable instead of $PWD - affected by pushd calls
