@@ -1,8 +1,8 @@
 #!/usr/bin/bash
 
 
-alias autobuild='clear;autobuild'
-alias workspace='clear;workspace'
+alias xBuild='clear;xBuild'
+
 alias genautotools='clear;genautotools'
 
 alias phpunit='vendor/bin/phpunit -v --coverage-html coverage/html'
