@@ -1,7 +1,7 @@
-Name    : project-tools
-Version : 2.0.%{?build_number}%{!?build_number:x}
+Name    : xbuild
+Version : 1.0.%{?build_number}%{!?build_number:x}
 Release : 1
-Summary : A collection of commonly used scripts for building and managing software projects
+Summary : A tool to simplify building and managing projects in your workspace
 
 Requires : shellscripts >= 2.0.6
 Requires : bash, zip, unzip, grep
@@ -19,7 +19,7 @@ Prefix: %{_bindir}/pxn/scripts
 %define _rpmfilename  %%{NAME}-%%{VERSION}-%%{RELEASE}.%%{ARCH}.rpm
 
 %description
-A collection of commonly used scripts for building and managing software projects.
+A tool to simplify building and managing projects in your workspace.
 
 
 
@@ -39,24 +39,20 @@ echo "Install.."
 %{__install} -m 0644  "%{_topdir}/../src/"*.sh  "%{buildroot}%{prefix}/"  || exit 1
 
 # create symlinks
-%{__ln_s} -f  "%{prefix}/workspace.sh"     "%{buildroot}%{_bindir}/workspace"     || exit 1
-%{__ln_s} -f  "%{prefix}/autobuild.sh"     "%{buildroot}%{_bindir}/autobuild"     || exit 1
+%{__ln_s} -f  "%{prefix}/xbuild.sh"  "%{buildroot}%{_bindir}/xbuild"  || exit 1
 %{__ln_s} -f  "%{prefix}/genautotools.sh"  "%{buildroot}%{_bindir}/genautotools"  || exit 1
 # create profile.d symlink
-%{__ln_s} -f "%{prefix}/project-tools-aliases.sh"  "%{buildroot}%{_sysconfdir}/profile.d/project-tools-aliases.sh"  || exit 1
+%{__ln_s} -f "%{prefix}/xbuild-aliases.sh"  "%{buildroot}%{_sysconfdir}/profile.d/xbuild-aliases.sh"  || exit 1
 
 
 
 ### Files ###
 %files
 %defattr(0555, root, root, 0755)
-%dir %{prefix}/
-%{prefix}/workspace.sh
-%{prefix}/autobuild.sh
+%{prefix}/xbuild.sh
 %{prefix}/genautotools.sh
-%{prefix}/project-tools-aliases.sh
+%{prefix}/xbuild-aliases.sh
 # symlinks
-%{_bindir}/workspace
-%{_bindir}/autobuild
+%{_bindir}/xbuild
 %{_bindir}/genautotools
-%{_sysconfdir}/profile.d/project-tools-aliases.sh
+%{_sysconfdir}/profile.d/xbuild-aliases.sh
