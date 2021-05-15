@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 
 
-alias xBuild='clear;xBuild'
+alias xbuild='clear;xbuild'
 
 alias genautotools='clear;genautotools'
 
