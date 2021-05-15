@@ -1,5 +1,5 @@
 Name    : xbuild
-Version : 1.0.%{?build_number}%{!?build_number:x}
+Version : 2.1.%{?build_number}%{!?build_number:x}
 Release : 1
 Summary : A tool to simplify building and managing projects in your workspace
 
