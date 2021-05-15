@@ -1,4 +1,4 @@
-Project-Tools - A collection of commonly used scripts for building and managing software projects
+xBuild - A tool to simplify building and managing projects in your workspace
 
 
 2021-05-08 - 2.0.11
