@@ -29,9 +29,6 @@ A tool to simplify building and managing projects in your workspace.
 echo
 echo "Install.."
 
-# delete existing rpm's
-%{__rm} -fv --preserve-root  "%{_rpmdir}/%{name}-"*.rpm
-
 # create dirs
 %{__install} -d -m 0755  "%{buildroot}%{prefix}/"                 || exit 1
 %{__install} -d -m 0755  "%{buildroot}%{_sysconfdir}/profile.d/"  || exit 1
