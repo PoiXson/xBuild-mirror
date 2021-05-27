@@ -52,8 +52,8 @@ function DisplayHelp() {
 	echo
 	echo -e "${COLOR_BROWN}Options:${COLOR_RESET}"
 	echo -e "  ${COLOR_GREEN}-a, --all${COLOR_RESET}                 Use all .dev files found"
-	echo -e "  ${COLOR_GREEN}--bin${COLOR_RESET}                     Build binary projects only"
-	echo -e "  ${COLOR_GREEN}--web${COLOR_RESET}                     Build web projects only"
+	echo -e "  ${COLOR_GREEN}--binonly${COLOR_RESET}                 Build binary projects only"
+	echo -e "  ${COLOR_GREEN}--webonly${COLOR_RESET}                 Build web projects only"
 	echo
 	echo -e "  ${COLOR_GREEN}-c, --clean, --cleanup${COLOR_RESET}    Cleanup workspace; delete generated files"
 	echo
@@ -103,10 +103,10 @@ while [ $# -gt 0 ]; do
 	-a|--all)
 		DO_ALL=$YES
 	;;
-	--bin)
+	--binonly)
 		ONLY_BIN=$YES
 	;;
-	--web)
+	--webonly)
 		ONLY_WEB=$YES
 	;;
 	# cleanup
