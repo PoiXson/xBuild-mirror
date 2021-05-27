@@ -60,6 +60,7 @@ function DisplayHelp() {
 	echo -e "  ${COLOR_GREEN}--pp, --pull-push${COLOR_RESET}         Run 'git pull' and 'git push'"
 	echo -e "  ${COLOR_GREEN}--gg, --git-gui${COLOR_RESET}           Open git-gui for each project"
 	echo
+	echo -e "  ${COLOR_GREEN}--config, --configure${COLOR_RESET}     Configure projects, with autotools or composer"
 	echo -e "  ${COLOR_GREEN}--build, --compile${COLOR_RESET}        Compile the projects"
 	echo -e "  ${COLOR_GREEN}-d, --debug-flags${COLOR_RESET}         Build with debug flags"
 	echo -e "  ${COLOR_GREEN}-n, --build-number${COLOR_RESET}        Build number to use for builds and packages"
@@ -89,6 +90,7 @@ ONLY_WEB=$NO
 DO_CLEAN=$NO
 DO_PP=$NO
 DO_GG=$NO
+DO_CONFIG=$NO
 DO_BUILD=$NO
 DO_TESTS=$NO
 DO_DIST=$NO
@@ -120,6 +122,10 @@ while [ $# -gt 0 ]; do
 	# git-gui
 	--gg|--git-gui)
 		DO_GG=$YES
+	;;
+	# --configure
+	--config|--configure)
+		DO_CONFIG=$YES
 	;;
 	# --build
 	--build|--compile)
@@ -740,6 +746,8 @@ function doProject() {
 	[[ $DO_CLEAN  -eq $YES ]] && doClean
 	# --pp
 	[[ $DO_PP     -eq $YES ]] && doPullPush
+	# --config
+	[[ $DO_CONFIG -eq $YES ]] && doConfig
 	# --build
 	[[ $DO_BUILD  -eq $YES ]] && doBuild
 	# --tests
