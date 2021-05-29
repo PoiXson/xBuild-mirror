@@ -809,18 +809,23 @@ fi
 
 
 
+echo
+echo
+echo -e "${COLOR_GREEN}===============================================${COLOR_RESET}"
+echo
+echo
+
 if [[ $COUNT_OPS -le 0 ]]; then
 	warning "No actions performed"
 	echo
 	DisplayHelp
 	exit 1
 fi
+
 echo -ne "${COLOR_GREEN}Performed $COUNT_OPS operation"
 [[ $COUNT_OPS -gt 1 ]] && echo -n "s"
 [[ $COUNT_PRJ -gt 1 ]] && echo -ne " on $COUNT_PRJ projects"
 echo -e "${COLOR_RESET}"
-
-
 
 TIME_END=$(date +%s%N)
 ELAPSED=$( echo "scale=3;($TIME_END - $TIME_START) / 1000 / 1000 / 1000" | \bc )
