@@ -275,6 +275,7 @@ function doClean() {
 					rm_groups=$((rm_groups+1))
 					if [[ $IS_DRY -eq $NO ]]; then
 						c=$( \make distclean | \wc -l )
+						[[ 0 -ne $? ]] && exit 1
 						[[ $c -gt 0 ]] && count=$((count+c))
 						echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
 					else
@@ -291,6 +292,7 @@ function doClean() {
 						rm_groups=$((rm_groups+1))
 						if [[ $IS_DRY -eq $NO ]]; then
 							c=$( \rm -v "$ENTRY" | \wc -l )
+							[[ 0 -ne $? ]] && exit 1
 							[[ $c -gt 0 ]] && count=$((count+c))
 							echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
 						else
@@ -302,6 +304,7 @@ function doClean() {
 						rm_groups=$((rm_groups+1))
 						if [[ $IS_DRY -eq $NO ]]; then
 							c=$( \rm -vrf --preserve-root "$ENTRY" | \wc -l )
+							[[ 0 -ne $? ]] && exit 1
 							[[ $c -gt 0 ]] && count=$((count+c))
 							echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
 						else
@@ -317,10 +320,12 @@ function doClean() {
 						for ENTRY in $CLEAN_FILES; do
 							if [[ -f "$ENTRY" ]]; then
 								c=$( \rm -v "$ENTRY" )
+								[[ 0 -ne $? ]] && exit 1
 								[[ $c -gt 0 ]] && count=$((count+c))
 							fi
 							if [[ -d "$ENTRY" ]]; then
 								c=$( \rm -vrf --preserve-root "$ENTRY" )
+								[[ 0 -ne $? ]] && exit 1
 								[[ $c -gt 0 ]] && count=$((count+c))
 							fi
 						done
@@ -335,6 +340,7 @@ function doClean() {
 				rm_groups=$((rm_groups+1))
 				if [[ $IS_DRY -eq $NO ]]; then
 					c=$( \rm -vrf --preserve-root rpmbuild | wc -l )
+					[[ 0 -ne $? ]] && exit 1
 					[[ $c -gt 0 ]] && count=$((count+c))
 					echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
 				else
@@ -352,6 +358,7 @@ function doClean() {
 					rm_groups=$((rm_groups+1))
 					if [[ $IS_DRY -eq $NO ]]; then
 						c=$( \rm -vrf --preserve-root vendor | wc -l )
+						[[ 0 -ne $? ]] && exit 1
 						[[ $c -gt 0 ]] && count=$((count+c))
 						echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
 					else
