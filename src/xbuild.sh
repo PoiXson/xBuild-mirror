@@ -827,4 +827,13 @@ ELAPSED=$( echo "scale=3;($TIME_END - $TIME_START) / 1000 / 1000 / 1000" | \bc )
 [[ "$ELAPSED" == "."* ]] && ELAPSED="0$ELAPSED"
 echo -e "${COLOR_GREEN}Finished in $ELAPSED seconds${COLOR_RESET}"
 echo
+
+if [[ ! -z $PACKAGES_ALL ]]; then
+	echo -e "${COLOR_BLUE} Packages ready for distribution:${COLOR_RESET}"
+	for ENTRY in $PACKAGES_ALL; do
+		echo -e "${COLOR_BLUE}   $ENTRY${COLOR_RESET}"
+	done
+	echo
+fi
+
 exit 0
