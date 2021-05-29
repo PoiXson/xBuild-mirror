@@ -792,7 +792,6 @@ fi
 if [[ -f "$WDIR/xbuild.conf" ]]; then
 	doCleanupVars
 	source "$WDIR/xbuild.conf"  || exit 1
-	PROJECT_PATH="$WDIR"
 	doProject
 	doCleanupVars
 fi
