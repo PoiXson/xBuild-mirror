@@ -656,8 +656,20 @@ function doDist() {
 	fi
 	# build rpm
 	if [ ! -z $SPEC_FILE ]; then
-		echo -e " > ${COLOR_CYAN}mkdir rpmbuild..${COLOR_RESET}"
-		\mkdir -p "$PROJECT_PATH"/rpmbuild/{BUILD,BUILDROOT,SOURCES,SPECS,RPMS,SRPMS,TMP}  || exit 1
+		# remove previous build root
+		if [ -d "$PROJECT_PATH/rpmbuild" ]; then
+			echo -ne " > ${COLOR_CYAN}rm rpmbuild..${COLOR_RESET}"
+			\pushd "$PROJECT_PATH" >/dev/null  || exit 1
+				c=$( \rm -Rvf --preserve-root rpmbuild/ | \wc -l )
+				[[ 0 -ne $? ]] && exit 1
+				echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
+			\popd >/dev/null
+		fi
+		# make build root dirs
+		echo -ne " > ${COLOR_CYAN}mkdir rpmbuild..${COLOR_RESET}"
+		c=$( \mkdir -pv "$PROJECT_PATH"/rpmbuild/{BUILD,BUILDROOT,SOURCES,SPECS,RPMS,SRPMS,TMP} | \wc -l )
+		[[ 0 -ne $? ]] && exit 1
+		echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
 		if [[ $IS_DRY -eq $NO ]]; then
 			\cp -vf  "$SPEC_FILE"  "$PROJECT_PATH/rpmbuild/SPECS/"  || exit 1
 		fi
