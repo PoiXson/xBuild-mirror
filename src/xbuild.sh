@@ -47,7 +47,7 @@ function DisplayHelp() {
 		count=$((count+1))
 	done
 	if [[ $count -eq 0 ]]; then
-		echo "  No .dev files found here"
+		echo "  No .dev or build.conf files found here"
 	fi
 	echo
 	echo -e "${COLOR_BROWN}Options:${COLOR_RESET}"
@@ -319,12 +319,12 @@ function doClean() {
 					\pushd "$DIR/" >/dev/null || continue
 						for ENTRY in $CLEAN_FILES; do
 							if [[ -f "$ENTRY" ]]; then
-								c=$( \rm -v "$ENTRY" )
+								c=$( \rm -v "$ENTRY" | \wc -l )
 								[[ 0 -ne $? ]] && exit 1
 								[[ $c -gt 0 ]] && count=$((count+c))
 							fi
 							if [[ -d "$ENTRY" ]]; then
-								c=$( \rm -vrf --preserve-root "$ENTRY" )
+								c=$( \rm -vrf --preserve-root "$ENTRY" | \wc -l )
 								[[ 0 -ne $? ]] && exit 1
 								[[ $c -gt 0 ]] && count=$((count+c))
 							fi
@@ -542,7 +542,7 @@ function doBuild() {
 				if [[ $DEBUG_FLAGS -eq $YES ]]; then
 					CONFIGURE_DEBUG_FLAG="--enable-debug"
 				fi
-				echo -e " > ${COLOR_CYAN}composer install ${CONFIGURE_DEBUG_FLAG}${COLOR_RESET}"
+				echo -e " > ${COLOR_CYAN}configure ${CONFIGURE_DEBUG_FLAG}${COLOR_RESET}"
 				if [[ $IS_DRY -eq $NO ]]; then
 					./configure $CONFIGURE_DEBUG_FLAG  || exit 1
 				fi
