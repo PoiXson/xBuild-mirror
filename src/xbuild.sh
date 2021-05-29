@@ -798,10 +798,9 @@ if [[ ! -z $DEV_FILES ]]; then
 		# last project in .dev file
 		Project
 	done
-fi
 
 # xbuild.conf project file
-if [[ -f "$WDIR/xbuild.conf" ]]; then
+elif [[ -f "$WDIR/xbuild.conf" ]]; then
 	doCleanupVars
 	source "$WDIR/xbuild.conf"  || exit 1
 	doProject
