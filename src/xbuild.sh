@@ -803,8 +803,8 @@ if [[ ! -z $DEV_FILES ]]; then
 elif [[ -f "$WDIR/xbuild.conf" ]]; then
 	doCleanupVars
 	source "$WDIR/xbuild.conf"  || exit 1
-	doProject
-	doCleanupVars
+	# last project in .dev file
+	Project
 fi
 
 
