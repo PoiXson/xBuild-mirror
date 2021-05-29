@@ -755,7 +755,7 @@ function doCleanupVars() {
 }
 
 function doProject() {
-	if [ -z $PROJECT_NAME ]; then
+	if [[ -z $PROJECT_NAME ]] || [[ -z $PROJECT_PATH ]]; then
 		return
 	fi
 	echo
