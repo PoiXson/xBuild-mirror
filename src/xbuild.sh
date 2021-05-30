@@ -66,7 +66,7 @@ function DisplayHelp() {
 	echo -e "  ${COLOR_GREEN}-n, --build-number${COLOR_RESET}        Build number to use for builds and packages"
 	echo -e "  ${COLOR_GREEN}--tests${COLOR_RESET}                   Compile and run tests for the project"
 	echo -e "  ${COLOR_GREEN}--dist, --distribute${COLOR_RESET}      Build distributable packages"
-	echo -e "  ${COLOR_GREEN}--deploy${COLOR_RESET}                  Send the finished binaries to deploy locations"
+	echo -e "  ${COLOR_GREEN}--deploy <path>${COLOR_RESET}           Sets the destination path for finished binaries"
 	echo
 	echo -e "  ${COLOR_GREEN}-D, --dry${COLOR_RESET}                 Dry-run, no changes will be performed by actions"
 	echo -e "  ${COLOR_GREEN}-v, --verbose${COLOR_RESET}             Enable debug logs"
@@ -94,7 +94,7 @@ DO_CONFIG=$NO
 DO_BUILD=$NO
 DO_TESTS=$NO
 DO_DIST=$NO
-DO_DEPLOY=$NO
+DEPLOY_PATH=""
 IS_DRY=$NO
 BUILD_NUMBER=""
 DEBUG_FLAGS=$NO
@@ -151,9 +151,10 @@ while [ $# -gt 0 ]; do
 	--dist|--distribute)
 		DO_DIST=$YES
 	;;
-	# --dist
+	# deploy finished binaries
 	--deploy)
-		DO_DEPLOY=$YES
+		shift
+		DEPLOY_PATH="$1"
 	;;
 	# --dry
 	-D|--dry)
@@ -201,6 +202,12 @@ done
 
 
 
+if [[ -z $DEPLOY_PATH ]]; then
+	DEPLOY_PATH="$WDIR/target"
+fi
+
+
+
 did_notice=$NO
 if [[ $IS_DRY -eq $YES ]]; then
 	notice "Dry-run"
@@ -208,6 +215,10 @@ if [[ $IS_DRY -eq $YES ]]; then
 fi
 if [[ $DEBUG_FLAGS -eq $YES ]]; then
 	notice "Enable debug flags"
+	did_notice=$YES
+fi
+if [[ $DO_DIST -eq $YES ]]; then
+	notice "Deploy to: $DEPLOY_PATH"
 	did_notice=$YES
 fi
 [[ $did_notice -eq $YES ]] && echo
@@ -677,6 +688,12 @@ function doDist() {
 		\pushd "$PROJECT_PATH/rpmbuild/" >/dev/null  || exit 1
 			echo -e " > ${COLOR_CYAN}rpmbuild${COLOR_RESET}"
 			if [[ $IS_DRY -eq $NO ]]; then
+				if [[ ! -z $DEPLOY_PATH ]]; then
+					DEPLOY_PATH="$WDIR/target"
+				fi
+				if [[ ! -e "$DEPLOY_PATH/" ]]; then
+					\mkdir -pv "$DEPLOY_PATH/"  || exit 1
+				fi
 				\rpmbuild \
 					${BUILD_NUMBER:+ --define="build_number $BUILD_NUMBER"} \
 					--define="_topdir $PROJECT_PATH/rpmbuild" \
@@ -694,7 +711,7 @@ function doDist() {
 				fi
 				PACKAGES_ALL="$PACKAGES_ALL $PACKAGES"
 				for ENTRY in $PACKAGES; do
-					\cp -fv  "$PROJECT_PATH/rpmbuild/RPMS/$ENTRY"  "$WDIR/"  || exit 1
+					\cp -fv  "$PROJECT_PATH/rpmbuild/RPMS/$ENTRY"  "$DEPLOY_PATH/"  || exit 1
 				done
 			fi
 		\popd >/dev/null
@@ -716,14 +733,6 @@ function doDist() {
 		notice "Nothing found to distribute.."
 		echo
 	fi
-}
-
-
-
-function doDeploy() {
-#TODO
-failure "deploy is unfinished"
-exit 1
 }
 
 
@@ -773,8 +782,6 @@ function doProject() {
 	[[ $DO_TESTS  -eq $YES ]] && doTests
 	# --dist
 	[[ $DO_DIST   -eq $YES ]] && doDist
-	# --deploy
-	[[ $DO_DEPLOY -eq $YES ]] && doDeploy
 	# --gg
 	[[ $DO_GG     -eq $YES ]] && doGitGUI
 	# project done
