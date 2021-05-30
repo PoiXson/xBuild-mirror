@@ -105,9 +105,11 @@ while [ $# -gt 0 ]; do
 	-a|--all)
 		DO_ALL=$YES
 	;;
+	# build binary projects only
 	--binonly)
 		ONLY_BIN=$YES
 	;;
+	# build web projects only
 	--webonly)
 		ONLY_WEB=$YES
 	;;
@@ -143,11 +145,11 @@ while [ $# -gt 0 ]; do
 	--build-number=*)
 		BUILD_NUMBER="${1#*=}"
 	;;
-	# --tests
+	# build tests
 	--test|--tests|--testing)
 		DO_TESTS=$YES
 	;;
-	# --dist
+	# make distributable packages
 	--dist|--distribute)
 		DO_DIST=$YES
 	;;
@@ -156,7 +158,7 @@ while [ $# -gt 0 ]; do
 		shift
 		DEPLOY_PATH="$1"
 	;;
-	# --dry
+	# dry mode
 	-D|--dry)
 		IS_DRY=$YES
 	;;
@@ -239,7 +241,6 @@ fi
 PROJECT_NAME=""
 PROJECT_PATH=""
 REPO=""
-FRESH_CLONE=$NO
 
 let COUNT_PRJ=0
 let COUNT_OPS=0
@@ -758,7 +759,6 @@ function doCleanupVars() {
 	PROJECT_NAME=""
 	PROJECT_PATH=""
 	REPO=""
-	FRESH_CLONE=$NO
 	TIME_START_PRJ=$( \date "+%s%N" )
 	TIME_LAST=$TIME_START_PRJ
 }
