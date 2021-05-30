@@ -508,7 +508,7 @@ function doConfig() {
 		# composer
 		if [ -f "$PROJECT_PATH/composer.json" ]; then
 			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
-				if [[ $DEBUG_FLAG -eq $YES ]] \
+				if [[ $DEBUG_FLAGS -eq $YES ]] \
 				|| [[ ! -f "$PROJECT_PATH/composer.lock" ]]; then
 					title C "Composer Update"
 					echo "Path: $PROJECT_PATH"
@@ -550,13 +550,13 @@ function doBuild() {
 	if [[ $ONLY_WEB -eq $NO ]]; then
 		if [ -f "$PROJECT_PATH/configure" ]; then
 			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
-				CONFIGURE_DEBUG_FLAG=""
+				CONFIGURE_DEBUG_FLAGS=""
 				if [[ $DEBUG_FLAGS -eq $YES ]]; then
-					CONFIGURE_DEBUG_FLAG="--enable-debug"
+					CONFIGURE_DEBUG_FLAGS="--enable-debug"
 				fi
-				echo -e " > ${COLOR_CYAN}configure ${CONFIGURE_DEBUG_FLAG}${COLOR_RESET}"
+				echo -e " > ${COLOR_CYAN}configure ${CONFIGURE_DEBUG_FLAGS}${COLOR_RESET}"
 				if [[ $IS_DRY -eq $NO ]]; then
-					./configure $CONFIGURE_DEBUG_FLAG  || exit 1
+					./configure $CONFIGURE_DEBUG_FLAGS  || exit 1
 				fi
 			\popd >/dev/null
 			echo
