@@ -568,6 +568,13 @@ function doBuild() {
 				echo -e " > ${COLOR_CYAN}make${COLOR_RESET}"
 				if [[ $IS_DRY -eq $NO ]]; then
 					\make  || exit 1
+					# make install
+					if [[ -d "$PROJECT_PATH/.libs/" ]]; then
+						echo
+						echo -e " > ${COLOR_CYAN}make install${COLOR_RESET}"
+						\sudo \make install  || exit 1
+						echo
+					fi
 				fi
 			\popd >/dev/null
 			echo
