@@ -797,13 +797,6 @@ function doProject() {
 
 
 
-if [[ $DO_CLEAN -eq $YES ]]; then
-	COUNT=$( \ls -1 "$WDIR/"*.rpm 2>/dev/null | \wc -l )
-	if [[ $COUNT -gt 0 ]]; then
-		\rm -fv "$WDIR/"*.rpm
-	fi
-fi
-
 # group.dev files
 if [[ ! -z $DEV_FILES ]]; then
 	doCleanupVars
