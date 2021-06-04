@@ -223,7 +223,16 @@ if [[ $DO_DIST -eq $YES ]]; then
 	notice "Deploy to: $DEPLOY_PATH"
 	did_notice=$YES
 fi
+if [[ $ONLY_BIN -eq $YES ]]; then
+	notice "Bin Only"
+	did_notice=$YES
+fi
+if [[ $ONLY_WEB -eq $YES ]]; then
+	notice "Web Only"
+	did_notice=$YES
+fi
 [[ $did_notice -eq $YES ]] && echo
+
 if [[ $DO_ALL -eq $YES ]]; then
 	DEV_FILES=$( \ls -1v "$WDIR/"*.dev 2>/dev/null | \sort --version-sort )
 fi
@@ -388,7 +397,13 @@ function doClean() {
 		fi
 		DisplayTime "Cleaned"
 	elif [[ $rm_groups -le 0 ]]; then
-		notice "Nothing to clean.."
+		if [[ $ONLY_WEB -eq $YES ]]; then
+			echo "web only; skipping.."
+		elif [[ $ONLY_BIN -eq $YES ]]; then
+			echo "bin only; skipping.."
+		else
+			notice "Nothing to clean.."
+		fi
 		echo
 	fi
 	COUNT_OPS=$((COUNT_OPS+1))
@@ -534,7 +549,14 @@ function doConfig() {
 		DisplayTime "Configured"
 		COUNT_OPS=$((COUNT_OPS+1))
 	else
-		notice "Nothing found to configure.."
+		title C "Configure" "$PROJECT_NAME"
+		if [[ $ONLY_WEB -eq $YES ]]; then
+			echo "web only; skipping.."
+		elif [[ $ONLY_BIN -eq $YES ]]; then
+			echo "bin only; skipping.."
+		else
+			notice "Nothing found to configure.."
+		fi
 		echo
 	fi
 }
@@ -547,7 +569,9 @@ function doBuild() {
 	echo "Path: $PROJECT_PATH"
 	echo
 	# automake
-	if [[ $ONLY_WEB -eq $NO ]]; then
+	if [[ $ONLY_WEB -eq $YES ]]; then
+		echo "web only; skipping.."
+	else
 		if [ -f "$PROJECT_PATH/configure" ]; then
 			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
 				CONFIGURE_DEBUG_FLAGS=""
