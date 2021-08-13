@@ -150,9 +150,9 @@ echo -n > "$OUT_FILE"  || exit 1
 
 # project is bin or lib
 if [[ $IS_BIN -eq $YES ]]; then
-	echo "bin_PROGRAMS = ${PROJECT_NAME}" >> "$OUT_FILE"  || exit 1
+	echo "bin_PROGRAMS = "${PROJECT_NAME//_/-} >> "$OUT_FILE"  || exit 1
 elif [[ $IS_STATIC_LIB -eq $YES ]] || [[ $IS_DYNAMIC_LIB -eq $YES ]]; then
-	echo "lib_LTLIBRARIES = lib${PROJECT_NAME}.la" >> "$OUT_FILE"  || exit 1
+	echo "lib_LTLIBRARIES = lib"${PROJECT_NAME//_/-}.la >> "$OUT_FILE"  || exit 1
 fi
 
 # dependency libraries
