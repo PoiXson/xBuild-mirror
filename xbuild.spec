@@ -9,7 +9,7 @@ Requires : autogen autoconf libtool
 Requires : /usr/bin/rpmbuild
 Requires : /usr/bin/automake
 Requires : composer
-Obsoletes: project-tools
+#Obsoletes: project-tools
 
 BuildArch : noarch
 Packager  : PoiXson <support@poixson.com>
