@@ -776,8 +776,15 @@ function Project() {
 	fi
 	doCleanupVars
 	if [[ ! -z $1 ]]; then
-		PROJECT_NAME="$1"
-		PROJECT_PATH="$WDIR/$PROJECT_NAME"
+		if [[ "$1" == "." ]]; then
+			PROJECT_PATH="$WDIR"
+		else
+			PROJECT_NAME="$1"
+			PROJECT_PATH="$WDIR/$1"
+		fi
+		if [[ ! -z $2 ]]; then
+			PROJECT_NAME="$2"
+		fi
 	fi
 }
 function Repo() {
@@ -836,6 +843,14 @@ elif [[ -f "$WDIR/xbuild.conf" ]]; then
 	source "$WDIR/xbuild.conf"  || exit 1
 	# last project in .dev file
 	Project
+
+# project in current path
+#else
+#	doCleanupVars
+#	PROJECT_NAME="PROJECT"
+#	PROJECT_PATH="$WDIR"
+#	doProject
+#	doCleanupVars
 fi
 
 
