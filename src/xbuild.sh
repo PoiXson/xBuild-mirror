@@ -63,6 +63,7 @@ function DisplayHelp() {
 	echo -e "  ${COLOR_GREEN}--config, --configure${COLOR_RESET}     Configure projects, with autotools or composer"
 	echo -e "  ${COLOR_GREEN}--build, --compile${COLOR_RESET}        Compile the projects"
 	echo -e "  ${COLOR_GREEN}--ccb${COLOR_RESET}                     Clean, config, build"
+	echo -e "  ${COLOR_GREEN}--ccbd${COLOR_RESET}                    Clean, config, build, dest"
 	echo
 	echo -e "  ${COLOR_GREEN}-d, --debug-flags${COLOR_RESET}         Build with debug flags"
 	echo -e "  ${COLOR_GREEN}-n, --build-number${COLOR_RESET}        Build number to use for builds and packages"
@@ -140,6 +141,13 @@ while [ $# -gt 0 ]; do
 		DO_CLEAN=$YES
 		DO_CONFIG=$YES
 		DO_BUILD=$YES
+	;;
+	# --ccbd
+	--ccbd)
+		DO_CLEAN=$YES
+		DO_CONFIG=$YES
+		DO_BUILD=$YES
+		DO_DIST=$YES
 	;;
 	# debug flags
 	-d|--debug-flag|--debug-flags)
