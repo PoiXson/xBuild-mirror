@@ -47,7 +47,7 @@ function DisplayHelp() {
 		count=$((count+1))
 	done
 	if [[ $count -eq 0 ]]; then
-		echo "  No .dev or build.conf files found here"
+		echo "  No .dev or xbuild.conf files found here"
 	fi
 	echo
 	echo -e "${COLOR_BROWN}Options:${COLOR_RESET}"
@@ -63,7 +63,7 @@ function DisplayHelp() {
 	echo -e "  ${COLOR_GREEN}--config, --configure${COLOR_RESET}     Configure projects, with autotools or composer"
 	echo -e "  ${COLOR_GREEN}--build, --compile${COLOR_RESET}        Compile the projects"
 	echo -e "  ${COLOR_GREEN}--ccb${COLOR_RESET}                     Clean, config, build"
-	echo -e "  ${COLOR_GREEN}--ccbd${COLOR_RESET}                    Clean, config, build, dest"
+	echo -e "  ${COLOR_GREEN}--ccbd${COLOR_RESET}                    Clean, config, build, dist"
 	echo
 	echo -e "  ${COLOR_GREEN}-d, --debug-flags${COLOR_RESET}         Build with debug flags"
 	echo -e "  ${COLOR_GREEN}-n, --build-number${COLOR_RESET}        Build number to use for builds and packages"
@@ -686,7 +686,7 @@ function doTests() {
 
 function doDist() {
 	did_something=$NO
-	title C "Package" "$PROJECT_NAME"
+	title C "Package/Dist" "$PROJECT_NAME"
 	echo "Path: $PROJECT_PATH"
 	echo
 	# make dist
