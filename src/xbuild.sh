@@ -405,6 +405,21 @@ function doClean() {
 			fi
 		fi
 	fi
+	# clean target
+	if [ -d "$PROJECT_PATH/target/" ]; then
+		\pushd "$PROJECT_PATH" >/dev/null || exit 1
+			echo -ne " > ${COLOR_CYAN}rm target..${COLOR_RESET}"
+			rm_groups=$((rm_groups+1))
+			if [[ $IS_DRY -eq $NO ]]; then
+				c=$( \rm -vrf --preserve-root target | wc -l )
+				[[ 0 -ne $? ]] && exit 1
+				[[ $c -gt 0 ]] && count=$((count+c))
+				echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
+			else
+				echo
+			fi
+		\popd >/dev/null
+	fi
 	# nothing to do
 	if [[ $count -gt 0 ]]; then
 		echo
