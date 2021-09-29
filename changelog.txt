@@ -1,6 +1,12 @@
 xBuild - A tool to simplify building and managing projects in your workspace
 
 
+2021-09-28 - 2.1.1
+===================
+* added --ccb and --ccbd flags
+* added target/ to --clean
+
+
 2021-08-12 - 2.1.0
 ===================
 * renamed project from project-tools to xBuild
