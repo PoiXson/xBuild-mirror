@@ -1,6 +1,14 @@
 xBuild - A tool to simplify building and managing projects in your workspace
 
 
+2021-10-01 - 2.1.2
+==================
+* added MakeSymlink() function to xbuild.sh
+* added LoadConf() function to xbuild.sh
+* improved handling of /target dir
+* improved handling of multiple hierarchial xbuild.conf files
+
+
 2021-09-28 - 2.1.1
 ===================
 * added --ccb and --ccbd flags
