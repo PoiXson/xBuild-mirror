@@ -884,24 +884,41 @@ function doProject() {
 	COUNT_PRJ=$((COUNT_PRJ+1))
 }
 
+function LoadConf() {
+	doCleanupVars
+	if [ -z $1 ]; then
+		failure "LoadConf() requires file argument"
+		exit 1
+	fi
+	if [[ "$1" != *".dev" ]] && [[ "$1" != *"/xbuild.conf" ]]; then
+		failure "Invalid config file: $1"
+		exit 1
+	fi
+	local LAST_PATH="$CURRENT_PATH"
+	CURRENT_PATH=${1%/*}
+	\pushd "$CURRENT_PATH" >/dev/null  || exit 1
+		echo -e " ${COLOR_GREEN}>${COLOR_RESET} ${COLOR_BLUE}$1${COLOR_RESET}"
+		# load xbuild.conf
+		source "$1" || exit 1
+		# last project in conf file
+		doProject
+	\popd >/dev/null
+	CURRENT_PATH="$LAST_PATH"
+}
+
 
 
 # group.dev files
 if [[ ! -z $DEV_FILES ]]; then
 	doCleanupVars
 	for FILE in $DEV_FILES; do
-		source "$FILE"  || exit 1
-		# last project in .dev file
-		Project
+		LoadConf "$FILE"
 	done
 
 # xbuild.conf project file
 elif [[ -f "$WDIR/xbuild.conf" ]]; then
 	doCleanupVars
-	source "$WDIR/xbuild.conf"  || exit 1
-	# last project in .dev file
-	Project
-
+	LoadConf "$WDIR/xbuild.conf"
 # project in current path
 #else
 #	doCleanupVars
