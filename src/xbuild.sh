@@ -320,6 +320,7 @@ function MakeSymlink() {
 # --clean
 function doClean() {
 	title C "Clean" "$PROJECT_NAME"
+	echo " Path: $PROJECT_PATH"
 	let count=0
 	let rm_groups=0
 	# make clean
@@ -470,7 +471,7 @@ function doPullPush() {
 			exit 1
 		fi
 		title C "Clone" "$PROJECT_NAME"
-		echo "Path: $PROJECT_PATH"
+		echo " Path: $PROJECT_PATH"
 		echo
 		\pushd "$CURRENT_PATH/" >/dev/null  || exit 1
 			# git clone
@@ -487,7 +488,7 @@ function doPullPush() {
 		notice ".git/ not found, skipping"
 	fi
 	title C "Pull/Push" "$PROJECT_NAME"
-	echo "Path: $PROJECT_PATH"
+	echo " Path: $PROJECT_PATH"
 	echo
 	\pushd "$PROJECT_PATH/" >/dev/null  || exit 1
 		# git pull
@@ -546,7 +547,7 @@ function doConfig() {
 		# generate automake files
 		if [ -f "$PROJECT_PATH/autotools.conf" ]; then
 			title C "genautotools" "$PROJECT_NAME"
-			echo "Path: $PROJECT_PATH"
+			echo " Path: $PROJECT_PATH"
 			echo
 			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
 				echo -e " > ${COLOR_CYAN}genautotools${COLOR_RESET}"
@@ -558,7 +559,7 @@ function doConfig() {
 		# automake
 		if [ -f "$PROJECT_PATH/configure.ac" ]; then
 			title C "Configure" "$PROJECT_NAME"
-			echo "Path: $PROJECT_PATH"
+			echo " Path: $PROJECT_PATH"
 			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
 				echo -e " > ${COLOR_CYAN}autoreconf -v --install${COLOR_RESET}"
 				if [[ $IS_DRY -eq $NO ]]; then
@@ -576,14 +577,14 @@ function doConfig() {
 				if [[ $DEBUG_FLAGS -eq $YES ]] \
 				|| [[ ! -f "$PROJECT_PATH/composer.lock" ]]; then
 					title C "Composer Update"
-					echo "Path: $PROJECT_PATH"
+					echo " Path: $PROJECT_PATH"
 					echo -e " > ${COLOR_CYAN}composer update${COLOR_RESET}"
 					if [[ $IS_DRY -eq $NO ]]; then
 						\composer update  || exit 1
 					fi
 				else
 					title C "Composer Install"
-					echo "Path: $PROJECT_PATH"
+					echo " Path: $PROJECT_PATH"
 					echo -e " > ${COLOR_CYAN}composer install${COLOR_RESET}"
 					if [[ $IS_DRY -eq $NO ]]; then
 						\composer install  || exit 1
@@ -616,7 +617,7 @@ function doConfig() {
 function doBuild() {
 	did_something=$NO
 	title C "Build" "$PROJECT_NAME"
-	echo "Path: $PROJECT_PATH"
+	echo " Path: $PROJECT_PATH"
 	echo
 	# automake
 	if [[ $ONLY_WEB -eq $YES ]]; then
@@ -681,7 +682,7 @@ function doBuild() {
 function doTests() {
 	did_something=$NO
 	title C "Testing" "$PROJECT_NAME"
-	echo "Path: $PROJECT_PATH"
+	echo " Path: $PROJECT_PATH"
 	echo
 	# make check
 	if [ -f "$PROJECT_PATH/Makefile" ]; then
@@ -721,7 +722,7 @@ function doTests() {
 function doDist() {
 	did_something=$NO
 	title C "Package/Dist" "$PROJECT_NAME"
-	echo "Path: $PROJECT_PATH"
+	echo " Path: $PROJECT_PATH"
 	echo
 	# make dist
 	if [ -f "$PROJECT_PATH/Makefile" ]; then
@@ -813,7 +814,7 @@ function doDist() {
 		DisplayTime "Distributable"
 		COUNT_OPS=$((COUNT_OPS+1))
 	else
-		notice "Nothing found to distribute.."
+		notice "No distributes found to build.."
 		echo
 	fi
 }
@@ -852,8 +853,7 @@ function doProject() {
 			return
 		fi
 	fi
-	title B "$PROJECT_NAME"
-	echo
+	# project in current path
 	# --clean
 	[[ $DO_CLEAN  -eq $YES ]] && doClean
 	# --pp
@@ -930,12 +930,9 @@ elif [[ -f "$WDIR/xbuild.conf" ]]; then
 #	doCleanupVars
 fi
 
-
-
 echo
 echo
 echo -e "${COLOR_GREEN}===============================================${COLOR_RESET}"
-echo
 echo
 
 if [[ $COUNT_OPS -le 0 ]]; then
