@@ -519,15 +519,6 @@ function doGitGUI() {
 
 function doConfig() {
 	did_something=$NO
-#	# run make-symlinks.sh if exists
-#	if [ -f "$PROJECT_PATH/make-symlinks.sh" ]; then
-#		title C "Make Symlinks"
-#		echo "Path: $PROJECT_PATH"
-#		\pushd "$PROJECT_PATH/" >/dev/null || exit 1
-#			sh  "$PROJECT_PATH/make-symlinks.sh"  || exit 1
-#		\popd >/dev/null
-#		echo
-#	fi
 	if [[ $ONLY_WEB -eq $NO ]]; then
 		# generate automake files
 		if [ -f "$PROJECT_PATH/autotools.conf" ]; then
