@@ -265,6 +265,7 @@ fi
 # project vars
 PROJECT_NAME=""
 PROJECT_PATH=""
+CURRENT_PATH="$WDIR"
 REPO=""
 
 let COUNT_PRJ=0
@@ -471,7 +472,7 @@ function doPullPush() {
 		title C "Clone" "$PROJECT_NAME"
 		echo "Path: $PROJECT_PATH"
 		echo
-		\pushd "$WDIR/" >/dev/null  || exit 1
+		\pushd "$CURRENT_PATH/" >/dev/null  || exit 1
 			# git clone
 			echo -e " > ${COLOR_CYAN}git clone ${REPO}${COLOR_RESET}"
 			if [[ $IS_DRY -eq $NO ]]; then
@@ -513,7 +514,7 @@ function doGitGUI() {
 		return
 	fi
 	# git-gui
-	\pushd "$WDIR/$PROJECT_NAME/" >/dev/null  || exit 1
+	\pushd "$CURRENT_PATH/$PROJECT_NAME/" >/dev/null  || exit 1
 		echo -ne " > ${COLOR_CYAN}git-gui${COLOR_RESET}"
 		if [[ $IS_DRY -eq $NO ]]; then
 			/usr/libexec/git-core/git-gui &
@@ -827,10 +828,10 @@ function Project() {
 	doCleanupVars
 	if [[ ! -z $1 ]]; then
 		if [[ "$1" == "." ]]; then
-			PROJECT_PATH="$WDIR"
+			PROJECT_PATH="$CURRENT_PATH"
 		else
 			PROJECT_NAME="$1"
-			PROJECT_PATH="$WDIR/$1"
+			PROJECT_PATH="$CURRENT_PATH/$1"
 		fi
 		if [[ ! -z $2 ]]; then
 			PROJECT_NAME="$2"
@@ -856,6 +857,13 @@ function doProject() {
 		return
 	fi
 	echo
+	# xbuild.conf file in sub dir
+	if [[ -f "$PROJECT_PATH/xbuild.conf" ]]; then
+		if [[ "$PROJECT_PATH" != "$CURRENT_PATH" ]]; then
+			LoadConf "$PROJECT_PATH/xbuild.conf"
+			return
+		fi
+	fi
 	title B "$PROJECT_NAME"
 	echo
 	# --clean
