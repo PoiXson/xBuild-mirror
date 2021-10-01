@@ -298,6 +298,24 @@ function DisplayTimeProject() {
 
 
 
+function MakeSymlink() {
+	if [[ -z $1 ]]; then
+		failure "MakeSymlink() requires arguments"
+		exit 1
+	fi
+	echo -ne " > ${COLOR_CYAN}Symlink: "
+	if [[ -z $2 ]]; then
+		\ln -svf "$1"
+	else
+		\ln -svf "$1" "$2"
+	fi
+	RESULT=$?
+	echo -ne "$COLOR_RESET"
+	[[ $RESULT ]] || exit 1
+}
+
+
+
 # --clean
 function doClean() {
 	title C "Clean" "$PROJECT_NAME"
