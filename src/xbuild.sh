@@ -823,9 +823,7 @@ function doDist() {
 function Project() {
 	if [[ ! -z $PROJECT_NAME ]]; then
 		doProject
-		DisplayTimeProject
 	fi
-	doCleanupVars
 	if [[ ! -z $1 ]]; then
 		if [[ "$1" == "." ]]; then
 			PROJECT_PATH="$CURRENT_PATH"
@@ -837,19 +835,9 @@ function Project() {
 			PROJECT_NAME="$2"
 		fi
 	fi
-}
-function Repo() {
-	if [[ ! -z $1 ]]; then
-		REPO="$1"
+	if [[ ! -z $PROJECT_NAME ]]; then
+		title B "$PROJECT_NAME"
 	fi
-}
-
-function doCleanupVars() {
-	PROJECT_NAME=""
-	PROJECT_PATH=""
-	REPO=""
-	TIME_START_PRJ=$( \date "+%s%N" )
-	TIME_LAST=$TIME_START_PRJ
 }
 
 function doProject() {
@@ -882,6 +870,22 @@ function doProject() {
 	[[ $DO_GG     -eq $YES ]] && doGitGUI
 	# project done
 	COUNT_PRJ=$((COUNT_PRJ+1))
+	DisplayTimeProject
+	doCleanupVars
+}
+
+function Repo() {
+	if [[ ! -z $1 ]]; then
+		REPO="$1"
+	fi
+}
+
+function doCleanupVars() {
+	PROJECT_NAME=""
+	PROJECT_PATH=""
+	REPO=""
+	TIME_START_PRJ=$( \date "+%s%N" )
+	TIME_LAST=$TIME_START_PRJ
 }
 
 function LoadConf() {
@@ -910,14 +914,12 @@ function LoadConf() {
 
 # group.dev files
 if [[ ! -z $DEV_FILES ]]; then
-	doCleanupVars
 	for FILE in $DEV_FILES; do
 		LoadConf "$FILE"
 	done
 
 # xbuild.conf project file
 elif [[ -f "$WDIR/xbuild.conf" ]]; then
-	doCleanupVars
 	LoadConf "$WDIR/xbuild.conf"
 # project in current path
 #else
