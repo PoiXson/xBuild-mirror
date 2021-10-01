@@ -424,8 +424,8 @@ function doClean() {
 		fi
 	fi
 	# clean target
-	if [ -d "$PROJECT_PATH/target/" ]; then
-		\pushd "$PROJECT_PATH" >/dev/null || exit 1
+	if [[ ! -z $DEPLOY_PATH ]] && [[ -d "$DEPLOY_PATH" ]] && [[ "$DEPLOY_PATH" == *"/target" ]]; then
+		\pushd "$DEPLOY_PATH/.." >/dev/null || exit 1
 			echo -ne " > ${COLOR_CYAN}rm target..${COLOR_RESET}"
 			rm_groups=$((rm_groups+1))
 			if [[ $IS_DRY -eq $NO ]]; then
@@ -769,8 +769,9 @@ function doDist() {
 		\pushd "$PROJECT_PATH/rpmbuild/" >/dev/null  || exit 1
 			echo -e " > ${COLOR_CYAN}rpmbuild${COLOR_RESET}"
 			if [[ $IS_DRY -eq $NO ]]; then
-				if [[ ! -z $DEPLOY_PATH ]]; then
-					DEPLOY_PATH="$WDIR/target"
+				if [[ -z $DEPLOY_PATH ]]; then
+					failure "Deploy path not set"
+					exit 1
 				fi
 				if [[ ! -e "$DEPLOY_PATH/" ]]; then
 					\mkdir -pv "$DEPLOY_PATH/"  || exit 1
