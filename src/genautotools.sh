@@ -170,7 +170,7 @@ elif [[ $IS_DYNAMIC_LIB -eq $YES ]]; then
 fi
 # enable -fPIC flag
 if [[ $FPIC_FLAG -eq $YES ]]; then
-	echo "libpxn_la_CFLAGS = -fPIC" >> "$OUT_FILE"  || exit 1
+	echo "lib${PROJECT_NAME/-/_}_la_CFLAGS = -fPIC" >> "$OUT_FILE"  || exit 1
 fi
 echo >> "$OUT_FILE"  || exit 1
 
@@ -179,6 +179,9 @@ if [[ -f "$WDIR/tests/tests.c" ]] && [[ ! -z $TEST_BINARY ]]; then
 	echo "check_PROGRAMS = $TEST_BINARY"                >> "$OUT_FILE"  || exit 1
 	echo "${TEST_BINARY/-/_}_LDADD = -l${PROJECT_NAME}" >> "$OUT_FILE"  || exit 1
 	echo "${TEST_BINARY/-/_}_SOURCES = tests/tests.c"   >> "$OUT_FILE"  || exit 1
+	if [[ $FPIC_FLAG -eq $YES ]]; then
+		echo "test_lib${PROJECT_NAME/-/_}_la_CFLAGS = -fPIC" >> "$OUT_FILE"  || exit 1
+	fi
 	echo >> "$OUT_FILE"  || exit 1
 fi
 
