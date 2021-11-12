@@ -103,7 +103,7 @@ if [[ $NO_PEDANTIC -ne $YES ]]; then
 fi
 cat >> "$OUT_FILE" <<EOF
 AM_INIT_AUTOMAKE([subdir-objects foreign])
-AM_CFLAGS="-Wall -Werror${PEDANTIC}"
+CFLAGS="-Wall -Werror${PEDANTIC}"
 AC_ARG_ENABLE([debug],
 	[AS_HELP_STRING([--enable-debug],
 		[enable debug data generation (default=no)])],
@@ -112,14 +112,14 @@ AC_ARG_ENABLE([debug],
 if test "x\$enable_debug" = xyes; then
 	AC_MSG_RESULT([Debug Mode])
 	AC_DEFINE([DEBUG],[],[Debug Mode])
-	AM_CFLAGS="\$AM_CFLAGS -g -Wno-uninitialized -O0"
+	CFLAGS="\$CFLAGS -g -Wno-uninitialized -O0"
 else
 	AC_MSG_RESULT([Production Mode])
     AC_DEFINE([NDEBUG],[],[No-debug Mode])
-    AM_CFLAGS="\$AM_CFLAGS -O3 -D_FORTIFY_SOURCE"
+    CFLAGS="\$CFLAGS -O3 -D_FORTIFY_SOURCE"
 fi
-echo -ne "\nAM_CFLAGS=\$AM_CFLAGS\n\n"
-AC_SUBST([AM_CFLAGS])
+echo -ne "\nCFLAGS=\$CFLAGS\n\n"
+AC_SUBST([CFLAGS])
 
 AC_CONFIG_FILES([Makefile])
 
