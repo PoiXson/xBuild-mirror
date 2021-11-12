@@ -112,7 +112,7 @@ AC_ARG_ENABLE([debug],
 if test "x\$enable_debug" = xyes; then
 	AC_MSG_RESULT([Debug Mode])
 	AC_DEFINE([DEBUG],[],[Debug Mode])
-	CFLAGS="\$CFLAGS -g -Wno-uninitialized -O0"
+	CFLAGS="\$CFLAGS -Og -ggdb3 -Wno-uninitialized"
 else
 	AC_MSG_RESULT([Production Mode])
     AC_DEFINE([NDEBUG],[],[No-debug Mode])
