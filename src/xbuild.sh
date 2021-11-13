@@ -268,6 +268,7 @@ PROJECT_NAME=""
 PROJECT_PATH=""
 CURRENT_PATH="$WDIR"
 REPO=""
+PACKAGES_ALL=()
 
 let COUNT_PRJ=0
 let COUNT_OPS=0
@@ -795,8 +796,8 @@ function doDist() {
 					failure "Failed to find finished rpm packages: $PROJECT_PATH/rpmbuild/RPMS/"
 					exit 1
 				fi
-				PACKAGES_ALL="$PACKAGES_ALL $PACKAGES"
 				for ENTRY in $PACKAGES; do
+					PACKAGES_ALL+=( "$TARGET_PATH/$ENTRY" )
 					\cp -fv  "$PROJECT_PATH/rpmbuild/RPMS/$ENTRY"  "$DEPLOY_PATH/"  || exit 1
 					echo -e " > ${COLOR_CYAN}cp  rpmbuild/RPMS/$ENTRY  $TARGET_PATH${COLOR_RESET}"
 				done
