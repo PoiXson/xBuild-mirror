@@ -69,7 +69,7 @@ function DisplayHelp() {
 	echo -e "  ${COLOR_GREEN}-n, --build-number${COLOR_RESET}        Build number to use for builds and packages"
 	echo -e "  ${COLOR_GREEN}--tests${COLOR_RESET}                   Compile and run tests for the project"
 	echo -e "  ${COLOR_GREEN}--dist, --distribute${COLOR_RESET}      Build distributable packages"
-	echo -e "  ${COLOR_GREEN}--deploy <path>${COLOR_RESET}           Sets the destination path for finished binaries"
+	echo -e "  ${COLOR_GREEN}--target <path>${COLOR_RESET}           Sets the destination path for finished binaries"
 	echo
 	echo -e "  ${COLOR_GREEN}-D, --dry${COLOR_RESET}                 Dry-run, no changes will be performed by actions"
 	echo -e "  ${COLOR_GREEN}-v, --verbose${COLOR_RESET}             Enable debug logs"
@@ -97,7 +97,7 @@ DO_CONFIG=$NO
 DO_BUILD=$NO
 DO_TESTS=$NO
 DO_DIST=$NO
-DEPLOY_PATH=""
+TARGET_PATH=""
 IS_DRY=$NO
 BUILD_NUMBER=""
 DEBUG_FLAGS=$NO
@@ -169,10 +169,10 @@ while [ $# -gt 0 ]; do
 	--dist|--distribute)
 		DO_DIST=$YES
 	;;
-	# deploy finished binaries
-	--deploy)
+	# path for finished binaries
+	--target)
 		shift
-		DEPLOY_PATH="$1"
+		TARGET_PATH="$1"
 	;;
 	# dry mode
 	-D|--dry)
@@ -220,8 +220,9 @@ done
 
 
 
-if [[ -z $DEPLOY_PATH ]]; then
-	DEPLOY_PATH="$WDIR/target"
+if [[ -z $TARGET_PATH ]]; then
+	TARGET_PATH="$WDIR"
+#	TARGET_PATH="$WDIR/target"
 fi
 
 
@@ -236,7 +237,7 @@ if [[ $DEBUG_FLAGS -eq $YES ]]; then
 	did_notice=$YES
 fi
 if [[ $DO_DIST -eq $YES ]]; then
-	notice "Deploy to: $DEPLOY_PATH"
+	notice "Deploy to: $TARGET_PATH"
 	did_notice=$YES
 fi
 if [[ $ONLY_BIN -eq $YES ]]; then
@@ -357,7 +358,7 @@ function doClean() {
 						fi
 					fi
 					if [[ -d "$ENTRY" ]]; then
-						echo -ne " > ${COLOR_CYAN}rm ${ENTRY}..${COLOR_RESET}"
+						echo -ne " > ${COLOR_CYAN}rm -rf ${ENTRY}..${COLOR_RESET}"
 						rm_groups=$((rm_groups+1))
 						if [[ $IS_DRY -eq $NO ]]; then
 							c=$( \rm -vrf --preserve-root "$ENTRY" | \wc -l )
@@ -745,14 +746,14 @@ function doDist() {
 		fi
 		PACKAGES=""
 		\pushd "$PROJECT_PATH/rpmbuild/" >/dev/null  || exit 1
+			if [[ -z $TARGET_PATH ]]; then
+				failure "Target path not set"
+				exit 1
+			fi
 			echo -e " > ${COLOR_CYAN}rpmbuild${COLOR_RESET}"
 			if [[ $IS_DRY -eq $NO ]]; then
-				if [[ -z $DEPLOY_PATH ]]; then
-					failure "Deploy path not set"
-					exit 1
-				fi
-				if [[ ! -e "$DEPLOY_PATH/" ]]; then
-					\mkdir -pv "$DEPLOY_PATH/"  || exit 1
+				if [[ ! -e "$TARGET_PATH/" ]]; then
+					\mkdir -pv "$TARGET_PATH/"  || exit 1
 				fi
 				\rpmbuild \
 					${BUILD_NUMBER:+ --define="build_number $BUILD_NUMBER"} \
