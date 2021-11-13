@@ -313,10 +313,14 @@ function MakeSymlink() {
 		exit 1
 	fi
 	echo -ne " > ${COLOR_CYAN}Symlink: "
-	if [[ -z $2 ]]; then
-		\ln -svf "$1"
+	if [[ $IS_DRY -eq $NO ]]; then
+		if [[ -z $2 ]]; then
+			\ln -srvf "$1"
+		else
+			\ln -srvf "$1" "$2"
+		fi
 	else
-		\ln -svf "$1" "$2"
+		echo "$1 -> $2"
 	fi
 	RESULT=$?
 	echo -ne "$COLOR_RESET"
