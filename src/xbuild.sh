@@ -52,6 +52,7 @@ function DisplayHelp() {
 	echo
 	echo -e "${COLOR_BROWN}Options:${COLOR_RESET}"
 	echo -e "  ${COLOR_GREEN}-a, --all${COLOR_RESET}                 Use all .dev files found"
+	echo -e "  ${COLOR_GREEN}-r, --recursive${COLOR_RESET}           Recursively load xbuild.conf files"
 	echo -e "  ${COLOR_GREEN}--binonly${COLOR_RESET}                 Build binary projects only"
 	echo -e "  ${COLOR_GREEN}--webonly${COLOR_RESET}                 Build web projects only"
 	echo
@@ -88,6 +89,7 @@ if [[ $# -eq 0 ]]; then
 fi
 DEV_FILES=""
 DO_ALL=$NO
+DO_RECURSIVE=$NO
 ONLY_BIN=$NO
 ONLY_WEB=$NO
 DO_CLEAN=$NO
@@ -107,6 +109,10 @@ while [ $# -gt 0 ]; do
 	# all project groups
 	-a|--all)
 		DO_ALL=$YES
+	;;
+	# recursive xbuild.conf files
+	-r|--recursive)
+		DO_RECURSIVE=$YES
 	;;
 	# build binary projects only
 	--binonly)
@@ -857,7 +863,9 @@ function doProject() {
 	# xbuild.conf file in sub dir
 	if [[ -f "$PROJECT_PATH/xbuild.conf" ]]; then
 		if [[ "$PROJECT_PATH" != "$CURRENT_PATH" ]]; then
-			LoadConf "$PROJECT_PATH/xbuild.conf"
+			if [[ $DO_RECURSIVE -eq $YES ]]; then
+				LoadConf "$PROJECT_PATH/xbuild.conf"
+			fi
 			return
 		fi
 	fi
