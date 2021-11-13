@@ -377,14 +377,26 @@ function doClean() {
 					\pushd "$DIR/" >/dev/null || continue
 						for ENTRY in $CLEAN_FILES; do
 							if [[ -f "$ENTRY" ]]; then
-								c=$( \rm -v "$ENTRY" | \wc -l )
-								[[ 0 -ne $? ]] && exit 1
-								[[ $c -gt 0 ]] && count=$((count+c))
+								echo -ne " > ${COLOR_CYAN}rm ${ENTRY}..${COLOR_RESET}"
+								if [[ $IS_DRY -eq $NO ]]; then
+									c=$( \rm -v "$ENTRY" | \wc -l )
+									[[ 0 -ne $? ]] && exit 1
+									[[ $c -gt 0 ]] && count=$((count+c))
+									echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
+								else
+									echo
+								fi
 							fi
 							if [[ -d "$ENTRY" ]]; then
-								c=$( \rm -vrf --preserve-root "$ENTRY" | \wc -l )
-								[[ 0 -ne $? ]] && exit 1
-								[[ $c -gt 0 ]] && count=$((count+c))
+								echo -ne " > ${COLOR_CYAN}rm -rf ${ENTRY}..${COLOR_RESET}"
+								if [[ $IS_DRY -eq $NO ]]; then
+									c=$( \rm -vrf --preserve-root "$ENTRY" | \wc -l )
+									[[ 0 -ne $? ]] && exit 1
+									[[ $c -gt 0 ]] && count=$((count+c))
+									echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
+								else
+									echo
+								fi
 							fi
 						done
 					\popd >/dev/null
@@ -394,7 +406,7 @@ function doClean() {
 		# clean rpm project
 		if [ -d "$PROJECT_PATH/rpmbuild" ]; then
 			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
-				echo -ne " > ${COLOR_CYAN}rm rpmbuild..${COLOR_RESET}"
+				echo -ne " > ${COLOR_CYAN}rm -rf rpmbuild..${COLOR_RESET}"
 				rm_groups=$((rm_groups+1))
 				if [[ $IS_DRY -eq $NO ]]; then
 					c=$( \rm -vrf --preserve-root rpmbuild | wc -l )
@@ -412,7 +424,7 @@ function doClean() {
 		if [ -f "$PROJECT_PATH/composer.json" ]; then
 			if [ -d "$PROJECT_PATH/vendor" ]; then
 				\pushd "$PROJECT_PATH/" >/dev/null || exit 1
-					echo -ne " > ${COLOR_CYAN}rm vendor..${COLOR_RESET}"
+					echo -ne " > ${COLOR_CYAN}rm -rf vendor..${COLOR_RESET}"
 					rm_groups=$((rm_groups+1))
 					if [[ $IS_DRY -eq $NO ]]; then
 						c=$( \rm -vrf --preserve-root vendor | wc -l )
@@ -461,7 +473,7 @@ function doPullPush() {
 		echo
 		\pushd "$CURRENT_PATH/" >/dev/null  || exit 1
 			# git clone
-			echo -e " > ${COLOR_CYAN}git clone ${REPO}${COLOR_RESET}"
+			echo -e " > ${COLOR_CYAN}git clone  $REPO  $PROJECT_NAME${COLOR_RESET}"
 			if [[ $IS_DRY -eq $NO ]]; then
 				\git clone "$REPO" "$PROJECT_NAME"  || exit 1
 			fi
@@ -617,13 +629,16 @@ function doBuild() {
 		# make
 		if [ -f "$PROJECT_PATH/Makefile" ]; then
 			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
+				# make
 				echo -e " > ${COLOR_CYAN}make${COLOR_RESET}"
 				if [[ $IS_DRY -eq $NO ]]; then
 					\make  || exit 1
-					# make install
-					if [[ -d "$PROJECT_PATH/.libs/" ]]; then
-						echo
-						echo -e " > ${COLOR_CYAN}make install${COLOR_RESET}"
+				fi
+				# make install
+				if [[ -d "$PROJECT_PATH/.libs/" ]]; then
+					echo
+					echo -e " > ${COLOR_CYAN}make install${COLOR_RESET}"
+					if [[ $IS_DRY -eq $NO ]]; then
 						\sudo \make install  || exit 1
 						echo
 					fi
@@ -741,6 +756,7 @@ function doDist() {
 		c=$( \mkdir -pv "$PROJECT_PATH"/rpmbuild/{BUILD,BUILDROOT,SOURCES,SPECS,RPMS,SRPMS,TMP} | \wc -l )
 		[[ 0 -ne $? ]] && exit 1
 		echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
+		echo -e " > ${COLOR_CYAN}cp  ${SPEC_FILE##*/}  rpmbuild/SPECS/${COLOR_RESET}"
 		if [[ $IS_DRY -eq $NO ]]; then
 			\cp -vf  "$SPEC_FILE"  "$PROJECT_PATH/rpmbuild/SPECS/"  || exit 1
 		fi
@@ -750,7 +766,15 @@ function doDist() {
 				failure "Target path not set"
 				exit 1
 			fi
-			echo -e " > ${COLOR_CYAN}rpmbuild${COLOR_RESET}"
+			echo -e \
+				" > ${COLOR_CYAN}rpmbuild\n"  \
+				${BUILD_NUMBER:+"     --define=build_number $BUILD_NUMBER\n"}  \
+				"     --define=_topdir $PROJECT_PATH/rpmbuild\n"               \
+				"     --define=_tmppath $PROJECT_PATH/rpmbuild/TMP\n"          \
+				"     --define=_binary_payload w9.gzdio\n"                     \
+				"     --undefine=_disable_source_fetch\n"                      \
+				"     -bb SPECS/${SPEC_NAME}.spec\n"                           \
+				"${COLOR_RESET}"
 			if [[ $IS_DRY -eq $NO ]]; then
 				if [[ ! -e "$TARGET_PATH/" ]]; then
 					\mkdir -pv "$TARGET_PATH/"  || exit 1
@@ -763,6 +787,7 @@ function doDist() {
 					--undefine=_disable_source_fetch \
 					-bb "SPECS/${SPEC_NAME}.spec" \
 						|| exit 1
+				echo
 				\pushd "$PROJECT_PATH/rpmbuild/RPMS/" >/dev/null  || exit 1
 					PACKAGES=$( \ls -1 *.rpm )
 				\popd >/dev/null
@@ -773,16 +798,21 @@ function doDist() {
 				PACKAGES_ALL="$PACKAGES_ALL $PACKAGES"
 				for ENTRY in $PACKAGES; do
 					\cp -fv  "$PROJECT_PATH/rpmbuild/RPMS/$ENTRY"  "$DEPLOY_PATH/"  || exit 1
+					echo -e " > ${COLOR_CYAN}cp  rpmbuild/RPMS/$ENTRY  $TARGET_PATH${COLOR_RESET}"
 				done
 			fi
 		\popd >/dev/null
 		echo
-		echo "-----------------------------------------------"
-		echo " Packages ready for distribution:"
-		for ENTRY in $PACKAGES; do
-			echo "   $ENTRY"
-		done
-		echo "-----------------------------------------------"
+		echo -e "${COLOR_CYAN}-----------------------------------------------${COLOR_RESET}"
+		echo -e "${COLOR_CYAN} Packages ready for distribution:${COLOR_RESET}"
+		if [[ $IS_DRY -eq $NO ]]; then
+			for ENTRY in $PACKAGES; do
+				echo -e "   ${COLOR_CYAN}$ENTRY${COLOR_RESET}"
+			done
+		else
+			echo -e "   ${COLOR_CYAN}DRY${COLOR_RESET}"
+		fi
+		echo -e "${COLOR_CYAN}-----------------------------------------------${COLOR_RESET}"
 		echo
 		did_something=$YES
 	fi
@@ -950,7 +980,7 @@ echo
 if [[ ! -z $PACKAGES_ALL ]]; then
 	echo -e "${COLOR_BLUE} Packages ready for distribution:${COLOR_RESET}"
 	for ENTRY in $PACKAGES_ALL; do
-		echo -e "${COLOR_BLUE}   $ENTRY${COLOR_RESET}"
+		echo -e "${COLOR_BLUE}   ${ENTRY##*/}${COLOR_RESET}"
 	done
 	echo
 fi
