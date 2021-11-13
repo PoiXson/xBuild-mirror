@@ -331,7 +331,7 @@ function MakeSymlink() {
 
 # --clean
 function doClean() {
-	title C "Clean" "$PROJECT_NAME"
+	title C "$PROJECT_NAME" "Clean"
 	echo " Path: $PROJECT_PATH"
 	let count=0
 	let rm_groups=0
@@ -478,7 +478,7 @@ function doPullPush() {
 	fi
 	# clone repo
 	if [[ ! -e "$PROJECT_PATH" ]]; then
-		title C "Clone" "$PROJECT_NAME"
+		title C "$PROJECT_NAME" "Clone"
 		echo " Path: $PROJECT_PATH"
 		echo
 		\pushd "$CURRENT_PATH/" >/dev/null  || exit 1
@@ -495,7 +495,7 @@ function doPullPush() {
 	if [[ ! -d "$PROJECT_PATH/.git" ]]; then
 		notice ".git/ not found, skipping"
 	fi
-	title C "Pull/Push" "$PROJECT_NAME"
+	title C "$PROJECT_NAME" "Pull/Push"
 	echo " Path: $PROJECT_PATH"
 	echo
 	\pushd "$PROJECT_PATH/" >/dev/null  || exit 1
@@ -545,7 +545,7 @@ function doConfig() {
 	if [[ $ONLY_WEB -eq $NO ]]; then
 		# generate automake files
 		if [ -f "$PROJECT_PATH/autotools.conf" ]; then
-			title C "genautotools" "$PROJECT_NAME"
+			title C "$PROJECT_NAME" "genautotools"
 			echo " Path: $PROJECT_PATH"
 			echo
 			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
@@ -557,7 +557,7 @@ function doConfig() {
 		fi
 		# automake
 		if [ -f "$PROJECT_PATH/configure.ac" ]; then
-			title C "Configure" "$PROJECT_NAME"
+			title C "$PROJECT_NAME" "Configure"
 			echo " Path: $PROJECT_PATH"
 			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
 				echo -e " > ${COLOR_CYAN}autoreconf -v --install${COLOR_RESET}"
@@ -575,14 +575,14 @@ function doConfig() {
 			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
 				if [[ $DEBUG_FLAGS -eq $YES ]] \
 				|| [[ ! -f "$PROJECT_PATH/composer.lock" ]]; then
-					title C "Composer Update"
+					title C "$PROJECT_NAME" "Composer Update"
 					echo " Path: $PROJECT_PATH"
 					echo -e " > ${COLOR_CYAN}composer update${COLOR_RESET}"
 					if [[ $IS_DRY -eq $NO ]]; then
 						\composer update  || exit 1
 					fi
 				else
-					title C "Composer Install"
+					title C "$PROJECT_NAME" "Composer Install"
 					echo " Path: $PROJECT_PATH"
 					echo -e " > ${COLOR_CYAN}composer install${COLOR_RESET}"
 					if [[ $IS_DRY -eq $NO ]]; then
@@ -599,7 +599,7 @@ function doConfig() {
 		DisplayTime "Configured"
 		COUNT_OPS=$((COUNT_OPS+1))
 	else
-		title C "Configure" "$PROJECT_NAME"
+		title C "$PROJECT_NAME" "Configure"
 		if [[ $ONLY_WEB -eq $YES ]]; then
 			echo "web only; skipping.."
 		elif [[ $ONLY_BIN -eq $YES ]]; then
@@ -615,7 +615,7 @@ function doConfig() {
 
 function doBuild() {
 	did_something=$NO
-	title C "Build" "$PROJECT_NAME"
+	title C "$PROJECT_NAME" "Build"
 	echo " Path: $PROJECT_PATH"
 	echo
 	# automake
@@ -683,7 +683,7 @@ function doBuild() {
 
 function doTests() {
 	did_something=$NO
-	title C "Testing" "$PROJECT_NAME"
+	title C "$PROJECT_NAME" "Testing"
 	echo " Path: $PROJECT_PATH"
 	echo
 	# make check
@@ -723,7 +723,7 @@ function doTests() {
 
 function doPack() {
 	did_something=$NO
-	title C "Package" "$PROJECT_NAME"
+	title C "$PROJECT_NAME" "Package"
 	echo " Path: $PROJECT_PATH"
 	echo
 	# make dist
