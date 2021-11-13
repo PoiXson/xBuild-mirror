@@ -64,12 +64,12 @@ function DisplayHelp() {
 	echo -e "  ${COLOR_GREEN}--config, --configure${COLOR_RESET}     Configure projects, with autotools or composer"
 	echo -e "  ${COLOR_GREEN}--build, --compile${COLOR_RESET}        Compile the projects"
 	echo -e "  ${COLOR_GREEN}--ccb${COLOR_RESET}                     Clean, config, build"
-	echo -e "  ${COLOR_GREEN}--ccbd${COLOR_RESET}                    Clean, config, build, dist"
+	echo -e "  ${COLOR_GREEN}--ccbp${COLOR_RESET}                    Clean, config, build, pack"
 	echo
 	echo -e "  ${COLOR_GREEN}-d, --debug-flags${COLOR_RESET}         Build with debug flags"
 	echo -e "  ${COLOR_GREEN}-n, --build-number${COLOR_RESET}        Build number to use for builds and packages"
 	echo -e "  ${COLOR_GREEN}--tests${COLOR_RESET}                   Compile and run tests for the project"
-	echo -e "  ${COLOR_GREEN}--dist, --distribute${COLOR_RESET}      Build distributable packages"
+	echo -e "  ${COLOR_GREEN}-p, --pack, --package${COLOR_RESET}     Build distributable packages"
 	echo -e "  ${COLOR_GREEN}--target <path>${COLOR_RESET}           Sets the destination path for finished binaries"
 	echo
 	echo -e "  ${COLOR_GREEN}-D, --dry${COLOR_RESET}                 Dry-run, no changes will be performed by actions"
@@ -98,7 +98,7 @@ DO_GG=$NO
 DO_CONFIG=$NO
 DO_BUILD=$NO
 DO_TESTS=$NO
-DO_DIST=$NO
+DO_PACK=$NO
 TARGET_PATH=""
 IS_DRY=$NO
 BUILD_NUMBER=""
@@ -142,18 +142,18 @@ while [ $# -gt 0 ]; do
 	--build|--compile)
 		DO_BUILD=$YES
 	;;
-	# --ccb
+	# clean, config, build
 	--ccb)
 		DO_CLEAN=$YES
 		DO_CONFIG=$YES
 		DO_BUILD=$YES
 	;;
-	# --ccbd
-	--ccbd)
+	# clean, config, build, pack
+	--ccbp)
 		DO_CLEAN=$YES
 		DO_CONFIG=$YES
 		DO_BUILD=$YES
-		DO_DIST=$YES
+		DO_PACK=$YES
 	;;
 	# debug flags
 	-d|--debug-flag|--debug-flags)
@@ -172,8 +172,8 @@ while [ $# -gt 0 ]; do
 		DO_TESTS=$YES
 	;;
 	# make distributable packages
-	--dist|--distribute)
-		DO_DIST=$YES
+	-p|--pack|--package)
+		DO_PACK=$YES
 	;;
 	# path for finished binaries
 	--target)
@@ -242,7 +242,7 @@ if [[ $DEBUG_FLAGS -eq $YES ]]; then
 	notice "Enable debug flags"
 	did_notice=$YES
 fi
-if [[ $DO_DIST -eq $YES ]]; then
+if [[ $DO_PACK -eq $YES ]]; then
 	notice "Deploy to: $TARGET_PATH"
 	did_notice=$YES
 fi
@@ -721,9 +721,9 @@ function doTests() {
 
 
 
-function doDist() {
+function doPack() {
 	did_something=$NO
-	title C "Package/Dist" "$PROJECT_NAME"
+	title C "Package" "$PROJECT_NAME"
 	echo " Path: $PROJECT_PATH"
 	echo
 	# make dist
@@ -814,7 +814,7 @@ function doDist() {
 		\popd >/dev/null
 		echo
 		echo -e "${COLOR_CYAN}-----------------------------------------------${COLOR_RESET}"
-		echo -e "${COLOR_CYAN} Packages ready for distribution:${COLOR_RESET}"
+		echo -e "${COLOR_CYAN} Packages finished:${COLOR_RESET}"
 		if [[ $IS_DRY -eq $NO ]]; then
 			for ENTRY in $PACKAGES; do
 				echo -e "   ${COLOR_CYAN}$ENTRY${COLOR_RESET}"
@@ -828,10 +828,10 @@ function doDist() {
 	fi
 	# nothing to do
 	if [[ $did_something -eq $YES ]]; then
-		DisplayTime "Distributable"
+		DisplayTime "Package"
 		COUNT_OPS=$((COUNT_OPS+1))
 	else
-		notice "No distributes found to build.."
+		notice "No packages found to build.."
 		echo
 	fi
 }
@@ -885,8 +885,8 @@ function doProject() {
 	[[ $DO_BUILD  -eq $YES ]] && doBuild
 	# --tests
 	[[ $DO_TESTS  -eq $YES ]] && doTests
-	# --dist
-	[[ $DO_DIST   -eq $YES ]] && doDist
+	# --pack
+	[[ $DO_PACK   -eq $YES ]] && doPack
 	# project done
 	COUNT_PRJ=$((COUNT_PRJ+1))
 	DisplayTimeProject
@@ -973,7 +973,7 @@ echo -e "${COLOR_GREEN}Finished in $ELAPSED seconds${COLOR_RESET}"
 echo
 
 if [[ ! -z $PACKAGES_ALL ]]; then
-	echo -e "${COLOR_BLUE} Packages ready for distribution:${COLOR_RESET}"
+	echo -e "${COLOR_BLUE} Packages finished:${COLOR_RESET}"
 	for ENTRY in $PACKAGES_ALL; do
 		echo -e "${COLOR_BLUE}   ${ENTRY##*/}${COLOR_RESET}"
 	done
