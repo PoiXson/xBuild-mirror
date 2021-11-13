@@ -806,7 +806,7 @@ function doPack() {
 					exit 1
 				fi
 				for ENTRY in $PACKAGES; do
-					PACKAGES_ALL+=( "$TARGET_PATH/$ENTRY" )
+					PACKAGES_ALL+=("$TARGET_PATH/$ENTRY")
 					echo -e " > ${COLOR_CYAN}cp  rpmbuild/RPMS/$ENTRY  $TARGET_PATH${COLOR_RESET}"
 					\cp -fv  "$PROJECT_PATH/rpmbuild/RPMS/$ENTRY"  "$TARGET_PATH/"  || exit 1
 				done
@@ -974,7 +974,7 @@ echo
 
 if [[ ! -z $PACKAGES_ALL ]]; then
 	echo -e "${COLOR_BLUE} Packages finished:${COLOR_RESET}"
-	for ENTRY in $PACKAGES_ALL; do
+	for ENTRY in ${PACKAGES_ALL[@]}; do
 		echo -e "${COLOR_BLUE}   ${ENTRY##*/}${COLOR_RESET}"
 	done
 	echo
