@@ -864,6 +864,10 @@ function doProject() {
 		return
 	fi
 	echo
+	# --pp
+	[[ $DO_PP -eq $YES ]] && doPullPush
+	# --gg
+	[[ $DO_GG -eq $YES ]] && doGitGUI
 	# xbuild.conf file in sub dir
 	if [[ -f "$PROJECT_PATH/xbuild.conf" ]]; then
 		if [[ "$PROJECT_PATH" != "$CURRENT_PATH" ]]; then
@@ -876,8 +880,6 @@ function doProject() {
 	# project in current path
 	# --clean
 	[[ $DO_CLEAN  -eq $YES ]] && doClean
-	# --pp
-	[[ $DO_PP     -eq $YES ]] && doPullPush
 	# --config
 	[[ $DO_CONFIG -eq $YES ]] && doConfig
 	# --build
@@ -886,8 +888,6 @@ function doProject() {
 	[[ $DO_TESTS  -eq $YES ]] && doTests
 	# --dist
 	[[ $DO_DIST   -eq $YES ]] && doDist
-	# --gg
-	[[ $DO_GG     -eq $YES ]] && doGitGUI
 	# project done
 	COUNT_PRJ=$((COUNT_PRJ+1))
 	DisplayTimeProject
