@@ -303,6 +303,7 @@ function DisplayTimeProject() {
 	fi
 	echo -e " ${COLOR_CYAN}Finished project in $ELAPSED seconds: $PROJECT_NAME${COLOR_RESET}"
 	echo
+	echo
 }
 
 
@@ -332,7 +333,6 @@ function MakeSymlink() {
 # --clean
 function doClean() {
 	title C "$PROJECT_NAME" "Clean"
-	echo " Path: $PROJECT_PATH"
 	let count=0
 	let rm_groups=0
 	# make clean
@@ -479,8 +479,6 @@ function doPullPush() {
 	# clone repo
 	if [[ ! -e "$PROJECT_PATH" ]]; then
 		title C "$PROJECT_NAME" "Clone"
-		echo " Path: $PROJECT_PATH"
-		echo
 		\pushd "$CURRENT_PATH/" >/dev/null  || exit 1
 			# git clone
 			echo -e " > ${COLOR_CYAN}git clone  $REPO  $PROJECT_NAME${COLOR_RESET}"
@@ -496,8 +494,6 @@ function doPullPush() {
 		notice ".git/ not found, skipping"
 	fi
 	title C "$PROJECT_NAME" "Pull/Push"
-	echo " Path: $PROJECT_PATH"
-	echo
 	\pushd "$PROJECT_PATH/" >/dev/null  || exit 1
 		# git pull
 		echo -e " > ${COLOR_CYAN}git pull${COLOR_RESET}"
@@ -546,8 +542,6 @@ function doConfig() {
 		# generate automake files
 		if [ -f "$PROJECT_PATH/autotools.conf" ]; then
 			title C "$PROJECT_NAME" "genautotools"
-			echo " Path: $PROJECT_PATH"
-			echo
 			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
 				echo -e " > ${COLOR_CYAN}genautotools${COLOR_RESET}"
 				if [[ $IS_DRY -eq $NO ]]; then
@@ -558,7 +552,6 @@ function doConfig() {
 		# automake
 		if [ -f "$PROJECT_PATH/configure.ac" ]; then
 			title C "$PROJECT_NAME" "Configure"
-			echo " Path: $PROJECT_PATH"
 			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
 				echo -e " > ${COLOR_CYAN}autoreconf -v --install${COLOR_RESET}"
 				if [[ $IS_DRY -eq $NO ]]; then
@@ -576,14 +569,12 @@ function doConfig() {
 				if [[ $DEBUG_FLAGS -eq $YES ]] \
 				|| [[ ! -f "$PROJECT_PATH/composer.lock" ]]; then
 					title C "$PROJECT_NAME" "Composer Update"
-					echo " Path: $PROJECT_PATH"
 					echo -e " > ${COLOR_CYAN}composer update${COLOR_RESET}"
 					if [[ $IS_DRY -eq $NO ]]; then
 						\composer update  || exit 1
 					fi
 				else
 					title C "$PROJECT_NAME" "Composer Install"
-					echo " Path: $PROJECT_PATH"
 					echo -e " > ${COLOR_CYAN}composer install${COLOR_RESET}"
 					if [[ $IS_DRY -eq $NO ]]; then
 						\composer install  || exit 1
@@ -616,8 +607,6 @@ function doConfig() {
 function doBuild() {
 	did_something=$NO
 	title C "$PROJECT_NAME" "Build"
-	echo " Path: $PROJECT_PATH"
-	echo
 	# automake
 	if [[ $ONLY_WEB -eq $YES ]]; then
 		echo "web only; skipping.."
@@ -684,8 +673,6 @@ function doBuild() {
 function doTests() {
 	did_something=$NO
 	title C "$PROJECT_NAME" "Testing"
-	echo " Path: $PROJECT_PATH"
-	echo
 	# make check
 	if [ -f "$PROJECT_PATH/Makefile" ]; then
 		\pushd "$PROJECT_PATH/" >/dev/null || exit 1
@@ -724,8 +711,6 @@ function doTests() {
 function doPack() {
 	did_something=$NO
 	title C "$PROJECT_NAME" "Package"
-	echo " Path: $PROJECT_PATH"
-	echo
 	# make dist
 	if [ -f "$PROJECT_PATH/Makefile" ]; then
 		\pushd "$PROJECT_PATH/" >/dev/null || exit 1
@@ -823,7 +808,6 @@ function doPack() {
 			echo -e "   ${COLOR_CYAN}DRY${COLOR_RESET}"
 		fi
 		echo -e "${COLOR_CYAN}-----------------------------------------------${COLOR_RESET}"
-		echo
 		did_something=$YES
 	fi
 	# nothing to do
@@ -831,7 +815,7 @@ function doPack() {
 		DisplayTime "Package"
 		COUNT_OPS=$((COUNT_OPS+1))
 	else
-		notice "No packages found to build.."
+		notice "Nothing found to package.."
 		echo
 	fi
 }
@@ -855,6 +839,7 @@ function Project() {
 	fi
 	if [[ ! -z $PROJECT_NAME ]]; then
 		title B "$PROJECT_NAME"
+		echo -e " ${COLOR_GREEN}>${COLOR_RESET} ${COLOR_BLUE}$PROJECT_PATH${COLOR_RESET}"
 	fi
 }
 
@@ -920,7 +905,6 @@ function LoadConf() {
 	local LAST_PATH="$CURRENT_PATH"
 	CURRENT_PATH=${1%/*}
 	\pushd "$CURRENT_PATH" >/dev/null  || exit 1
-		echo -e " ${COLOR_GREEN}>${COLOR_RESET} ${COLOR_BLUE}$1${COLOR_RESET}"
 		# load xbuild.conf
 		source "$1" || exit 1
 		# last project in conf file
@@ -949,8 +933,6 @@ elif [[ -f "$WDIR/xbuild.conf" ]]; then
 #	doCleanupVars
 fi
 
-echo
-echo
 echo -e "${COLOR_GREEN}===============================================${COLOR_RESET}"
 echo
 
