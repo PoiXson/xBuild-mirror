@@ -315,9 +315,9 @@ function MakeSymlink() {
 	echo -ne " > ${COLOR_CYAN}Symlink: "
 	if [[ $IS_DRY -eq $NO ]]; then
 		if [[ -z $2 ]]; then
-			\ln -srvf "$1"
+			\ln -svf "$1"
 		else
-			\ln -srvf "$1" "$2"
+			\ln -svf "$1" "$2"
 		fi
 	else
 		echo "$1 -> $2"
