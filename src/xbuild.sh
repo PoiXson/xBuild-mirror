@@ -473,12 +473,11 @@ function doClean() {
 
 # --pp
 function doPullPush() {
+	if [[ -z $REPO ]]; then
+		return
+	fi
 	# clone repo
 	if [[ ! -e "$PROJECT_PATH" ]]; then
-		if [[ -z $REPO ]]; then
-			failure "Project repo not set: $PROJECT_NAME"
-			exit 1
-		fi
 		title C "Clone" "$PROJECT_NAME"
 		echo " Path: $PROJECT_PATH"
 		echo
@@ -808,8 +807,8 @@ function doDist() {
 				fi
 				for ENTRY in $PACKAGES; do
 					PACKAGES_ALL+=( "$TARGET_PATH/$ENTRY" )
-					\cp -fv  "$PROJECT_PATH/rpmbuild/RPMS/$ENTRY"  "$DEPLOY_PATH/"  || exit 1
 					echo -e " > ${COLOR_CYAN}cp  rpmbuild/RPMS/$ENTRY  $TARGET_PATH${COLOR_RESET}"
+					\cp -fv  "$PROJECT_PATH/rpmbuild/RPMS/$ENTRY"  "$TARGET_PATH/"  || exit 1
 				done
 			fi
 		\popd >/dev/null
