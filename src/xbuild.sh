@@ -931,23 +931,6 @@ function LoadConf() {
 
 
 
-# clean target
-if [[ $DO_CLEAN -eq $YES ]]; then
-	if [[ ! -z $DEPLOY_PATH ]] && [[ -d "$DEPLOY_PATH" ]] && [[ "$DEPLOY_PATH" == *"/target" ]]; then
-		echo -ne " > ${COLOR_CYAN}rm target..${COLOR_RESET}"
-		rm_groups=$((rm_groups+1))
-		if [[ $IS_DRY -eq $NO ]]; then
-			c=$( \rm -vf --preserve-root "$DEPLOY_PATH/"* | wc -l )
-			[[ 0 -ne $? ]] && exit 1
-			[[ $c -gt 0 ]] && count=$((count+c))
-			echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
-		fi
-		echo
-	fi
-fi
-
-
-
 # group.dev files
 if [[ ! -z $DEV_FILES ]]; then
 	for FILE in $DEV_FILES; do
