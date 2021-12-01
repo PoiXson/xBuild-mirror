@@ -25,11 +25,10 @@ source /usr/bin/pxn/scripts/common.sh  || exit 1
 
 
 
-if [ -z $WDIR ]; then
+if [[ -z $WDIR ]]; then
 	echo
 	failure "Failed to find current working directory"
-	echo
-	exit 1
+	echo >&2 ; exit 1
 fi
 
 
@@ -195,7 +194,7 @@ while [ $# -gt 0 ]; do
 	;;
 	-*)
 		failure "Unknown argument: $1"
-		echo
+		echo >&2
 		DisplayHelp
 		exit 1
 	;;
@@ -215,7 +214,7 @@ while [ $# -gt 0 ]; do
 				else
 					failure "Unknown project group: $1"
 				fi
-				echo
+				echo >&2
 				exit 1
 			fi
 		fi
@@ -311,7 +310,7 @@ function DisplayTimeProject() {
 function MakeSymlink() {
 	if [[ -z $1 ]]; then
 		failure "MakeSymlink() requires arguments"
-		exit 1
+		echo >&2 ; exit 1
 	fi
 	echo -ne " > ${COLOR_CYAN}Symlink: "
 	if [[ $IS_DRY -eq $NO ]]; then
@@ -337,8 +336,8 @@ function doClean() {
 	let rm_groups=0
 	# make clean
 	if [[ $ONLY_WEB -eq $NO ]]; then
-		if [ -f "$PROJECT_PATH/Makefile.am" ]; then
-			if [ -f "$PROJECT_PATH/Makefile" ]; then
+		if [[ -f "$PROJECT_PATH/Makefile.am" ]]; then
+			if [[ -f "$PROJECT_PATH/Makefile" ]]; then
 				\pushd "$PROJECT_PATH/" >/dev/null || exit 1
 					echo -ne " > ${COLOR_CYAN}make distclean..${COLOR_RESET}"
 					rm_groups=$((rm_groups+1))
@@ -415,7 +414,7 @@ function doClean() {
 			\popd >/dev/null
 		fi
 		# clean rpm project
-		if [ -d "$PROJECT_PATH/rpmbuild" ]; then
+		if [[ -d "$PROJECT_PATH/rpmbuild" ]]; then
 			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
 				echo -ne " > ${COLOR_CYAN}rm -rf rpmbuild..${COLOR_RESET}"
 				rm_groups=$((rm_groups+1))
@@ -432,8 +431,8 @@ function doClean() {
 	fi
 	# clean php project
 	if [[ $ONLY_BIN -eq $NO ]]; then
-		if [ -f "$PROJECT_PATH/composer.json" ]; then
-			if [ -d "$PROJECT_PATH/vendor" ]; then
+		if [[ -f "$PROJECT_PATH/composer.json" ]]; then
+			if [[ -d "$PROJECT_PATH/vendor" ]]; then
 				\pushd "$PROJECT_PATH/" >/dev/null || exit 1
 					echo -ne " > ${COLOR_CYAN}rm -rf vendor..${COLOR_RESET}"
 					rm_groups=$((rm_groups+1))
@@ -540,7 +539,7 @@ function doConfig() {
 	did_something=$NO
 	if [[ $ONLY_WEB -eq $NO ]]; then
 		# generate automake files
-		if [ -f "$PROJECT_PATH/autotools.conf" ]; then
+		if [[ -f "$PROJECT_PATH/autotools.conf" ]]; then
 			title C "$PROJECT_NAME" "genautotools"
 			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
 				echo -e " > ${COLOR_CYAN}genautotools${COLOR_RESET}"
@@ -550,7 +549,7 @@ function doConfig() {
 			\popd >/dev/null
 		fi
 		# automake
-		if [ -f "$PROJECT_PATH/configure.ac" ]; then
+		if [[ -f "$PROJECT_PATH/configure.ac" ]]; then
 			title C "$PROJECT_NAME" "Configure"
 			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
 				echo -e " > ${COLOR_CYAN}autoreconf -v --install${COLOR_RESET}"
@@ -564,7 +563,7 @@ function doConfig() {
 	fi
 	if [[ $ONLY_BIN -eq $NO ]]; then
 		# composer
-		if [ -f "$PROJECT_PATH/composer.json" ]; then
+		if [[ -f "$PROJECT_PATH/composer.json" ]]; then
 			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
 				if [[ $DEBUG_FLAGS -eq $YES ]] \
 				|| [[ ! -f "$PROJECT_PATH/composer.lock" ]]; then
@@ -586,7 +585,7 @@ function doConfig() {
 		fi
 	fi
 	# nothing to do
-	if [ $did_something -eq $YES ]; then
+	if [[ $did_something -eq $YES ]]; then
 		DisplayTime "Configured"
 		COUNT_OPS=$((COUNT_OPS+1))
 	else
@@ -611,7 +610,7 @@ function doBuild() {
 	if [[ $ONLY_WEB -eq $YES ]]; then
 		echo "web only; skipping.."
 	else
-		if [ -f "$PROJECT_PATH/configure" ]; then
+		if [[ -f "$PROJECT_PATH/configure" ]]; then
 			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
 				CONFIGURE_DEBUG_FLAGS=""
 				if [[ $DEBUG_FLAGS -eq $YES ]]; then
@@ -626,7 +625,7 @@ function doBuild() {
 			did_something=$YES
 		fi
 		# make
-		if [ -f "$PROJECT_PATH/Makefile" ]; then
+		if [[ -f "$PROJECT_PATH/Makefile" ]]; then
 			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
 				# make
 				echo -e " > ${COLOR_CYAN}make${COLOR_RESET}"
@@ -647,7 +646,7 @@ function doBuild() {
 			did_something=$YES
 		fi
 		# maven
-		if [ -f "$PROJECT_PATH/pom.xml" ]; then
+		if [[ -f "$PROJECT_PATH/pom.xml" ]]; then
 			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
 				echo -e " > ${COLOR_CYAN}mvn clean install${COLOR_RESET}"
 				if [[ $IS_DRY -eq $NO ]]; then
@@ -674,7 +673,7 @@ function doTests() {
 	did_something=$NO
 	title C "$PROJECT_NAME" "Testing"
 	# make check
-	if [ -f "$PROJECT_PATH/Makefile" ]; then
+	if [[ -f "$PROJECT_PATH/Makefile" ]]; then
 		\pushd "$PROJECT_PATH/" >/dev/null || exit 1
 			echo -e " > ${COLOR_CYAN}make check${COLOR_RESET}"
 			if [[ $IS_DRY -eq $NO ]]; then
@@ -686,7 +685,7 @@ function doTests() {
 		did_something=$YES
 	fi
 	# phpunit
-	if [ -f "$PROJECT_PATH/phpunit.xml" ]; then
+	if [[ -f "$PROJECT_PATH/phpunit.xml" ]]; then
 		\pushd "$PROJECT_PATH/" >/dev/null || exit 1
 			echo -e " > ${COLOR_CYAN}phpunit${COLOR_RESET}"
 			if [[ $IS_DRY -eq $NO ]]; then
@@ -712,7 +711,7 @@ function doPack() {
 	did_something=$NO
 	title C "$PROJECT_NAME" "Package"
 	# make dist
-	if [ -f "$PROJECT_PATH/Makefile" ]; then
+	if [[ -f "$PROJECT_PATH/Makefile" ]]; then
 		\pushd "$PROJECT_PATH/" >/dev/null || exit 1
 			echo -e " > ${COLOR_CYAN}make dist${COLOR_RESET}"
 			if [[ $IS_DRY -eq $NO ]]; then
@@ -724,21 +723,21 @@ function doPack() {
 	fi
 	# find .spec file
 	SPEC_FILE_COUNT=$( \ls -1 "$PROJECT_PATH/"*.spec 2>/dev/null | \wc -l )
-	if [ $SPEC_FILE_COUNT -gt 1 ]; then
+	if [[ $SPEC_FILE_COUNT -gt 1 ]]; then
 		failure "$SPEC_FILE_COUNT .spec files were found here"
-		exit 1
+		echo >&2 ; exit 1
 	fi
 	SPEC_FILE=""
 	SPEC_NAME=""
-	if [ $SPEC_FILE_COUNT -eq 1 ]; then
+	if [[ $SPEC_FILE_COUNT -eq 1 ]]; then
 		SPEC_FILE=$( \ls -1 "$PROJECT_PATH/"*.spec )
 		SPEC_NAME="${SPEC_FILE%.*}"
 		SPEC_NAME="${SPEC_NAME##*/}"
 	fi
 	# build rpm
-	if [ ! -z $SPEC_FILE ]; then
+	if [[ ! -z $SPEC_FILE ]]; then
 		# remove previous build root
-		if [ -d "$PROJECT_PATH/rpmbuild" ]; then
+		if [[ -d "$PROJECT_PATH/rpmbuild" ]]; then
 			echo -ne " > ${COLOR_CYAN}rm rpmbuild..${COLOR_RESET}"
 			\pushd "$PROJECT_PATH" >/dev/null  || exit 1
 				c=$( \rm -Rvf --preserve-root rpmbuild/ | \wc -l )
@@ -759,7 +758,7 @@ function doPack() {
 		\pushd "$PROJECT_PATH/rpmbuild/" >/dev/null  || exit 1
 			if [[ -z $TARGET_PATH ]]; then
 				failure "Target path not set"
-				exit 1
+				echo >&2 ; exit 1
 			fi
 			echo -e \
 				" > ${COLOR_CYAN}rpmbuild\n"  \
@@ -788,7 +787,7 @@ function doPack() {
 				\popd >/dev/null
 				if [[ -z $PACKAGES ]]; then
 					failure "Failed to find finished rpm packages: $PROJECT_PATH/rpmbuild/RPMS/"
-					exit 1
+					echo >&2 ; exit 1
 				fi
 				for ENTRY in $PACKAGES; do
 					PACKAGES_ALL+=("$TARGET_PATH/$ENTRY")
@@ -894,13 +893,13 @@ function doCleanupVars() {
 
 function LoadConf() {
 	doCleanupVars
-	if [ -z $1 ]; then
+	if [[ -z $1 ]]; then
 		failure "LoadConf() requires file argument"
-		exit 1
+		echo >&2 ; exit 1
 	fi
 	if [[ "$1" != *".dev" ]] && [[ "$1" != *"/xbuild.conf" ]]; then
 		failure "Invalid config file: $1"
-		exit 1
+		echo >&2 ; exit 1
 	fi
 	local LAST_PATH="$CURRENT_PATH"
 	CURRENT_PATH=${1%/*}
