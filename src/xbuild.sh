@@ -569,9 +569,9 @@ function doConfig() {
 				|| [[ ! -f "$PROJECT_PATH/composer.lock" ]]; then
 					title C "$PROJECT_NAME" "Composer Update"
 					if [[ $DEBUG_FLAGS -eq $YES ]]; then
-						echo -e " > ${COLOR_CYAN}composer update --dev${COLOR_RESET}"
+						echo -e " > ${COLOR_CYAN}composer update${COLOR_RESET}"
 						if [[ $IS_DRY -eq $NO ]]; then
-							\composer update --dev  || exit 1
+							\composer update  || exit 1
 						fi
 					else
 						echo -e " > ${COLOR_CYAN}composer update --no-dev --classmap-authoritative --optimize-autoloader${COLOR_RESET}"
