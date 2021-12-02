@@ -568,15 +568,29 @@ function doConfig() {
 				if [[ $DEBUG_FLAGS -eq $YES ]] \
 				|| [[ ! -f "$PROJECT_PATH/composer.lock" ]]; then
 					title C "$PROJECT_NAME" "Composer Update"
-					echo -e " > ${COLOR_CYAN}composer update${COLOR_RESET}"
-					if [[ $IS_DRY -eq $NO ]]; then
-						\composer update  || exit 1
+					if [[ $DEBUG_FLAGS -eq $YES ]]; then
+						echo -e " > ${COLOR_CYAN}composer update --dev${COLOR_RESET}"
+						if [[ $IS_DRY -eq $NO ]]; then
+							\composer update --dev  || exit 1
+						fi
+					else
+						echo -e " > ${COLOR_CYAN}composer update --no-dev --classmap-authoritative --optimize-autoloader${COLOR_RESET}"
+						if [[ $IS_DRY -eq $NO ]]; then
+							\composer update --no-dev --classmap-authoritative --optimize-autoloader  || exit 1
+						fi
 					fi
 				else
 					title C "$PROJECT_NAME" "Composer Install"
-					echo -e " > ${COLOR_CYAN}composer install${COLOR_RESET}"
-					if [[ $IS_DRY -eq $NO ]]; then
-						\composer install  || exit 1
+					if [[ $DEBUG_FLAGS -eq $YES ]]; then
+						echo -e " > ${COLOR_CYAN}composer install --dev${COLOR_RESET}"
+						if [[ $IS_DRY -eq $NO ]]; then
+							\composer install --dev  || exit 1
+						fi
+					else
+						echo -e " > ${COLOR_CYAN}composer install --no-dev --classmap-authoritative --optimize-autoloader${COLOR_RESET}"
+						if [[ $IS_DRY -eq $NO ]]; then
+							\composer install --no-dev --classmap-authoritative --optimize-autoloader  || exit 1
+						fi
 					fi
 				fi
 			\popd >/dev/null
