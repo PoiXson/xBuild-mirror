@@ -709,7 +709,7 @@ function doTests() {
 		\pushd "$PROJECT_PATH/" >/dev/null || exit 1
 			echo -e " > ${COLOR_CYAN}phpunit${COLOR_RESET}"
 			if [[ $IS_DRY -eq $NO ]]; then
-				\phpunit  || exit 1
+				"$PROJECT_PATH"/vendor/bin/phpunit  || exit 1
 			fi
 		\popd >/dev/null
 		echo
