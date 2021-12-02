@@ -645,6 +645,12 @@ function doBuild() {
 			echo
 			did_something=$YES
 		fi
+		# generate pom.xml file
+		if [[ -f "$PROJECT_PATH/pom.conf" ]]; then
+			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
+				genpom  || exit 1
+			\popd >/dev/null
+		fi
 		# maven
 		if [[ -f "$PROJECT_PATH/pom.xml" ]]; then
 			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
