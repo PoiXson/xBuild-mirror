@@ -41,6 +41,7 @@ echo "Install.."
 # create symlinks
 %{__ln_s} -f  "%{prefix}/xbuild.sh"  "%{buildroot}%{_bindir}/xbuild"  || exit 1
 %{__ln_s} -f  "%{prefix}/genautotools.sh"  "%{buildroot}%{_bindir}/genautotools"  || exit 1
+%{__ln_s} -f  "%{prefix}/genpom.sh"        "%{buildroot}%{_bindir}/genpom"        || exit 1
 # create profile.d symlink
 %{__ln_s} -f "%{prefix}/xbuild-aliases.sh"  "%{buildroot}%{_sysconfdir}/profile.d/xbuild-aliases.sh"  || exit 1
 
@@ -51,8 +52,10 @@ echo "Install.."
 %defattr(0555, root, root, 0755)
 %{prefix}/xbuild.sh
 %{prefix}/genautotools.sh
+%{prefix}/genpom.sh
 %{prefix}/xbuild-aliases.sh
 # symlinks
 %{_bindir}/xbuild
 %{_bindir}/genautotools
+%{_bindir}/genpom
 %{_sysconfdir}/profile.d/xbuild-aliases.sh
