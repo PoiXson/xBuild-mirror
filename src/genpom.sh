@@ -1,0 +1,618 @@
+#!/usr/bin/bash
+source /usr/bin/pxn/scripts/common.sh  || exit 1
+echo
+
+
+
+if [ -z $WDIR ]; then
+	failure "Failed to find current working directory"
+	echo >&2 ; exit 1
+fi
+
+
+
+MAVEN_VERSIONS_FILE="maven-versions.conf"
+OUT_FILE="$WDIR/pom.xml"
+OUT_PROPS=""
+OUT_PROPS_DEPS=""
+OUT_PROPS_PLUGINS=""
+OUT_PLUGINS=""
+OUT_DEPS=""
+OUT_REPOS=""
+SHADE=$NO
+APPEND_VERS="-version"
+
+
+
+function AddProp() {
+	OUT_PROPS="$OUT_PROPS\t\t<$1>$2</$1>\n"
+}
+function AddPropDep() {
+	OUT_PROPS_DEPS="$OUT_PROPS_DEPS\t\t<$1>$2</$1>\n"
+}
+function AddPropPlugin() {
+	OUT_PROPS_PLUGINS="$OUT_PROPS_PLUGINS\t\t<$1>$2</$1>\n"
+}
+
+
+
+function AddDep() {
+	local GROUP="$1"
+	local ARTIFACT="$2"
+	shift ; shift
+	local SCOPE=""
+	local VERSION=""
+	while [ $# -gt 0 ]; do
+		case "$1" in
+		"scope="*)
+			SCOPE="${1#*scope=}"
+		;;
+		"version="*)
+			VERSION="${1#*scope=}"
+		;;
+		*)
+			failure "Unknown dependency argument: $1"
+			echo >&2 ; exit 1
+		;;
+		esac
+		shift
+	done
+	if [[ -z $GROUP ]]; then
+		failure "Dependency group not set"
+		echo >&2 ; exit 1
+	fi
+	if [[ -z $ARTIFACT ]]; then
+		failure "Dependency artifact not set"
+		echo >&2 ; exit 1
+	fi
+	if [[ -z $VERSION ]]; then
+		FindDepVersion  "$GROUP"  "$ARTIFACT"
+		VERSION="$FOUND_DEP_VERSION"
+	fi
+	if [[ -z $VERSION ]]; then
+		failure "Unknown version for: $GROUP $ARTIFACT"
+		echo >&2 ; exit 1
+	fi
+	AddPropDep  "$ARTIFACT$APPEND_VERS"  "$VERSION"
+	if [[ -z $SCOPE ]]; then
+		if [[ $SHADE -ne $YES ]]; then
+			SCOPE="provided"
+		fi
+	fi
+	OUT_DEPS="$OUT_DEPS\t\t<dependency>\n"
+	OUT_DEPS="$OUT_DEPS\t\t\t<artifactId>$ARTIFACT</artifactId>\n"
+	OUT_DEPS="$OUT_DEPS\t\t\t<groupId>$GROUP</groupId>\n"
+	OUT_DEPS="$OUT_DEPS\t\t\t<version>\${$ARTIFACT$APPEND_VERS}</version>\n"
+	[[ -z $SCOPE ]] || \
+	OUT_DEPS="$OUT_DEPS\t\t\t<scope>$SCOPE</scope>\n"
+	OUT_DEPS="$OUT_DEPS\t\t</dependency>\n"
+}
+
+function AddRepo() {
+	local NAME="$1"
+	local URL="$2"
+	if [[ -z $NAME ]]; then
+		failure "Repo Name argument is required"
+		echo >&2 ; exit 1
+	fi
+	if [[ -z $URL ]]; then
+		failure "Repo URL argument is required"
+		echo >&2 ; exit 1
+	fi
+	OUT_REPOS="$OUT_REPOS\t\t<repository>\n"
+	OUT_REPOS="$OUT_REPOS\t\t\t<id>$NAME</id>\n"
+	OUT_REPOS="$OUT_REPOS\t\t\t<url>$URL</url>\n"
+	OUT_REPOS="$OUT_REPOS\t\t\t<snapshots>\n"
+	OUT_REPOS="$OUT_REPOS\t\t\t\t<enabled>true</enabled>\n"
+	OUT_REPOS="$OUT_REPOS\t\t\t</snapshots>\n"
+	OUT_REPOS="$OUT_REPOS\t\t</repository>\n"
+}
+
+
+
+FIND_DEP_BY_ARTIFACT=""
+FIND_DEP_BY_GROUP=""
+FOUND_DEP_VERSION=""
+function FindDepVersion() {
+	FIND_DEP_BY_GROUP="$1"
+	FIND_DEP_BY_ARTIFACT="$2"
+	FOUND_DEP_VERSION=""
+	local DID_SOMETHING=$NO
+	# current working dir
+	if [[ -e "$WDIR/$MAVEN_VERSIONS_FILE" ]]; then
+		source "$WDIR/$MAVEN_VERSIONS_FILE"  || exit 1
+		DID_SOMETHING=$YES
+	fi
+#TODO: automate with for loop
+	# up one
+	if [[ -e "$WDIR/../$MAVEN_VERSIONS_FILE" ]]; then
+		source "$WDIR/../$MAVEN_VERSIONS_FILE"  || exit 1
+		DID_SOMETHING=$YES
+	fi
+	# up two
+	if [[ -e "$WDIR/../../$MAVEN_VERSIONS_FILE" ]]; then
+		source "$WDIR/../../$MAVEN_VERSIONS_FILE"  || exit 1
+		DID_SOMETHING=$YES
+	fi
+	# home dir
+	if [[ -e "~/$MAVEN_VERSIONS_FILE" ]]; then
+		source "~/$MAVEN_VERSIONS_FILE"  || exit 1
+		DID_SOMETHING=$YES
+	fi
+	# /etc
+	if [[ -e "/etc/$MAVEN_VERSIONS_FILE" ]]; then
+		source "/etc/$MAVEN_VERSIONS_FILE"  || exit 1
+		DID_SOMETHING=$YES
+	fi
+	if [[ $DID_SOMETHING -ne $YES ]]; then
+		failure "File not found: $MAVEN_VERSIONS_FILE"
+		echo >&2 ; exit 1
+	fi
+	if [[ -z $FOUND_DEP_VERSION ]]; then
+		failure "Dependency version unknown: $FIND_DEP_BY_GROUP $FIND_DEP_BY_ARTIFACT"
+		echo >&2 ; exit 1
+	fi
+}
+function ADD_VERSION() {
+	# already found
+	[[ -z $FOUND_DEP_VERSION ]] || return
+	# required arguments
+	[[ -z $FIND_DEP_BY_ARTIFACT ]] && return;
+	[[ -z $FIND_DEP_BY_GROUP    ]] && return;
+	# found match
+	if [[ "$1" == "$FIND_DEP_BY_GROUP" ]]; then
+		if [[ "$2" == "$FIND_DEP_BY_ARTIFACT" ]]; then
+			FOUND_DEP_VERSION="$3"
+		fi
+	fi
+}
+
+
+
+# load pom.conf
+if [[ ! -f "$WDIR/pom.conf" ]]; then
+	failure "pom.conf file not found here"
+	echo >&2 ; exit 1
+fi
+source "$WDIR/pom.conf"  || exit 1
+
+
+
+# check values
+if [[ -z $NAME ]]; then
+	failure "Name not set"
+	echo >&2 ; exit 1
+fi
+if [[ -z $ARTIFACT ]]; then
+	failure "Name not set"
+	echo >&2 ; exit 1
+fi
+if [[ -z $GROUP ]]; then
+	failure "Group not set"
+	echo >&2 ; exit 1
+fi
+if [[ -z $VERSION ]]; then
+	failure "Version not set"
+	echo >&2 ; exit 1
+fi
+
+
+
+# resources
+if [[ -e "$WDIR/resources/" ]] \
+|| [[ -e "$WDIR/testresources/" ]]; then
+	FindDepVersion  "org.apache.maven.plugins"  "maven-resources-plugin"
+	AddPropPlugin  "maven-resources-plugin$APPEND_VERS"  "$FOUND_DEP_VERSION"
+fi
+
+# java compiler plugin
+FindDepVersion  "org.apache.maven.plugins"  "maven-compiler-plugin"
+AddPropPlugin  "maven-compiler-plugin$APPEND_VERS"  "$FOUND_DEP_VERSION"
+
+# jar plugin
+FindDepVersion  "org.apache.maven.plugins"  "maven-jar-plugin"
+AddPropPlugin  "maven-jar-plugin$APPEND_VERS"  "$FOUND_DEP_VERSION"
+
+# source plugin
+FindDepVersion  "org.apache.maven.plugins"  "maven-source-plugin"
+AddPropPlugin  "maven-source-plugin$APPEND_VERS"  "$FOUND_DEP_VERSION"
+
+# eclipse plugin
+FindDepVersion  "org.apache.maven.plugins"  "maven-eclipse-plugin"
+AddPropPlugin  "maven-eclipse-plugin$APPEND_VERS"  "$FOUND_DEP_VERSION"
+
+# git commit id plugin
+FindDepVersion  "pl.project13.maven"  "git-commit-id-plugin"
+AddPropPlugin  "git-commit-id$APPEND_VERS"  "$FOUND_DEP_VERSION"
+
+# shade jar
+if [[ $SHADE -eq $YES ]]; then
+	FindDepVersion  "org.apache.maven.plugins"  "maven-shade-plugin"
+	AddPropPlugin  "maven-shade-plugin$APPEND_VERS"  "$FOUND_DEP_VERSION"
+fi
+
+if [[ -e "$WDIR/tests/" ]]; then
+
+	# junit
+	FindDepVersion  "junit"  "junit"
+	AddPropPlugin  "junit$APPEND_VERS"  "$FOUND_DEP_VERSION"
+
+	# surefire
+	FindDepVersion  "org.apache.maven.plugins"  "maven-surefire-plugin"
+	AddPropPlugin  "surefire$APPEND_VERS"  "$FOUND_DEP_VERSION"
+
+	# cobertura
+	FindDepVersion  "org.codehaus.mojo"  "cobertura-maven-plugin"
+	AddPropPlugin  "cobertura$APPEND_VERS"  "$FOUND_DEP_VERSION"
+
+	# jxr - cross reference
+	FindDepVersion  "org.apache.maven.jxr"  "jxr"
+	AddPropPlugin  "jxr$APPEND_VERS"  "$FOUND_DEP_VERSION"
+
+	# reports
+	FindDepVersion  "org.apache.maven.plugins"  "maven-project-info-reports-plugin"
+	AddPropPlugin  "project-info-reports$APPEND_VERS"  "$FOUND_DEP_VERSION"
+
+fi
+
+
+
+# generate pom.xml
+echo -n >"$OUT_FILE"
+TIMESTAMP=$( date )
+\cat >>"$OUT_FILE" <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated: $TIMESTAMP -->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<name>$NAME</name>
+	<artifactId>$ARTIFACT</artifactId>
+	<groupId>$GROUP</groupId>
+	<version>$VERSION-SNAPSHOT</version>
+	<packaging>jar</packaging>
+EOF
+[[ -z $URL  ]] || echo -e "\t<url>$URL</url>"                  >>"$OUT_FILE"
+[[ -z $DESC ]] || echo -e "\t<description>$DESC</description>" >>"$OUT_FILE"
+if [[ ! -z $ORG_NAME ]] || [[ ! -z $ORG_URL ]]; then
+	echo -e "\t<organization>"                                 >>"$OUT_FILE"
+	[[ -z $ORG_NAME ]] || echo -e "\t\t<name>$ORG_NAME</name>" >>"$OUT_FILE"
+	[[ -z $ORG_URL  ]] || echo -e "\t\t<url>$ORG_URL</url>"    >>"$OUT_FILE"
+	echo -e "\t</organization>"                                >>"$OUT_FILE"
+fi
+
+# properties
+\cat >>"$OUT_FILE" <<EOF
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+
+EOF
+if [[ ! -z $OUT_PROPS ]]; then
+	echo -e "$OUT_PROPS" >>"$OUT_FILE"
+fi
+if [[ ! -z $OUT_PROPS_PLUGINS ]]; then
+	echo -e "\t\t<!-- Maven Plugins -->" >>"$OUT_FILE"
+	echo -e "$OUT_PROPS_PLUGINS"   >>"$OUT_FILE"
+fi
+if [[ ! -z $OUT_PROPS_DEPS ]]; then
+	echo -e "\t\t<!-- Dependencies -->" >>"$OUT_FILE"
+	echo -e "$OUT_PROPS_DEPS"           >>"$OUT_FILE"
+fi
+echo -e "\t</properties>" >>"$OUT_FILE"
+
+# scm
+if [[ ! -z $REPO_URL ]] || [[ ! -z $REPO_PUB ]] || [[ ! -z $REPO_DEV ]]; then
+	echo -e "\t<scm>" >>"$OUT_FILE"
+	[[ -z $REPO_URL ]] || echo -e "\t\t<url>$REPO_URL</url>"                                 >>"$OUT_FILE"
+	[[ -z $REPO_PUB ]] || echo -e "\t\t<connection>$REPO_PUB</connection>"                   >>"$OUT_FILE"
+	[[ -z $REPO_DEV ]] || echo -e "\t\t<developerConnection>$REPO_DEV</developerConnection>" >>"$OUT_FILE"
+	echo -e "\t</scm>" >>"$OUT_FILE"
+fi
+
+# issue tracking
+if [[ ! -z $BUG_TRACK_NAME ]] && [[ ! -z $BUG_TRACK_URL ]]; then
+\cat >>"$OUT_FILE" <<EOF
+	<issueManagement>
+		<system>$BUG_TRACK_NAME</system>
+		<url>$BUG_TRACK_URL</url>
+	</issueManagement>
+EOF
+fi
+
+# ci
+if [[ ! -z $CI_NAME ]] && [[ ! -z $CI_URL ]]; then
+\cat >>"$OUT_FILE" <<EOF
+	<ciManagement>
+		<system>$CI_NAME</system>
+		<url>$CI_URL</url>
+	</ciManagement>
+EOF
+fi
+
+# build
+\cat >>"$OUT_FILE" <<EOF
+	<build>
+		<directory>target</directory>
+		<outputDirectory>target</outputDirectory>
+		<finalName>\${project.name}-\${project.version}</finalName>
+		<sourceDirectory>\${project.basedir}/src</sourceDirectory>
+EOF
+
+if [[ -e "$WDIR/tests/" ]]; then
+	echo -e "\t\t<testSourceDirectory>\${project.basedir}/tests</testSourceDirectory>" >>"$OUT_FILE"
+fi
+
+# resources
+if [[ -e "$WDIR/resources/" ]]; then
+#TODO: includes/excludes arrays
+\cat >>"$OUT_FILE" <<EOF
+		<resources>
+			<resource>
+				<directory>\${project.basedir}/resources</directory>
+				<filtering>true</filtering>
+				<includes>
+					<include>plugin.yml</include>
+				</includes>
+			</resource>
+		</resources>
+EOF
+fi
+if [[ -e "$WDIR/testresources/" ]]; then
+\cat >>"$OUT_FILE" <<EOF
+		<testResources>
+			<testResource>
+				<directory>testresources</directory>
+			</testResource>
+		</testResources>
+EOF
+fi
+
+echo -e "\t\t<plugins>\n" >>"$OUT_FILE"
+
+# resources
+if [[ -e "$WDIR/resources/" ]] \
+|| [[ -e "$WDIR/testresources/" ]]; then
+\cat >>"$OUT_FILE" <<EOF
+			<!-- Resource Plugin -->
+			<plugin>
+				<artifactId>maven-resources-plugin</artifactId>
+				<groupId>org.apache.maven.plugins</groupId>
+				<version>\${maven-resources-plugin-version}</version>
+				<configuration>
+					<nonFilteredFileExtensions>
+						<nonFilteredFileExtension>png</nonFilteredFileExtension>
+						<nonFilteredFileExtension>so</nonFilteredFileExtension>
+						<nonFilteredFileExtension>dll</nonFilteredFileExtension>
+					</nonFilteredFileExtensions>
+				</configuration>
+			</plugin>
+EOF
+fi
+
+# java compiler plugin
+\cat >>"$OUT_FILE" <<EOF
+			<!-- Compiler Plugin -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>\${maven-compiler-plugin-version}</version>
+				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
+				</configuration>
+			</plugin>
+
+EOF
+
+# jar plugin
+\cat >>"$OUT_FILE" <<EOF
+			<!-- Jar Plugin -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>\${maven-jar-plugin-version}</version>
+			</plugin>
+
+EOF
+
+# source plugin
+\cat >>"$OUT_FILE" <<EOF
+			<!-- Source Plugin -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>\${maven-source-plugin-version}</version>
+				<configuration>
+					<finalName>\${project.name}-\${project.version}</finalName>
+					<attach>false</attach>
+				</configuration>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+EOF
+
+# eclipse plugin
+\cat >>"$OUT_FILE" <<EOF
+			<!-- Eclipse Plugin -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-eclipse-plugin</artifactId>
+				<version>\${maven-eclipse-plugin-version}</version>
+				<configuration>
+					<projectNameTemplate>\${project.name}</projectNameTemplate>
+					<downloadSources>true</downloadSources>
+					<downloadJavadocs>true</downloadJavadocs>
+				</configuration>
+			</plugin>
+
+EOF
+
+# git commit id plugin
+\cat >>"$OUT_FILE" <<EOF
+			<!-- Commit-ID Plugin -->
+			<plugin>
+				<groupId>pl.project13.maven</groupId>
+				<artifactId>git-commit-id-plugin</artifactId>
+				<version>\${git-commit-id-version}</version>
+				<executions>
+					<execution>
+						<id>get-the-git-infos</id>
+						<goals>
+							<goal>revision</goal>
+						</goals>
+						<phase>validate</phase>
+					</execution>
+				</executions>
+				<configuration>
+					<dotGitDirectory>\${project.basedir}/.git</dotGitDirectory>
+				</configuration>
+			</plugin>
+
+EOF
+
+# shade jar
+if [[ $SHADE -eq $YES ]]; then
+\cat >>"$OUT_FILE" <<EOF
+			<!-- Shade Plugin -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>\${maven-shade-plugin-version}</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<dependencyReducedPomLocation>\${project.basedir}/target/dependency-reduced-pom.xml</dependencyReducedPomLocation>
+					<filters>
+					</filters>
+				</configuration>
+			</plugin>
+
+EOF
+fi
+
+# jUnit
+if [[ -e "$WDIR/tests/" ]]; then
+	AddDep  "junit"  "junit"  scope=test
+\cat >>"$OUT_FILE" <<EOF
+			<!-- Surefire Plugin -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>\${surefire-version}</version>
+				<configuration>
+					<useFile>false</useFile>
+					<parallel>methods</parallel>
+					<threadCount>4</threadCount>
+					<trimStackTrace>false</trimStackTrace>
+				</configuration>
+			</plugin>
+
+			<!-- Cobertura Plugin -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>cobertura-maven-plugin</artifactId>
+				<version>\${cobertura-version}</version>
+				<configuration>
+					<quiet>true</quiet>
+				</configuration>
+			</plugin>
+
+			<!-- JXR - Cross Reference -->
+			<plugin>
+				<groupId>org.apache.maven.jxr</groupId>
+				<artifactId>jxr</artifactId>
+				<version>\${jxr-version}</version>
+			</plugin>
+
+			<!-- Reports -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-project-info-reports-plugin</artifactId>
+				<version>\${project-info-reports-version}</version>
+			</plugin>
+
+EOF
+fi
+
+\cat >>"$OUT_FILE" <<EOF
+		</plugins>
+	</build>
+EOF
+
+# 3rd party repositories
+if [[ ! -z $OUT_REPOS ]]; then
+	echo -e "\t<repositories>"  >>"$OUT_FILE"
+	echo -en "$OUT_REPOS"       >>"$OUT_FILE"
+	echo -e "\t</repositories>" >>"$OUT_FILE"
+fi
+
+# dependencies
+if [[ ! -z $OUT_DEPS ]]; then
+	echo -e "\t<dependencies>"  >>"$OUT_FILE"
+	echo -en "$OUT_DEPS"        >>"$OUT_FILE"
+	echo -e "\t</dependencies>" >>"$OUT_FILE"
+fi
+
+if [[ -e "$WDIR/tests/" ]]; then
+\cat >>"$OUT_FILE" <<EOF
+	<reporting>
+		<plugins>
+			<!-- Reports Plugin -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-project-info-reports-plugin</artifactId>
+				<version>\${project-info-reports-version}</version>
+				<configuration>
+					<dependencyLocationsEnabled>false</dependencyLocationsEnabled>
+				</configuration>
+			</plugin>
+			<!-- Cobertura Plugin -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>cobertura-maven-plugin</artifactId>
+				<version>\${cobertura-version}</version>
+				<configuration>
+					<formats>
+						<format>html</format>
+						<format>xml</format>
+					</formats>
+				</configuration>
+			</plugin>
+			<!-- Cross-Reference Plugin -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jxr-plugin</artifactId>
+				<version>\${jxr-version}</version>
+			</plugin>
+		</plugins>
+	</reporting>
+EOF
+fi
+
+echo "</project>" >>"$OUT_FILE"
+
+
+
+LINE_COUNT=$( \cat "$OUT_FILE" | \wc -l )
+notice "Generated pom.xml file with [$LINE_COUNT] lines"
+
+
+
+echo
+exit 0
