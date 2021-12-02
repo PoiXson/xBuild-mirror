@@ -155,7 +155,7 @@ while [ $# -gt 0 ]; do
 		DO_PACK=$YES
 	;;
 	# debug flags
-	-d|--debug-flag|--debug-flags)
+	-d|--debug|--debug-flag|--debug-flags)
 		DEBUG_FLAGS=$YES
 	;;
 	# build number
