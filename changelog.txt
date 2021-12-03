@@ -1,6 +1,22 @@
 xBuild - A tool to simplify building and managing projects in your workspace
 
 
+2021-12-02 - 2.1.3
+==================
+* added genpom script
+* added maven-versions.conf file
+* fixed composer calls in xbuild
+* fixed phpunit calls in xbuild
+* added coverage flag to phpunit calls in xbuild
+* renamed --deploy flag to --target
+* renamed --dist flag to --package
+* added --debug flag alias
+* logging improvements
+* fixed MakeSymlink() function
+* fixed -fPIC flag in genautotools
+* cleanup and polish
+
+
 2021-10-01 - 2.1.2
 ==================
 * added MakeSymlink() function to xbuild.sh
