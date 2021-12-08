@@ -422,8 +422,8 @@ fi
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>\${maven-compiler-plugin-version}</version>
 				<configuration>
-					<source>1.8</source>
-					<target>1.8</target>
+					<source>11</source>
+					<target>11</target>
 				</configuration>
 			</plugin>
 
