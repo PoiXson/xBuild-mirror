@@ -364,14 +364,14 @@ fi
 # build
 \cat >>"$OUT_FILE" <<EOF
 	<build>
-		<directory>target</directory>
-		<outputDirectory>target</outputDirectory>
+		<directory>target/</directory>
+		<sourceDirectory>src/</sourceDirectory>
+		<outputDirectory>target/classes/</outputDirectory>
 		<finalName>\${project.name}-\${project.version}</finalName>
-		<sourceDirectory>\${project.basedir}/src</sourceDirectory>
 EOF
 
 if [[ -e "$WDIR/tests/" ]]; then
-	echo -e "\t\t<testSourceDirectory>\${project.basedir}/tests</testSourceDirectory>" >>"$OUT_FILE"
+	echo -e "\t\t<testSourceDirectory>tests/</testSourceDirectory>" >>"$OUT_FILE"
 fi
 
 # resources
@@ -380,7 +380,7 @@ if [[ -e "$WDIR/resources/" ]]; then
 \cat >>"$OUT_FILE" <<EOF
 		<resources>
 			<resource>
-				<directory>\${project.basedir}/resources</directory>
+				<directory>resources/</directory>
 				<filtering>true</filtering>
 				<includes>
 					<include>plugin.yml</include>
@@ -393,7 +393,7 @@ if [[ -e "$WDIR/testresources/" ]]; then
 \cat >>"$OUT_FILE" <<EOF
 		<testResources>
 			<testResource>
-				<directory>testresources</directory>
+				<directory>testresources/</directory>
 			</testResource>
 		</testResources>
 EOF
@@ -518,7 +518,7 @@ EOF
 					</execution>
 				</executions>
 				<configuration>
-					<dotGitDirectory>\${project.basedir}/.git</dotGitDirectory>
+					<dotGitDirectory>.git/</dotGitDirectory>
 				</configuration>
 			</plugin>
 
