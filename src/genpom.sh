@@ -436,6 +436,21 @@ EOF
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
 				<version>\${maven-jar-plugin-version}</version>
+EOF
+# main class
+if [[ ! -z $MAINCLASS ]]; then
+\cat >>"$OUT_FILE" <<EOF
+				<!-- Main Class -->
+				<configuration>
+					<archive>
+						<manifest>
+							<mainClass>$MAINCLASS</mainClass>
+						</manifest>
+					</archive>
+				</configuration>
+EOF
+fi
+\cat >>"$OUT_FILE" <<EOF
 			</plugin>
 
 EOF
