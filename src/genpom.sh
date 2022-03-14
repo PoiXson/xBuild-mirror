@@ -34,7 +34,6 @@ fi
 
 
 MAVEN_VERSIONS_FILE="maven-versions.conf"
-OUT_FILE="$WDIR/pom.xml"
 OUT_PROPS=""
 OUT_PROPS_DEPS=""
 OUT_PROPS_PLUGINS=""
@@ -278,6 +277,14 @@ if [[ -e "$WDIR/tests/" ]]; then
 fi
 
 
+
+# temp file
+OUT_FILE=$( mktemp )
+RESULT=$?
+if [[ $RESULT -ne 0 ]] || [[ -z $OUT_FILE ]]; then
+	failure "Failed to create a temp file"
+	echo >&2 ; exit $RESULT
+fi
 
 # generate pom.xml
 echo -n >"$OUT_FILE"
@@ -646,8 +653,26 @@ echo "</project>" >>"$OUT_FILE"
 
 
 
+# diff
+HASH_NEW=$( \grep -v "<\!-- Generated: " "$OUT_FILE"     | \md5sum )
+HASH_OLD=$( \grep -v "<\!-- Generated: " "$WDIR/pom.xml" | \md5sum )
+HASH_NEW="${HASH_NEW%%\ *}"
+HASH_OLD="${HASH_OLD%%\ *}"
+if [[ -z $HASH_NEW ]] || [[ -z $HASH_OLD ]]; then
+	failure "Failed to diff temp file with existing file"
+	echo >&2 ; exit $RESULT
+fi
+
+
+
 LINE_COUNT=$( \cat "$OUT_FILE" | \wc -l )
-notice "Generated pom.xml file with [$LINE_COUNT] lines"
+if [[ "$HASH_NEW" == "$HASH_OLD" ]]; then
+	notice "Existing file is up to date, containing [$LINE_COUNT] lines"
+else
+	\cp -fv  "$OUT_FILE"  "$WDIR/pom.xml"  || exit 1
+	notice "Generated pom.xml file, containing [$LINE_COUNT] lines"
+fi
+\rm  --preserve-root  "$OUT_FILE"
 
 
 
