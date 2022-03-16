@@ -428,6 +428,21 @@ function doClean() {
 				fi
 			\popd >/dev/null
 		fi
+		# clean target
+		if [[ -d "$PROJECT_PATH/target" ]]; then
+			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
+				echo -ne " > ${COLOR_CYAN}rm -rf target..${COLOR_RESET}"
+				rm_groups=$((rm_groups+1))
+				if [[ $IS_DRY -eq $NO ]]; then
+					c=$( \rm -vrf --preserve-root target | wc -l )
+					[[ 0 -ne $? ]] && exit 1
+					[[ $c -gt 0 ]] && count=$((count+c))
+					echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
+				else
+					echo
+				fi
+			\popd >/dev/null
+		fi
 	fi
 	# clean php project
 	if [[ $ONLY_BIN -eq $NO ]]; then
