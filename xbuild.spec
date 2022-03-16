@@ -36,8 +36,8 @@ echo "Install.."
 		|| exit 1
 
 # copy files
-%{__install} -m 0644  "%{_topdir}/../src/"*.sh    "%{buildroot}%{prefix}/"       || exit 1
-%{__install} -m 0644  "%{_topdir}/../src/"*.conf  "%{buildroot}%{_sysconfdir}/"  || exit 1
+%{__install} -m 0644  "%{_topdir}/../src/"*.sh  "%{buildroot}%{prefix}/"  || exit 1
+%{__install} -m 0644  "%{_topdir}/../maven-versions.conf.example"  "%{buildroot}%{_sysconfdir}/"  || exit 1
 
 # create symlinks
 %{__ln_s} -f  "pxn/scripts/xbuild.sh"        "%{buildroot}%{_bindir}/xbuild"        || exit 1
@@ -54,7 +54,7 @@ echo "Install.."
 %{prefix}/xbuild.sh
 %{prefix}/genautotools.sh
 %{prefix}/genpom.sh
-%{_sysconfdir}/maven-versions.conf
+%{_sysconfdir}/maven-versions.conf.example
 %{prefix}/xbuild-aliases.sh
 # symlinks
 %{_bindir}/xbuild
