@@ -1,6 +1,14 @@
 xBuild - A tool to simplify building and managing projects in your workspace
 
 
+2021-12-02 - 2.1.4
+==================
+* changed from java 8 to 11
+* added maven-versions.conf file
+* added support for shade and main class to genpom
+* improved genpom to only update files when needed
+
+
 2021-12-02 - 2.1.3
 ==================
 * added genpom script
