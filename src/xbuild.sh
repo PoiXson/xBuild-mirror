@@ -226,8 +226,8 @@ done
 
 
 if [[ -z $TARGET_PATH ]]; then
-	TARGET_PATH="$WDIR"
-#	TARGET_PATH="$WDIR/target"
+#	TARGET_PATH="$WDIR"
+	TARGET_PATH="$WDIR/target"
 fi
 
 
