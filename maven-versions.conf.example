@@ -5,28 +5,13 @@ ORG_URL="https://poixson.com"
 
 
 ADD_VERSION  "com.poixson"  "common-core"       "4.0.0-SNAPSHOT"
+ADD_VERSION  "com.poixson"  "common-logger"     "4.0.0-SNAPSHOT"
 ADD_VERSION  "com.poixson"  "common-app"        "4.0.0-SNAPSHOT"
 ADD_VERSION  "com.poixson"  "common-config"     "4.0.0-SNAPSHOT"
 ADD_VERSION  "com.poixson"  "common-net"        "4.0.0-SNAPSHOT"
 ADD_VERSION  "com.poixson"  "common-plugin"     "4.0.0-SNAPSHOT"
 ADD_VERSION  "com.poixson"  "common-scheduler"  "4.0.0-SNAPSHOT"
 ADD_VERSION  "com.poixson"  "common-shell"      "4.0.0-SNAPSHOT"
-ADD_VERSION  "com.poixson"  "common-bukkit"     "4.0.0-SNAPSHOT"
-
-
-
-ADD_VERSION  "org.slf4j"             "slf4j-api"      "1.7.32"
-ADD_VERSION  "org.yaml"              "snakeyaml"      "1.29"
-ADD_VERSION  "org.jline"             "jline"          "3.21.0"
-ADD_VERSION  "org.fusesource.jansi"  "jansi"          "2.4.0"
-ADD_VERSION  "org.quartz-scheduler"  "quartz"         "2.3.2"
-ADD_VERSION  "org.xeustechnologies"  "jcl-core"       "2.8"
-ADD_VERSION  "io.netty"              "netty-common"   "5.0.0.Alpha2"
-ADD_VERSION  "io.netty"              "netty-handler"  "5.0.0.Alpha2"
-ADD_VERSION  "io.netty"              "netty-codec"    "5.0.0.Alpha2"
-
-ADD_VERSION  "org.spigotmc"  "spigot-api"    "1.17.1-R0.1-SNAPSHOT"
-ADD_VERSION  "org.spigotmc"  "spigot-short"  "1.17"
 
 
 
@@ -42,7 +27,3 @@ ADD_VERSION  "junit"                     "junit"                   "4.13.2"
 ADD_VERSION  "org.apache.maven.plugins"  "maven-surefire-plugin"   "3.0.0-M5"
 ADD_VERSION  "org.apache.maven.jxr"      "jxr"                     "3.1.1"
 ADD_VERSION  "org.apache.maven.plugins"  "maven-project-info-reports-plugin"  "3.1.2"
-
-
-
-return 0
