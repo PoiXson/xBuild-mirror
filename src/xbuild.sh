@@ -575,6 +575,14 @@ function doConfig() {
 			echo
 			did_something=$YES
 		fi
+		# generate pom.xml file
+		if [[ -f "$PROJECT_PATH/pom.conf" ]]; then
+			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
+				genpom  || exit 1
+			\popd >/dev/null
+			echo
+			did_something=$YES
+		fi
 	fi
 	if [[ $ONLY_BIN -eq $NO ]]; then
 		# composer
@@ -673,12 +681,6 @@ function doBuild() {
 			\popd >/dev/null
 			echo
 			did_something=$YES
-		fi
-		# generate pom.xml file
-		if [[ -f "$PROJECT_PATH/pom.conf" ]]; then
-			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
-				genpom  || exit 1
-			\popd >/dev/null
 		fi
 		# maven
 		if [[ -f "$PROJECT_PATH/pom.xml" ]]; then
