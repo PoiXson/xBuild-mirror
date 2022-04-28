@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 ##==============================================================================
-## Copyright (c) 2019-2021 PoiXson, Mattsoft
+## Copyright (c) 2019-2022 PoiXson, Mattsoft
 ## <https://poixson.com> <https://mattsoft.net>
 ## Released under the GPL 3.0
 ##
@@ -67,6 +67,7 @@ function DisplayHelp() {
 	echo
 	echo -e "  ${COLOR_GREEN}-d, --debug-flags${COLOR_RESET}         Build with debug flags"
 	echo -e "  ${COLOR_GREEN}-n, --build-number${COLOR_RESET}        Build number to use for builds and packages"
+	echo -e "  ${COLOR_GREEN}-R, --release${COLOR_RESET}             Build a production release"
 	echo -e "  ${COLOR_GREEN}--tests${COLOR_RESET}                   Compile and run tests for the project"
 	echo -e "  ${COLOR_GREEN}-p, --pack, --package${COLOR_RESET}     Build distributable packages"
 	echo -e "  ${COLOR_GREEN}--target <path>${COLOR_RESET}           Sets the destination path for finished binaries"
@@ -101,6 +102,7 @@ DO_PACK=$NO
 TARGET_PATH=""
 IS_DRY=$NO
 BUILD_NUMBER=""
+BUILD_RELEASE=$NO
 DEBUG_FLAGS=$NO
 VERBOSE=$NO
 while [ $# -gt 0 ]; do
@@ -165,6 +167,9 @@ while [ $# -gt 0 ]; do
 	;;
 	--build-number=*)
 		BUILD_NUMBER="${1#*=}"
+	;;
+	-R|--release)
+		BUILD_RELEASE=$YES
 	;;
 	# build tests
 	--test|--tests|--testing)
@@ -240,6 +245,13 @@ fi
 if [[ $DEBUG_FLAGS -eq $YES ]]; then
 	notice "Enable debug flags"
 	did_notice=$YES
+fi
+if [[ $BUILD_RELEASE -eq $YES ]]; then
+	notice "Production Mode"
+	did_notice=$YES
+	if [[ $DEBUG_FLAGS -eq $YES ]]; then
+		failure "WARN: Production mode and debug mode are active at the same time"
+	fi
 fi
 if [[ $DO_PACK -eq $YES ]]; then
 	notice "Deploy to: $TARGET_PATH"
