@@ -595,6 +595,12 @@ function doConfig() {
 			echo
 			did_something=$YES
 		fi
+		# generate .spec file
+		if [[ -f "$PROJECT_PATH/spec.conf" ]]; then
+			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
+				genspec  || exit 1
+			\popd >/dev/null
+		fi
 	fi
 	if [[ $ONLY_BIN -eq $NO ]]; then
 		# composer
