@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 ##==============================================================================
-## Copyright (c) 2019-2021 PoiXson, Mattsoft
+## Copyright (c) 2019-2022 PoiXson, Mattsoft
 ## <https://poixson.com> <https://mattsoft.net>
 ## Released under the GPL 3.0
 ##
@@ -34,16 +34,17 @@ fi
 
 
 MAVEN_VERSIONS_FILE="maven-versions.conf"
+SHADE=$NO
+APPEND_VERS="-version"
+
+
+
 OUT_PROPS=""
 OUT_PROPS_DEPS=""
 OUT_PROPS_PLUGINS=""
 OUT_PLUGINS=""
 OUT_DEPS=""
 OUT_REPOS=""
-SHADE=$NO
-APPEND_VERS="-version"
-
-
 
 function AddProp() {
 	OUT_PROPS="$OUT_PROPS\t\t<$1>$2</$1>\n"
@@ -205,7 +206,7 @@ if [[ -z $NAME ]]; then
 	echo >&2 ; exit 1
 fi
 if [[ -z $ARTIFACT ]]; then
-	failure "Name not set"
+	failure "Artifact not set"
 	echo >&2 ; exit 1
 fi
 if [[ -z $GROUP ]]; then
@@ -667,12 +668,13 @@ fi
 
 LINE_COUNT=$( \cat "$OUT_FILE" | \wc -l )
 if [[ "$HASH_NEW" == "$HASH_OLD" ]]; then
-	notice "Existing file is up to date, containing [$LINE_COUNT] lines"
+	notice "Existing file is up to date"
 else
 	\cp -fv  "$OUT_FILE"  "$WDIR/pom.xml"  || exit 1
-	notice "Generated pom.xml file, containing [$LINE_COUNT] lines"
+	notice "Generated pom.xml file"
 fi
-\rm  --preserve-root  "$OUT_FILE"
+notice "containing [$LINE_COUNT] lines"
+\rm  --preserve-root -f  "$OUT_FILE"
 
 
 

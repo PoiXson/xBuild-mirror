@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 ##==============================================================================
-## Copyright (c) 2019-2021 PoiXson, Mattsoft
+## Copyright (c) 2019-2022 PoiXson, Mattsoft
 ## <https://poixson.com> <https://mattsoft.net>
 ## Released under the GPL 3.0
 ##
@@ -75,6 +75,7 @@ fi
 
 
 ### generate configure.ac
+#TODO: write to tmp file and compare
 OUT_FILE="$WDIR/configure.ac"
 echo -n > "$OUT_FILE"  || exit 1
 
@@ -274,7 +275,8 @@ if [[ ! -z $PROJECT_H_FILES ]]; then
 fi
 
 LINE_COUNT=$( \cat "$OUT_FILE" | \wc -l )
-notice "Generated $OUT_FILE with [$LINE_COUNT] lines"
+notice "Generated $OUT_FILE"
+notice "containing [$LINE_COUNT] lines"
 
 
 
