@@ -693,6 +693,19 @@ function doBuild() {
 			echo
 			did_something=$YES
 		fi
+		# rust
+		if [[ -f "$PROJECT_PATH/Cargo.toml" ]]; then
+			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
+				if [[ $BUILD_RELEASE -eq $YES ]]; then
+					\cargo build --release --timings  || exit 1
+					cargocov  || exit 1
+				else
+					\cargo build  || exit 1
+				fi
+			\popd >/dev/null
+			echo
+			did_something=$YES
+		fi
 	fi
 	# nothing to do
 	if [[ $did_something -eq $YES ]]; then
