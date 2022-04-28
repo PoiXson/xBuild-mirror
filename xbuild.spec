@@ -41,6 +41,7 @@ echo "Install.."
 
 # create symlinks
 %{__ln_s} -f  "pxn/scripts/xbuild.sh"        "%{buildroot}%{_bindir}/xbuild"        || exit 1
+%{__ln_s} -f  "pxn/scripts/genspec.sh"       "%{buildroot}%{_bindir}/genspec"       || exit 1
 %{__ln_s} -f  "pxn/scripts/genautotools.sh"  "%{buildroot}%{_bindir}/genautotools"  || exit 1
 %{__ln_s} -f  "pxn/scripts/genpom.sh"        "%{buildroot}%{_bindir}/genpom"        || exit 1
 # create profile.d symlink
@@ -52,12 +53,14 @@ echo "Install.."
 %files
 %defattr(0555, root, root, 0755)
 %{prefix}/xbuild.sh
+%{prefix}/genspec.sh
 %{prefix}/genautotools.sh
 %{prefix}/genpom.sh
 %{_sysconfdir}/maven-versions.conf.example
 %{prefix}/xbuild-aliases.sh
 # symlinks
 %{_bindir}/xbuild
+%{_bindir}/genspec
 %{_bindir}/genautotools
 %{_bindir}/genpom
 %{_sysconfdir}/profile.d/xbuild-aliases.sh
