@@ -1,6 +1,14 @@
 xBuild - A tool to simplify building and managing projects in your workspace
 
 
+2022-04-28 - 2.1.5
+==================
+* added genspec script
+* moved genpom call from doBuild() to doConfig() in xbuild script
+* few logging improvements
+* fixed maven-versions.conf return code
+
+
 2021-12-02 - 2.1.4
 ==================
 * changed from java 8 to 11
