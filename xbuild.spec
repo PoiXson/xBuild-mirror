@@ -39,6 +39,12 @@ echo "Install.."
 %{__install} -m 0644  "%{_topdir}/../src/"*.sh  "%{buildroot}%{prefix}/"  || exit 1
 %{__install} -m 0644  "%{_topdir}/../maven-versions.conf.example"  "%{buildroot}%{_sysconfdir}/"  || exit 1
 
+# {{{version}}} tag
+\sed -i  's/{{{VERSION}}}/%{version}/'  "%{buildroot}%{prefix}/genautotools.sh"  || exit 1
+\sed -i  's/{{{VERSION}}}/%{version}/'  "%{buildroot}%{prefix}/genpom.sh"        || exit 1
+\sed -i  's/{{{VERSION}}}/%{version}/'  "%{buildroot}%{prefix}/genspec.sh"       || exit 1
+\sed -i  's/{{{VERSION}}}/%{version}/'  "%{buildroot}%{prefix}/xbuild.sh"        || exit 1
+
 # create symlinks
 %{__ln_s} -f  "pxn/scripts/xbuild.sh"        "%{buildroot}%{_bindir}/xbuild"        || exit 1
 %{__ln_s} -f  "pxn/scripts/genspec.sh"       "%{buildroot}%{_bindir}/genspec"       || exit 1
