@@ -54,6 +54,7 @@ function DisplayHelp() {
 	echo
 	echo -e "${COLOR_BROWN}Options:${COLOR_RESET}"
 	echo -e "  ${COLOR_GREEN}-a, --all${COLOR_RESET}                 Use all .dev files found"
+	echo -e "  ${COLOR_GREEN}-D, --dry${COLOR_RESET}                 Dry-run, no changes will be performed by actions"
 	echo -e "  ${COLOR_GREEN}-r, --recursive${COLOR_RESET}           Recursively load xbuild.conf files"
 	echo -e "  ${COLOR_GREEN}--binonly${COLOR_RESET}                 Build binary projects only"
 	echo -e "  ${COLOR_GREEN}--webonly${COLOR_RESET}                 Build web projects only"
@@ -75,11 +76,16 @@ function DisplayHelp() {
 	echo -e "  ${COLOR_GREEN}-p, --pack, --package${COLOR_RESET}     Build distributable packages"
 	echo -e "  ${COLOR_GREEN}--target <path>${COLOR_RESET}           Sets the destination path for finished binaries"
 	echo
-	echo -e "  ${COLOR_GREEN}-D, --dry${COLOR_RESET}                 Dry-run, no changes will be performed by actions"
 	echo -e "  ${COLOR_GREEN}-v, --verbose${COLOR_RESET}             Enable debug logs"
+	echo -e "  ${COLOR_GREEN}-V, --version${COLOR_RESET}             Display the version"
 	echo -e "  ${COLOR_GREEN}-h, --help${COLOR_RESET}                Display this help message and exit"
 	echo
 	exit 1
+}
+
+function DisplayVersion() {
+	echo -e "${COLOR_BROWN}xBuild${COLOR_RESET} ${COLOR_GREEN}${VERSION}${COLOR_RESET}"
+	echo
 }
 
 
@@ -194,6 +200,11 @@ while [ $# -gt 0 ]; do
 	# verbose logging
 	-v|--verbose)
 		VERBOSE=$YES
+	;;
+	# display version
+	-V|--version)
+		DisplayVersion
+		exit 1
 	;;
 	# display help
 	-h|--help)
