@@ -1,6 +1,11 @@
 xBuild - A tool to simplify building and managing projects in your workspace
 
 
+2022-05-07 - 2.1.6
+==================
+* added --version flag to xbuild script
+
+
 2022-04-28 - 2.1.5
 ==================
 * added genspec script
