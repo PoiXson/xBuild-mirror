@@ -5,10 +5,10 @@ Summary : A tool to simplify building and managing projects in your workspace
 
 Requires : shellscripts >= 2.0.6
 Requires : bash, zip, unzip, grep
-Requires : autogen autoconf libtool
-Requires : /usr/bin/rpmbuild
-Requires : /usr/bin/automake
-Requires : composer
+#Requires : autogen autoconf libtool
+#Requires : /usr/bin/rpmbuild
+#Requires : /usr/bin/automake
+#Requires : composer
 #Obsoletes: project-tools
 
 BuildArch : noarch
