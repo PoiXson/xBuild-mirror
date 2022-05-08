@@ -912,39 +912,50 @@ function doPack() {
 function Project() {
 	if [[ ! -z $PROJECT_NAME ]]; then
 		doProject
+		doCleanupVars
 	fi
 	if [[ ! -z $1 ]]; then
-		if [[ "$1" == "." ]]; then
-			PROJECT_PATH="$CURRENT_PATH"
-		else
+		PROJECT_PATH="$1"
+		if [[ -z $2 ]]; then
 			PROJECT_NAME="$1"
-			PROJECT_PATH="$CURRENT_PATH/$1"
-		fi
-		if [[ ! -z $2 ]]; then
+		else
 			PROJECT_NAME="$2"
 		fi
-	fi
-	if [[ ! -z $PROJECT_NAME ]]; then
-		title B "$PROJECT_NAME"
-		echo -e " ${COLOR_GREEN}>${COLOR_RESET} ${COLOR_BLUE}$PROJECT_PATH${COLOR_RESET}"
 	fi
 }
 
 function doProject() {
 	if [[ -z $PROJECT_NAME ]] || [[ -z $PROJECT_PATH ]]; then
+		doCleanupVars
 		return
 	fi
+	# current path
+	if [[ $PROJECT_PATH == "." ]]; then
+		PROJECT_PATH="$CURRENT_PATH"
+	else
+		PROJECT_PATH="$CURRENT_PATH/$PROJECT_PATH"
+	fi
+	# invaliid project name
+	if [[ $PROJECT_NAME == "." ]]; then
+		doCleanupVars
+	fi
+	title B "$PROJECT_NAME"
+	echo -e " ${COLOR_GREEN}>${COLOR_RESET} ${COLOR_BLUE}$PROJECT_PATH${COLOR_RESET}"
 	echo
 	# --pp
 	[[ $DO_PP -eq $YES ]] && doPullPush
 	# --gg
 	[[ $DO_GG -eq $YES ]] && doGitGUI
-	# xbuild.conf file in sub dir
+	# recursive - xbuild.conf file in sub dir
 	if [[ -f "$PROJECT_PATH/xbuild.conf" ]]; then
 		if [[ "$PROJECT_PATH" != "$CURRENT_PATH" ]]; then
 			if [[ $DO_RECURSIVE -eq $YES ]]; then
+				notice "Recursive project"
 				LoadConf "$PROJECT_PATH/xbuild.conf"
+			else
+				notice "Skipping recursive project"
 			fi
+			doCleanupVars
 			return
 		fi
 	fi
@@ -996,6 +1007,7 @@ function LoadConf() {
 		source "$1" || exit 1
 		# last project in conf file
 		doProject
+		doCleanupVars
 	\popd >/dev/null
 	CURRENT_PATH="$LAST_PATH"
 }
