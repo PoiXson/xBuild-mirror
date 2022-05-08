@@ -59,13 +59,14 @@ function DisplayHelp() {
 	echo -e "  ${COLOR_GREEN}--binonly${COLOR_RESET}                 Build binary projects only"
 	echo -e "  ${COLOR_GREEN}--webonly${COLOR_RESET}                 Build web projects only"
 	echo
-	echo -e "  ${COLOR_GREEN}-c, --clean, --cleanup${COLOR_RESET}    Cleanup workspace; delete generated files"
-	echo
 	echo -e "  ${COLOR_GREEN}--pp, --pull-push${COLOR_RESET}         Run 'git pull' and 'git push'"
 	echo -e "  ${COLOR_GREEN}--gg, --git-gui${COLOR_RESET}           Open git-gui for each project"
 	echo
-	echo -e "  ${COLOR_GREEN}--config, --configure${COLOR_RESET}     Configure projects, with autotools or composer"
-	echo -e "  ${COLOR_GREEN}--build, --compile${COLOR_RESET}        Compile the projects"
+	echo -e "  ${COLOR_GREEN}-c, --clean, --cleanup${COLOR_RESET}    Cleanup workspace; delete generated files"
+	echo -e "  ${COLOR_GREEN}-C, --config, --configure${COLOR_RESET} Configure projects, with autotools or composer"
+	echo -e "  ${COLOR_GREEN}-b, --build, --compile${COLOR_RESET}    Compile the projects"
+	echo -e "  ${COLOR_GREEN}-p, --pack, --package${COLOR_RESET}     Build distributable packages"
+	echo
 	echo -e "  ${COLOR_GREEN}--ccb${COLOR_RESET}                     Clean, config, build"
 	echo -e "  ${COLOR_GREEN}--ccbp${COLOR_RESET}                    Clean, config, build, pack"
 	echo
@@ -73,7 +74,6 @@ function DisplayHelp() {
 	echo -e "  ${COLOR_GREEN}-n, --build-number${COLOR_RESET}        Build number to use for builds and packages"
 	echo -e "  ${COLOR_GREEN}-R, --release${COLOR_RESET}             Build a production release"
 	echo -e "  ${COLOR_GREEN}--tests${COLOR_RESET}                   Compile and run tests for the project"
-	echo -e "  ${COLOR_GREEN}-p, --pack, --package${COLOR_RESET}     Build distributable packages"
 	echo -e "  ${COLOR_GREEN}--target <path>${COLOR_RESET}           Sets the destination path for finished binaries"
 	echo
 	echo -e "  ${COLOR_GREEN}-v, --verbose${COLOR_RESET}             Enable debug logs"
@@ -132,10 +132,6 @@ while [ $# -gt 0 ]; do
 	--webonly)
 		ONLY_WEB=$YES
 	;;
-	# cleanup
-	-c|--clean|--cleanup)
-		DO_CLEAN=$YES
-	;;
 	# git pull/push
 	--pp|--pull-push|--push-pull)
 		DO_PP=$YES
@@ -144,13 +140,21 @@ while [ $# -gt 0 ]; do
 	--gg|--git-gui)
 		DO_GG=$YES
 	;;
+	# cleanup
+	-c|--clean|--cleanup)
+		DO_CLEAN=$YES
+	;;
 	# --configure
-	--config|--configure)
+	-C|--config|--configure)
 		DO_CONFIG=$YES
 	;;
 	# --build
-	--build|--compile)
+	-b|--build|--compile)
 		DO_BUILD=$YES
+	;;
+	# make distributable packages
+	-p|--pack|--package)
+		DO_PACK=$YES
 	;;
 	# clean, config, build
 	--ccb)
@@ -183,10 +187,6 @@ while [ $# -gt 0 ]; do
 	# build tests
 	--test|--tests|--testing)
 		DO_TESTS=$YES
-	;;
-	# make distributable packages
-	-p|--pack|--package)
-		DO_PACK=$YES
 	;;
 	# path for finished binaries
 	--target)
