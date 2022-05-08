@@ -151,8 +151,8 @@ GEN_FILES
 
 
 # diff
-HASH_NEW=$( \grep -v "# Generated: " "$OUT_FILE"          | \md5sum )
-HASH_OLD=$( \grep -v "# Generated: " "$WDIR/${NAME}.spec" | \md5sum )
+HASH_NEW=$( \grep -v "# Generated: " "$OUT_FILE"            | \md5sum )
+HASH_OLD=$( \grep -v "# Generated: " "${WDIR}/${NAME}.spec" | \md5sum )
 HASH_NEW="${HASH_NEW%%\ *}"
 HASH_OLD="${HASH_OLD%%\ *}"
 if [[ -z $HASH_NEW ]] || [[ -z $HASH_OLD ]]; then
