@@ -581,17 +581,19 @@ function doConfig() {
 	if [[ $ONLY_WEB -eq $NO ]]; then
 		# generate automake files
 		if [[ -f "$PROJECT_PATH/autotools.conf" ]]; then
-			title C "$PROJECT_NAME" "genautotools"
+			title C "$PROJECT_NAME" "Generate autotools"
 			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
 				echo -e " > ${COLOR_CYAN}genautotools${COLOR_RESET}"
 				if [[ $IS_DRY -eq $NO ]]; then
 					\genautotools  || exit 1
 				fi
 			\popd >/dev/null
+			echo
+			did_something=$YES
 		fi
 		# automake
 		if [[ -f "$PROJECT_PATH/configure.ac" ]]; then
-			title C "$PROJECT_NAME" "Configure"
+			title C "$PROJECT_NAME" "autoreconf"
 			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
 				echo -e " > ${COLOR_CYAN}autoreconf -v --install${COLOR_RESET}"
 				if [[ $IS_DRY -eq $NO ]]; then
@@ -603,6 +605,7 @@ function doConfig() {
 		fi
 		# generate pom.xml file
 		if [[ -f "$PROJECT_PATH/pom.conf" ]]; then
+			title C "$PROJECT_NAME" "Generate pom"
 			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
 				genpom  || exit 1
 			\popd >/dev/null
@@ -611,9 +614,12 @@ function doConfig() {
 		fi
 		# generate .spec file
 		if [[ -f "$PROJECT_PATH/spec.conf" ]]; then
+			title C "$PROJECT_NAME" "Generate spec"
 			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
 				genspec  || exit 1
 			\popd >/dev/null
+			echo
+			did_something=$YES
 		fi
 	fi
 	if [[ $ONLY_BIN -eq $NO ]]; then
