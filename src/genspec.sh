@@ -31,7 +31,7 @@ echo
 
 if [ -z $WDIR ]; then
 	failure "Failed to find current working directory"
-	echo >&2 ; exit 1
+	failure ; exit 1
 fi
 
 
@@ -63,7 +63,7 @@ function AddConflicts() {
 # load spec.conf
 if [[ ! -f "$WDIR/spec.conf" ]]; then
 	failure "spec.conf file not found here"
-	echo >&2 ; exit 1
+	failure ; exit 1
 fi
 source "$WDIR/spec.conf"  || exit 1
 
@@ -72,16 +72,16 @@ source "$WDIR/spec.conf"  || exit 1
 # check values
 if [[ -z $NAME ]]; then
 	failure "Name not set"
-	echo >&2 ; exit 1
+	failure ; exit 1
 fi
 if [[ -z $VERSION ]]; then
 	failure "Version not set"
-	echo >&2 ; exit 1
+	failure ; exit 1
 fi
 
 if [[ -z $SUMMARY ]]; then
 	failure "Summary not set"
-	echo >&2 ; exit 1
+	failure ; exit 1
 fi
 if [[ -z $DESCRIPTION ]]; then
 	DESCRIPTION="$SUMMARY"
@@ -94,7 +94,7 @@ OUT_FILE=$( mktemp )
 RESULT=$?
 if [[ $RESULT -ne 0 ]] || [[ -z $OUT_FILE ]]; then
 	failure "Failed to create a temp file"
-	echo >&2 ; exit $RESULT
+	failure ; exit $RESULT
 fi
 
 # generate .spec file
@@ -157,7 +157,7 @@ HASH_NEW="${HASH_NEW%%\ *}"
 HASH_OLD="${HASH_OLD%%\ *}"
 if [[ -z $HASH_NEW ]] || [[ -z $HASH_OLD ]]; then
 	failure "Failed to diff temp file with existing file"
-	echo >&2 ; exit $RESULT
+	failure ; exit $RESULT
 fi
 
 

@@ -31,7 +31,7 @@ echo
 
 if [ -z $WDIR ]; then
 	failure "Failed to find current working directory"
-	echo >&2 ; exit 1
+	failure ; exit 1
 fi
 
 
@@ -39,7 +39,7 @@ fi
 # load autotools.conf
 if [ ! -f "$WDIR/autotools.conf" ]; then
 	failure "autotools.conf file not found here"
-	echo >&2 ; exit 1
+	failure ; exit 1
 fi
 source "$WDIR/autotools.conf"  || exit 1
 
@@ -48,19 +48,19 @@ source "$WDIR/autotools.conf"  || exit 1
 # check values
 if [ -z $PROJECT_NAME ]; then
 	failure "Project Name not set in autotools.conf"
-	echo >&2 ; exit 1
+	failure ; exit 1
 fi
 if [ -z $PROJECT_VERSION ]; then
 	failure "Project Version not set in autotools.conf"
-	echo >&2 ; exit 1
+	failure ; exit 1
 fi
 if [ -z $PROJECT_SUPPORT ]; then
 	failure "Project Support not set in autotools.conf"
-	echo >&2 ; exit 1
+	failure ; exit 1
 fi
 if [ -z $PROJECT_URL ]; then
 	failure "Project URL not set in autotools.conf"
-	echo >&2 ; exit 1
+	failure ; exit 1
 fi
 if [[ -z $IS_BIN ]] || [[ $IS_BIN -ne $YES ]]; then
 	IS_BIN=$NO

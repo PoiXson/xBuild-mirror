@@ -31,7 +31,7 @@ echo
 
 if [ -z $WDIR ]; then
 	failure "Failed to find current working directory"
-	echo >&2 ; exit 1
+	failure ; exit 1
 fi
 
 
@@ -77,18 +77,18 @@ function AddDep() {
 		;;
 		*)
 			failure "Unknown dependency argument: $1"
-			echo >&2 ; exit 1
+			failure ; exit 1
 		;;
 		esac
 		shift
 	done
 	if [[ -z $GROUP ]]; then
 		failure "Dependency group not set"
-		echo >&2 ; exit 1
+		failure ; exit 1
 	fi
 	if [[ -z $ARTIFACT ]]; then
 		failure "Dependency artifact not set"
-		echo >&2 ; exit 1
+		failure ; exit 1
 	fi
 	if [[ -z $VERSION ]]; then
 		FindDepVersion  "$GROUP"  "$ARTIFACT"
@@ -96,7 +96,7 @@ function AddDep() {
 	fi
 	if [[ -z $VERSION ]]; then
 		failure "Unknown version for: $GROUP $ARTIFACT"
-		echo >&2 ; exit 1
+		failure ; exit 1
 	fi
 	AddPropDep  "$ARTIFACT$APPEND_VERS"  "$VERSION"
 	if [[ -z $SCOPE ]]; then
@@ -118,11 +118,11 @@ function AddRepo() {
 	local URL="$2"
 	if [[ -z $NAME ]]; then
 		failure "Repo Name argument is required"
-		echo >&2 ; exit 1
+		failure ; exit 1
 	fi
 	if [[ -z $URL ]]; then
 		failure "Repo URL argument is required"
-		echo >&2 ; exit 1
+		failure ; exit 1
 	fi
 	OUT_REPOS="$OUT_REPOS\t\t<repository>\n"
 	OUT_REPOS="$OUT_REPOS\t\t\t<id>$NAME</id>\n"
@@ -171,11 +171,11 @@ function FindDepVersion() {
 	fi
 	if [[ $DID_SOMETHING -ne $YES ]]; then
 		failure "File not found: $MAVEN_VERSIONS_FILE"
-		echo >&2 ; exit 1
+		failure ; exit 1
 	fi
 	if [[ -z $FOUND_DEP_VERSION ]]; then
 		failure "Dependency version unknown: $FIND_DEP_BY_GROUP $FIND_DEP_BY_ARTIFACT"
-		echo >&2 ; exit 1
+		failure ; exit 1
 	fi
 }
 function ADD_VERSION() {
@@ -197,7 +197,7 @@ function ADD_VERSION() {
 # load pom.conf
 if [[ ! -f "$WDIR/pom.conf" ]]; then
 	failure "pom.conf file not found here"
-	echo >&2 ; exit 1
+	failure ; exit 1
 fi
 source "$WDIR/pom.conf"  || exit 1
 
@@ -206,19 +206,19 @@ source "$WDIR/pom.conf"  || exit 1
 # check values
 if [[ -z $NAME ]]; then
 	failure "Name not set"
-	echo >&2 ; exit 1
+	failure ; exit 1
 fi
 if [[ -z $ARTIFACT ]]; then
 	failure "Artifact not set"
-	echo >&2 ; exit 1
+	failure ; exit 1
 fi
 if [[ -z $GROUP ]]; then
 	failure "Group not set"
-	echo >&2 ; exit 1
+	failure ; exit 1
 fi
 if [[ -z $VERSION ]]; then
 	failure "Version not set"
-	echo >&2 ; exit 1
+	failure ; exit 1
 fi
 
 
@@ -287,7 +287,7 @@ OUT_FILE=$( mktemp )
 RESULT=$?
 if [[ $RESULT -ne 0 ]] || [[ -z $OUT_FILE ]]; then
 	failure "Failed to create a temp file"
-	echo >&2 ; exit $RESULT
+	failure ; exit $RESULT
 fi
 
 # generate pom.xml
@@ -664,7 +664,7 @@ HASH_NEW="${HASH_NEW%%\ *}"
 HASH_OLD="${HASH_OLD%%\ *}"
 if [[ -z $HASH_NEW ]] || [[ -z $HASH_OLD ]]; then
 	failure "Failed to diff temp file with existing file"
-	echo >&2 ; exit $RESULT
+	failure ; exit $RESULT
 fi
 
 

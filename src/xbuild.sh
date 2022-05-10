@@ -31,7 +31,7 @@ source /usr/bin/pxn/scripts/common.sh  || exit 1
 if [[ -z $WDIR ]]; then
 	echo
 	failure "Failed to find current working directory"
-	echo >&2 ; exit 1
+	failure ; exit 1
 fi
 
 
@@ -213,7 +213,7 @@ while [ $# -gt 0 ]; do
 	;;
 	-*)
 		failure "Unknown argument: $1"
-		echo >&2
+		failure
 		DisplayHelp
 		exit 1
 	;;
@@ -233,7 +233,7 @@ while [ $# -gt 0 ]; do
 				else
 					failure "Unknown project group: $1"
 				fi
-				echo >&2
+				failure
 				exit 1
 			fi
 		fi
@@ -264,7 +264,7 @@ if [[ $BUILD_RELEASE -eq $YES ]]; then
 	notice "Production Mode"
 	did_notice=$YES
 	if [[ $DEBUG_FLAGS -eq $YES ]]; then
-		failure "WARN: Production mode and debug mode are active at the same time"
+		warning "Production mode and debug mode are active at the same time"
 	fi
 fi
 if [[ $DO_PACK -eq $YES ]]; then
@@ -336,7 +336,7 @@ function DisplayTimeProject() {
 function MakeSymlink() {
 	if [[ -z $1 ]]; then
 		failure "MakeSymlink() requires arguments"
-		echo >&2 ; exit 1
+		failure ; exit 1
 	fi
 	echo -ne " > ${COLOR_CYAN}Symlink: "
 	if [[ $IS_DRY -eq $NO ]]; then
@@ -813,7 +813,7 @@ function doPack() {
 	SPEC_FILE_COUNT=$( \ls -1 "$PROJECT_PATH/"*.spec 2>/dev/null | \wc -l )
 	if [[ $SPEC_FILE_COUNT -gt 1 ]]; then
 		failure "$SPEC_FILE_COUNT .spec files were found here"
-		echo >&2 ; exit 1
+		failure ; exit 1
 	fi
 	SPEC_FILE=""
 	SPEC_NAME=""
@@ -846,7 +846,7 @@ function doPack() {
 		\pushd "$PROJECT_PATH/rpmbuild/" >/dev/null  || exit 1
 			if [[ -z $TARGET_PATH ]]; then
 				failure "Target path not set"
-				echo >&2 ; exit 1
+				failure ; exit 1
 			fi
 			echo -e \
 				" > ${COLOR_CYAN}rpmbuild\n"  \
@@ -875,7 +875,7 @@ function doPack() {
 				\popd >/dev/null
 				if [[ -z $PACKAGES ]]; then
 					failure "Failed to find finished rpm packages: $PROJECT_PATH/rpmbuild/RPMS/"
-					echo >&2 ; exit 1
+					failure ; exit 1
 				fi
 				for ENTRY in $PACKAGES; do
 					PACKAGES_ALL+=("$TARGET_PATH/$ENTRY")
@@ -994,11 +994,11 @@ function LoadConf() {
 	doCleanupVars
 	if [[ -z $1 ]]; then
 		failure "LoadConf() requires file argument"
-		echo >&2 ; exit 1
+		failure ; exit 1
 	fi
 	if [[ "$1" != *".dev" ]] && [[ "$1" != *"/xbuild.conf" ]]; then
 		failure "Invalid config file: $1"
-		echo >&2 ; exit 1
+		failure ; exit 1
 	fi
 	local LAST_PATH="$CURRENT_PATH"
 	CURRENT_PATH=${1%/*}
