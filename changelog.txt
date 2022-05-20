@@ -1,6 +1,14 @@
 xBuild - A tool to simplify building and managing projects in your workspace
 
 
+2022-05-20 - 2.1.8
+==================
+* added -C and -b flags to xbuild script
+* improvements to Project() and doProject() functions in xbuild script
+* few logging improvements
+* few other small fixes and improvements
+
+
 2022-05-07 - 2.1.7
 ==================
 * removed some dependency requirements
