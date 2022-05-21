@@ -20,7 +20,7 @@
 ## along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##==============================================================================
 # genspec.sh
-VERSION="{{{VERSION}}}"
+XBUILD_VERSION="{{{VERSION}}}"
 
 
 
