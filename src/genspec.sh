@@ -104,7 +104,13 @@ TIMESTAMP=$( date )
 # Generated: $TIMESTAMP
 Name    : $NAME
 Version : $VERSION
-Release : 1
+EOF
+if [[ $ARCH == "noarch" ]]; then
+	echo "Release : 1"         >>"$OUT_FILE"
+else
+	echo "Release : 1%{dist}"  >>"$OUT_FILE"
+fi
+\cat >>"$OUT_FILE" <<EOF
 Summary : $SUMMARY
 
 EOF
