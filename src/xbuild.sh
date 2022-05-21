@@ -193,6 +193,9 @@ while [ $# -gt 0 ]; do
 		shift
 		TARGET_PATH="$1"
 	;;
+	--target=*)
+		TARGET_PATH="${1#*=}"
+	;;
 	# dry mode
 	-D|--dry)
 		IS_DRY=$YES
