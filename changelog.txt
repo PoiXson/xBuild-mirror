@@ -1,6 +1,14 @@
 xBuild - A tool to simplify building and managing projects in your workspace
 
 
+2022-05-21 - 2.1.9
+==================
+* added buildrepos script (in its own package)
+* updated dependency from shellscripts 2.0.6 to 2.0.8
+* fixed parsing of --target=.. flag in xbuild script
+* added %{dist} to release and rpmfilename when not building a noarch
+
+
 2022-05-20 - 2.1.8
 ==================
 * added -C and -b flags to xbuild script
