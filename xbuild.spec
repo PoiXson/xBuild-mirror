@@ -60,7 +60,8 @@ echo "Install.."
 %{__ln_s} -f  "pxn/scripts/genspec.sh"       "%{buildroot}%{_bindir}/genspec"       || exit 1
 %{__ln_s} -f  "pxn/scripts/buildrepos.sh"    "%{buildroot}%{_bindir}/buildrepos"    || exit 1
 # create profile.d symlink
-%{__ln_s} -f "../..%{prefix}/xbuild-aliases.sh"  "%{buildroot}%{_sysconfdir}/profile.d/xbuild-aliases.sh"  || exit 1
+%{__ln_s} -f "../..%{prefix}/xbuild-aliases.sh"      "%{buildroot}%{_sysconfdir}/profile.d/xbuild-aliases.sh"      || exit 1
+%{__ln_s} -f "../..%{prefix}/buildrepos-aliases.sh"  "%{buildroot}%{_sysconfdir}/profile.d/buildrepos-aliases.sh"  || exit 1
 
 
 
@@ -83,5 +84,7 @@ echo "Install.."
 %files -n xbuild-repo
 %defattr(0555, root, root, 0755)
 %{prefix}/buildrepos.sh
+%{prefix}/buildrepos-aliases.sh
 # symlinks
 %{_bindir}/buildrepos
+%{_sysconfdir}/profile.d/buildrepos-aliases.sh
