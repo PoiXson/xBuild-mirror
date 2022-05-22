@@ -6,9 +6,9 @@ BuildArch : noarch
 Prefix: %{_bindir}/pxn/scripts
 %define _rpmfilename  %%{NAME}-%%{VERSION}-%%{RELEASE}.%%{ARCH}.rpm
 
-License   : GPLv3
-Packager  : PoiXson <support@poixson.com>
-URL       : https://poixson.com/
+License  : GPLv3
+Packager : PoiXson <support@poixson.com>
+URL      : https://poixson.com/
 
 Requires : shellscripts >= 2.0.8
 Requires : bash, zip, unzip, grep
@@ -19,7 +19,7 @@ Requires : bash, zip, unzip, grep
 #Obsoletes: project-tools
 
 %package -n xbuild-repos
-Summary : Setup and maintain a yum/dnf repo
+Summary  : Setup and maintain a yum/dnf repo
 Provides : xbuild-repo
 Requires : shellscripts >= 2.0.8
 Requires : bash, createrepo_c
