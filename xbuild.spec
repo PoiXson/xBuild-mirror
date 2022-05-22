@@ -18,15 +18,16 @@ Requires : bash, zip, unzip, grep
 #Requires : composer
 #Obsoletes: project-tools
 
-%package -n xbuild-repo
+%package -n xbuild-repos
 Summary : Setup and maintain a yum/dnf repo
+Provides : xbuild-repo
 Requires : shellscripts >= 2.0.8
 Requires : bash, createrepo_c
 
 %description
 A tool to simplify building and managing projects in your workspace.
 
-%description -n xbuild-repo
+%description -n xbuild-repos
 A tool to simplify setting up a yum/dnf repository.
 
 
@@ -81,7 +82,7 @@ echo "Install.."
 %{_bindir}/genpom
 %{_sysconfdir}/profile.d/xbuild-aliases.sh
 
-%files -n xbuild-repo
+%files -n xbuild-repos
 %defattr(0555, root, root, 0755)
 %{prefix}/buildrepos.sh
 %{prefix}/buildrepos-aliases.sh
