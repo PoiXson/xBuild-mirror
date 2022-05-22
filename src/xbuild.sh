@@ -72,9 +72,11 @@ function DisplayHelp() {
 	echo
 	echo -e "  ${COLOR_GREEN}-d, --debug-flags${COLOR_RESET}         Build with debug flags"
 	echo -e "  ${COLOR_GREEN}-n, --build-number${COLOR_RESET}        Build number to use for builds and packages"
+	echo -e                             "                              default: x"
 	echo -e "  ${COLOR_GREEN}-R, --release${COLOR_RESET}             Build a production release"
 	echo -e "  ${COLOR_GREEN}--tests${COLOR_RESET}                   Compile and run tests for the project"
 	echo -e "  ${COLOR_GREEN}--target <path>${COLOR_RESET}           Sets the destination path for finished binaries"
+	echo -e                             "                              default: target/"
 	echo
 	echo -e "  ${COLOR_GREEN}-v, --verbose${COLOR_RESET}             Enable debug logs"
 	echo -e "  ${COLOR_GREEN}-V, --version${COLOR_RESET}             Display the version"
