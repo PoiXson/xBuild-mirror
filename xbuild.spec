@@ -10,7 +10,7 @@ License   : GPLv3
 Packager  : PoiXson <support@poixson.com>
 URL       : https://poixson.com/
 
-Requires : shellscripts >= 2.0.6
+Requires : shellscripts >= 2.0.8
 Requires : bash, zip, unzip, grep
 #Requires : autogen autoconf libtool
 #Requires : /usr/bin/rpmbuild
