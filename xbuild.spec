@@ -43,49 +43,38 @@ echo "Install.."
 	"%{buildroot}%{_sysconfdir}/profile.d/"  \
 		|| exit 1
 
-# copy files
-%{__install} -m 0644  "%{_topdir}/../src/"*.sh  "%{buildroot}%{prefix}/"  || exit 1
+# /usr/bin/
+%{__install} -m 0644  "%{_topdir}/../src/xbuild.sh"        "%{buildroot}%{_bindir}/xbuild"        || exit 1
+%{__install} -m 0644  "%{_topdir}/../src/genautotools.sh"  "%{buildroot}%{_bindir}/genautotools"  || exit 1
+%{__install} -m 0644  "%{_topdir}/../src/genpom.sh"        "%{buildroot}%{_bindir}/genpom"        || exit 1
+%{__install} -m 0644  "%{_topdir}/../src/genspec.sh"       "%{buildroot}%{_bindir}/genspec"       || exit 1
+%{__install} -m 0644  "%{_topdir}/../src/buildrepos.sh"    "%{buildroot}%{_bindir}/buildrepos"    || exit 1
+# /etc/profile.d/
+%{__install} -m 0644  "%{_topdir}/../src/etc-profile.d-xbuild.sh"      "%{buildroot}%{_sysconfdir}/profile.d/xbuild.sh"      || exit 1
+%{__install} -m 0644  "%{_topdir}/../src/etc-profile.d-buildrepos.sh"  "%{buildroot}%{_sysconfdir}/profile.d/buildrepos.sh"  || exit 1
+# /etc/
 %{__install} -m 0644  "%{_topdir}/../maven-versions.conf.example"  "%{buildroot}%{_sysconfdir}/"  || exit 1
 
 # {{{version}}} tag
-\sed -i  's/{{{VERSION}}}/%{version}/'  "%{buildroot}%{prefix}/xbuild.sh"        || exit 1
-\sed -i  's/{{{VERSION}}}/%{version}/'  "%{buildroot}%{prefix}/genautotools.sh"  || exit 1
-\sed -i  's/{{{VERSION}}}/%{version}/'  "%{buildroot}%{prefix}/genpom.sh"        || exit 1
-\sed -i  's/{{{VERSION}}}/%{version}/'  "%{buildroot}%{prefix}/genspec.sh"       || exit 1
-\sed -i  's/{{{VERSION}}}/%{version}/'  "%{buildroot}%{prefix}/buildrepos.sh"    || exit 1
-
-# create symlinks
-%{__ln_s} -f  "pxn/scripts/xbuild.sh"        "%{buildroot}%{_bindir}/xbuild"        || exit 1
-%{__ln_s} -f  "pxn/scripts/genautotools.sh"  "%{buildroot}%{_bindir}/genautotools"  || exit 1
-%{__ln_s} -f  "pxn/scripts/genpom.sh"        "%{buildroot}%{_bindir}/genpom"        || exit 1
-%{__ln_s} -f  "pxn/scripts/genspec.sh"       "%{buildroot}%{_bindir}/genspec"       || exit 1
-%{__ln_s} -f  "pxn/scripts/buildrepos.sh"    "%{buildroot}%{_bindir}/buildrepos"    || exit 1
-# create profile.d symlink
-%{__ln_s} -f "../..%{prefix}/xbuild-aliases.sh"      "%{buildroot}%{_sysconfdir}/profile.d/xbuild-aliases.sh"      || exit 1
-%{__ln_s} -f "../..%{prefix}/buildrepos-aliases.sh"  "%{buildroot}%{_sysconfdir}/profile.d/buildrepos-aliases.sh"  || exit 1
+\sed -i  's/{{{VERSION}}}/%{version}/'  "%{buildroot}%{_bindir}/xbuild"        || exit 1
+\sed -i  's/{{{VERSION}}}/%{version}/'  "%{buildroot}%{_bindir}/genautotools"  || exit 1
+\sed -i  's/{{{VERSION}}}/%{version}/'  "%{buildroot}%{_bindir}/genpom"        || exit 1
+\sed -i  's/{{{VERSION}}}/%{version}/'  "%{buildroot}%{_bindir}/genspec"       || exit 1
+\sed -i  's/{{{VERSION}}}/%{version}/'  "%{buildroot}%{_bindir}/buildrepos"    || exit 1
 
 
 
 ### Files ###
 %files
 %defattr(0555, root, root, 0755)
-%{prefix}/xbuild.sh
-%{prefix}/genspec.sh
-%{prefix}/genautotools.sh
-%{prefix}/genpom.sh
-%{_sysconfdir}/maven-versions.conf.example
-%{prefix}/xbuild-aliases.sh
-# symlinks
 %{_bindir}/xbuild
-%{_bindir}/genspec
 %{_bindir}/genautotools
 %{_bindir}/genpom
-%{_sysconfdir}/profile.d/xbuild-aliases.sh
+%{_bindir}/genspec
+%{_sysconfdir}/profile.d/xbuild.sh
+%{_sysconfdir}/maven-versions.conf.example
 
 %files -n xbuild-repos
 %defattr(0555, root, root, 0755)
-%{prefix}/buildrepos.sh
-%{prefix}/buildrepos-aliases.sh
-# symlinks
 %{_bindir}/buildrepos
-%{_sysconfdir}/profile.d/buildrepos-aliases.sh
+%{_sysconfdir}/profile.d/buildrepos.sh
