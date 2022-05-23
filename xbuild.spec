@@ -10,7 +10,7 @@ License  : GPLv3
 Packager : PoiXson <support@poixson.com>
 URL      : https://poixson.com/
 
-Requires : shellscripts >= 2.0.8
+Requires : pxnscripts >= 2.1.0
 Requires : bash, zip, unzip, grep
 #Requires : autogen autoconf libtool
 #Requires : /usr/bin/rpmbuild
@@ -21,7 +21,7 @@ Requires : bash, zip, unzip, grep
 %package -n xbuild-repos
 Summary  : Setup and maintain a yum/dnf repo
 Provides : xbuild-repo
-Requires : shellscripts >= 2.0.8
+Requires : pxnscripts >= 2.1.0
 Requires : bash, createrepo_c
 
 %description
