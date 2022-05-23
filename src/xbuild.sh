@@ -26,8 +26,6 @@ VERSION="{{{VERSION}}}"
 
 source /usr/bin/pxn/scripts/common.sh  || exit 1
 
-
-
 if [[ -z $WDIR ]]; then
 	echo
 	failure "Failed to find current working directory"
@@ -741,7 +739,11 @@ function doBuild() {
 			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
 				if [[ $BUILD_RELEASE -eq $YES ]]; then
 					\cargo build --release --timings  || exit 1
-					cargocov  || exit 1
+					\grcov . -s .  \
+						--binary-path ./target/debug/           \
+						-t html --branch --ignore-not-existing  \
+						-o ./coverage/  || exit 1
+					\cargocov  || exit 1
 				else
 					\cargo build  || exit 1
 				fi
