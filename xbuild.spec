@@ -11,7 +11,7 @@ Packager : PoiXson <support@poixson.com>
 URL      : https://poixson.com/
 
 Requires : pxnscripts >= 2.1.0
-Requires : bash, zip, unzip, grep
+Requires : bash, bc, zip, unzip, grep
 #Requires : autogen autoconf libtool
 #Requires : /usr/bin/rpmbuild
 #Requires : /usr/bin/automake
