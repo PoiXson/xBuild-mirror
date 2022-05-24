@@ -742,8 +742,8 @@ function doBuild() {
 					\grcov . -s .  \
 						--binary-path ./target/debug/           \
 						-t html --branch --ignore-not-existing  \
-						-o ./coverage/  || exit 1
-					\cargocov  || exit 1
+						-o ./coverage/                          \
+					&& \cargocov
 				else
 					\cargo build  || exit 1
 				fi
