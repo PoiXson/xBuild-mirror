@@ -65,6 +65,8 @@ function DisplayHelp() {
 	echo -e "  ${COLOR_GREEN}-b, --build, --compile${COLOR_RESET}    Compile the projects"
 	echo -e "  ${COLOR_GREEN}-p, --pack, --package${COLOR_RESET}     Build distributable packages"
 	echo
+	echo -e "  ${COLOR_GREEN}--cb${COLOR_RESET}                      Config, build"
+	echo -e "  ${COLOR_GREEN}--cbp${COLOR_RESET}                     Config, build, pack"
 	echo -e "  ${COLOR_GREEN}--ccb${COLOR_RESET}                     Clean, config, build"
 	echo -e "  ${COLOR_GREEN}--ccbp${COLOR_RESET}                    Clean, config, build, pack"
 	echo
@@ -154,6 +156,17 @@ while [ $# -gt 0 ]; do
 	;;
 	# make distributable packages
 	-p|--pack|--package)
+		DO_PACK=$YES
+	;;
+	# config, build
+	--cb)
+		DO_CONFIG=$YES
+		DO_BUILD=$YES
+	;;
+	# config, build, pack
+	--cbp)
+		DO_CONFIG=$YES
+		DO_BUILD=$YES
 		DO_PACK=$YES
 	;;
 	# clean, config, build
