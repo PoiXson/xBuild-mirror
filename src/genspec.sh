@@ -49,13 +49,16 @@ DEF_ATTR_DIR="0500"
 OUT_REQUIRES=""
 
 function AddRequires() {
-	OUT_REQUIRES="${OUT_REQUIRES}Requires: $1"
+	OUT_REQUIRES="${OUT_REQUIRES}Requires: $1
+"
 }
 function AddBuildRequires() {
-	OUT_REQUIRES="${OUT_REQUIRES}BuildRequires: $1"
+	OUT_REQUIRES="${OUT_REQUIRES}BuildRequires: $1
+"
 }
 function AddConflicts() {
-	OUT_REQUIRES="${OUT_REQUIRES}Conflicts: $1"
+	OUT_REQUIRES="${OUT_REQUIRES}Conflicts: $1
+"
 }
 
 
