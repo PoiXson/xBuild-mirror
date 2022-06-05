@@ -60,6 +60,10 @@ function AddConflicts() {
 	OUT_REQUIRES="${OUT_REQUIRES}Conflicts: $1
 "
 }
+function AddProvides() {
+	OUT_REQUIRES="${OUT_REQUIRES}Provides: $1
+"
+}
 
 
 
