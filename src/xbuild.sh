@@ -143,7 +143,7 @@ while [ $# -gt 0 ]; do
 		DO_GG=$YES
 	;;
 	# cleanup
-	-c|--clean|--cleanup)
+	-c|--clean|--clear|--cleanup)
 		DO_CLEAN=$YES
 	;;
 	# --configure
