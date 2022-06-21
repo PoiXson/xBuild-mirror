@@ -128,6 +128,7 @@ function DisplayVersion() {
 
 
 function DisplayTime() {
+	[[ $QUIET -eq $YES ]] && return
 	TIME_CURRENT=$( \date "+%s%N" )
 	ELAPSED=$( echo "scale=3;($TIME_CURRENT - $TIME_LAST) / 1000 / 1000 / 1000" | bc )
 	if [[ "$ELAPSED" == "."* ]]; then
@@ -138,14 +139,15 @@ function DisplayTime() {
 	TIME_LAST=$TIME_CURRENT
 }
 function DisplayTimeProject() {
+	[[ $QUIET -eq $YES ]] && return
 	TIME_CURRENT=$( \date "+%s%N" )
 	ELAPSED=$( echo "scale=3;($TIME_CURRENT - $TIME_START_PRJ) / 1000 / 1000 / 1000" | bc )
 	if [[ "$ELAPSED" == "."* ]]; then
 		ELAPSED="0$ELAPSED"
 	fi
+	echo
 	echo -e " ${COLOR_CYAN}Finished project in $ELAPSED seconds: $PROJECT_NAME${COLOR_RESET}"
-	echo
-	echo
+	echo ; echo
 }
 
 
@@ -179,7 +181,8 @@ function doPullPush() {
 	fi
 	# clone repo
 	if [[ ! -e "$PROJECT_PATH" ]]; then
-		title C "$PROJECT_NAME" "Clone"
+		[[ $QUIET -eq $NO ]] && \
+			title C "$PROJECT_NAME" "Clone"
 		\pushd "$CURRENT_PATH/" >/dev/null  || exit 1
 			# git clone
 			echo -e " > ${COLOR_CYAN}git clone  $REPO  $PROJECT_NAME${COLOR_RESET}"
@@ -194,7 +197,8 @@ function doPullPush() {
 	if [[ ! -d "$PROJECT_PATH/.git" ]]; then
 		notice ".git/ not found, skipping"
 	fi
-	title C "$PROJECT_NAME" "Pull/Push"
+	[[ $QUIET -eq $NO ]] && \
+		title C "$PROJECT_NAME" "Pull/Push"
 	\pushd "$PROJECT_PATH/" >/dev/null  || exit 1
 		# git pull
 		echo -e " > ${COLOR_CYAN}git pull${COLOR_RESET}"
@@ -239,7 +243,8 @@ function doGitGUI() {
 
 # --clean
 function doClean() {
-	title C "$PROJECT_NAME" "Clean"
+	[[ $QUIET -eq $NO ]] && \
+		title C "$PROJECT_NAME" "Clean"
 	let count=0
 	let rm_groups=0
 	# make clean
@@ -398,7 +403,8 @@ function doConfig() {
 	if [[ $ONLY_WEB -eq $NO ]]; then
 		# generate automake files
 		if [[ -f "$PROJECT_PATH/autotools.conf" ]]; then
-			title C "$PROJECT_NAME" "Generate autotools"
+			[[ $QUIET -eq $NO ]] && \
+				title C "$PROJECT_NAME" "Generate autotools"
 			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
 				echo -e " > ${COLOR_CYAN}genautotools${COLOR_RESET}"
 				if [[ $IS_DRY -eq $NO ]]; then
@@ -410,7 +416,8 @@ function doConfig() {
 		fi
 		# automake
 		if [[ -f "$PROJECT_PATH/configure.ac" ]]; then
-			title C "$PROJECT_NAME" "autoreconf"
+			[[ $QUIET -eq $NO ]] && \
+				title C "$PROJECT_NAME" "autoreconf"
 			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
 				echo -e " > ${COLOR_CYAN}autoreconf -v --install${COLOR_RESET}"
 				if [[ $IS_DRY -eq $NO ]]; then
@@ -422,7 +429,8 @@ function doConfig() {
 		fi
 		# generate pom.xml file
 		if [[ -f "$PROJECT_PATH/pom.conf" ]]; then
-			title C "$PROJECT_NAME" "Generate pom"
+			[[ $QUIET -eq $NO ]] && \
+				title C "$PROJECT_NAME" "Generate pom"
 			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
 				genpom  || exit 1
 			\popd >/dev/null
@@ -431,7 +439,8 @@ function doConfig() {
 		fi
 		# generate .spec file
 		if [[ -f "$PROJECT_PATH/spec.conf" ]]; then
-			title C "$PROJECT_NAME" "Generate spec"
+			[[ $QUIET -eq $NO ]] && \
+				title C "$PROJECT_NAME" "Generate spec"
 			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
 				genspec  || exit 1
 			\popd >/dev/null
@@ -445,7 +454,8 @@ function doConfig() {
 			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
 				if [[ $DEBUG_FLAGS -eq $YES ]] \
 				|| [[ ! -f "$PROJECT_PATH/composer.lock" ]]; then
-					title C "$PROJECT_NAME" "Composer Update"
+					[[ $QUIET -eq $NO ]] && \
+						title C "$PROJECT_NAME" "Composer Update"
 					if [[ $DEBUG_FLAGS -eq $YES ]]; then
 						echo -e " > ${COLOR_CYAN}composer update${COLOR_RESET}"
 						if [[ $IS_DRY -eq $NO ]]; then
@@ -458,7 +468,8 @@ function doConfig() {
 						fi
 					fi
 				else
-					title C "$PROJECT_NAME" "Composer Install"
+					[[ $QUIET -eq $NO ]] && \
+						title C "$PROJECT_NAME" "Composer Install"
 					if [[ $DEBUG_FLAGS -eq $YES ]]; then
 						echo -e " > ${COLOR_CYAN}composer install --dev${COLOR_RESET}"
 						if [[ $IS_DRY -eq $NO ]]; then
@@ -481,7 +492,8 @@ function doConfig() {
 		DisplayTime "Configured"
 		COUNT_OPS=$((COUNT_OPS+1))
 	else
-		title C "$PROJECT_NAME" "Configure"
+		[[ $QUIET -eq $NO ]] && \
+			title C "$PROJECT_NAME" "Configure"
 		if [[ $ONLY_WEB -eq $YES ]]; then
 			echo "web only; skipping.."
 		elif [[ $ONLY_BIN -eq $YES ]]; then
@@ -497,7 +509,8 @@ function doConfig() {
 
 function doBuild() {
 	did_something=$NO
-	title C "$PROJECT_NAME" "Build"
+	[[ $QUIET -eq $NO ]] && \
+		title C "$PROJECT_NAME" "Build"
 	# automake
 	if [[ $ONLY_WEB -eq $YES ]]; then
 		echo "web only; skipping.."
@@ -580,7 +593,8 @@ function doBuild() {
 
 function doTests() {
 	did_something=$NO
-	title C "$PROJECT_NAME" "Testing"
+	[[ $QUIET -eq $NO ]] && \
+		title C "$PROJECT_NAME" "Testing"
 	# make check
 	if [[ -f "$PROJECT_PATH/Makefile" ]]; then
 		\pushd "$PROJECT_PATH/" >/dev/null || exit 1
@@ -618,7 +632,8 @@ function doTests() {
 
 function doPack() {
 	did_something=$NO
-	title C "$PROJECT_NAME" "Package"
+	[[ $QUIET -eq $NO ]] && \
+		title C "$PROJECT_NAME" "Package"
 	# make dist
 	if [[ -f "$PROJECT_PATH/Makefile" ]]; then
 		\pushd "$PROJECT_PATH/" >/dev/null || exit 1
@@ -796,9 +811,11 @@ function doProject() {
 	if [[ $PROJECT_NAME == "." ]]; then
 		ProjectCleanup
 	fi
-	title B "$PROJECT_NAME"
-	echo -e " ${COLOR_GREEN}>${COLOR_RESET} ${COLOR_BLUE}$PROJECT_PATH${COLOR_RESET}"
-	echo
+	if [[ $QUIET -eq $NO ]] && [[ "$PROJECT_PATH" != "$CURRENT_PATH" ]]; then
+		title B "$PROJECT_NAME"
+		echo -e " ${COLOR_GREEN}>${COLOR_RESET} ${COLOR_BLUE}$PROJECT_PATH${COLOR_RESET}"
+		echo
+	fi
 	# --pp
 	[[ $DO_PP -eq $YES ]] && doPullPush
 	# --gg
@@ -807,10 +824,12 @@ function doProject() {
 	if [[ -f "$PROJECT_PATH/xbuild.conf" ]]; then
 		if [[ "$PROJECT_PATH" != "$CURRENT_PATH" ]]; then
 			if [[ $DO_RECURSIVE -eq $YES ]]; then
-				notice "Recursive project"
+				[[ $VERBOSE -eq $YES ]] && \
+					notice "Recursive: $PROJECT_PATH"
 				LoadConf "$PROJECT_PATH/xbuild.conf"
 			else
-				notice "Skipping recursive project"
+				[[ $VERBOSE -eq $YES ]] && \
+					notice "Skipping recursive"
 			fi
 			ProjectCleanup
 			return
@@ -1002,6 +1021,7 @@ if [[ -z $TARGET_PATH ]]; then
 	TARGET_PATH="$WDIR/target"
 fi
 
+if [[ $QUIET -ne $YES ]]; then
 
 
 did_notice=$NO
