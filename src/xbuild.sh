@@ -224,7 +224,7 @@ function doGitGUI() {
 	[[ ! -d "$PROJECT_PATH/.git" ]] \
 		&& return
 	# git-gui
-	\pushd "$CURRENT_PATH/$PROJECT_NAME/" >/dev/null  || exit 1
+	\pushd "$PROJECT_PATH/" >/dev/null  || exit 1
 		echo -ne " > ${COLOR_CYAN}git-gui${COLOR_RESET}"
 		if [[ $IS_DRY -eq $NO ]]; then
 			/usr/libexec/git-core/git-gui &
