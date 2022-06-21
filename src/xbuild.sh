@@ -34,6 +34,41 @@ fi
 
 
 
+DEV_FILES=""
+DO_ALL=$NO
+DO_RECURSIVE=$NO
+ONLY_BIN=$NO
+ONLY_WEB=$NO
+DO_CLEAN=$NO
+DO_PP=$NO
+DO_GG=$NO
+DO_CONFIG=$NO
+DO_BUILD=$NO
+DO_TESTS=$NO
+DO_PACK=$NO
+TARGET_PATH=""
+IS_DRY=$NO
+BUILD_NUMBER=""
+BUILD_RELEASE=$NO
+DEBUG_FLAGS=$NO
+VERBOSE=$NO
+
+# project vars
+PROJECT_NAME=""
+PROJECT_PATH=""
+CURRENT_PATH="$WDIR"
+REPO=""
+
+PACKAGES_ALL=()
+let COUNT_PRJ=0
+let COUNT_OPS=0
+
+TIME_START=$( \date "+%s%N" )
+let TIME_START_PRJ=0
+let TIME_LAST=0
+
+
+
 function DisplayHelp() {
 	echo -e "${COLOR_BROWN}Usage:${COLOR_RESET}"
 	echo    "  xbuild [options] <group>"
@@ -92,240 +127,6 @@ function DisplayVersion() {
 
 
 
-# parse args
-echo
-if [[ $# -eq 0 ]]; then
-	DisplayHelp
-	exit 1
-fi
-DEV_FILES=""
-DO_ALL=$NO
-DO_RECURSIVE=$NO
-ONLY_BIN=$NO
-ONLY_WEB=$NO
-DO_CLEAN=$NO
-DO_PP=$NO
-DO_GG=$NO
-DO_CONFIG=$NO
-DO_BUILD=$NO
-DO_TESTS=$NO
-DO_PACK=$NO
-TARGET_PATH=""
-IS_DRY=$NO
-BUILD_NUMBER=""
-BUILD_RELEASE=$NO
-DEBUG_FLAGS=$NO
-VERBOSE=$NO
-while [ $# -gt 0 ]; do
-	case "$1" in
-	# all project groups
-	-a|--all)
-		DO_ALL=$YES
-	;;
-	# recursive xbuild.conf files
-	-r|--recursive)
-		DO_RECURSIVE=$YES
-	;;
-	# build binary projects only
-	--binonly)
-		ONLY_BIN=$YES
-	;;
-	# build web projects only
-	--webonly)
-		ONLY_WEB=$YES
-	;;
-	# git pull/push
-	--pp|--pull-push|--push-pull)
-		DO_PP=$YES
-	;;
-	# git-gui
-	--gg|--git-gui)
-		DO_GG=$YES
-	;;
-	# cleanup
-	-c|--clean|--clear|--cleanup)
-		DO_CLEAN=$YES
-	;;
-	# --configure
-	-C|--config|--configure)
-		DO_CONFIG=$YES
-	;;
-	# --build
-	-b|--build|--compile)
-		DO_BUILD=$YES
-	;;
-	# make distributable packages
-	-p|--pack|--package)
-		DO_PACK=$YES
-	;;
-	# config, build
-	--cb)
-		DO_CONFIG=$YES
-		DO_BUILD=$YES
-	;;
-	# config, build, pack
-	--cbp)
-		DO_CONFIG=$YES
-		DO_BUILD=$YES
-		DO_PACK=$YES
-	;;
-	# clean, config, build
-	--ccb)
-		DO_CLEAN=$YES
-		DO_CONFIG=$YES
-		DO_BUILD=$YES
-	;;
-	# clean, config, build, pack
-	--ccbp)
-		DO_CLEAN=$YES
-		DO_CONFIG=$YES
-		DO_BUILD=$YES
-		DO_PACK=$YES
-	;;
-	# debug flags
-	-d|--debug|--debug-flag|--debug-flags)
-		DEBUG_FLAGS=$YES
-	;;
-	# build number
-	-n|--build-number)
-		\shift
-		BUILD_NUMBER="$1"
-	;;
-	--build-number=*)
-		BUILD_NUMBER="${1#*=}"
-	;;
-	-R|--release)
-		BUILD_RELEASE=$YES
-	;;
-	# build tests
-	--test|--tests|--testing)
-		DO_TESTS=$YES
-	;;
-	# path for finished binaries
-	--target)
-		shift
-		TARGET_PATH="$1"
-	;;
-	--target=*)
-		TARGET_PATH="${1#*=}"
-	;;
-	# dry mode
-	-D|--dry)
-		IS_DRY=$YES
-	;;
-	# verbose logging
-	-v|--verbose)
-		VERBOSE=$YES
-	;;
-	# display version
-	-V|--version)
-		DisplayVersion
-		exit 1
-	;;
-	# display help
-	-h|--help)
-		DisplayHelp
-		exit 1
-	;;
-	-*)
-		failure "Unknown argument: $1"
-		failure
-		DisplayHelp
-		exit 1
-	;;
-	*)
-		if [[ -f "$WDIR/$1" ]]; then
-			DEV_FILES="$DEV_FILES $WDIR/$1"
-		elif [[ -f "$WDIR/${1}.dev" ]]; then
-			DEV_FILES="$DEV_FILES $WDIR/${1}.dev"
-		else
-			FILE=$( \ls -1v "$WDIR/"*"-${1}.dev" 2>/dev/null | \sort --version-sort | \head -n1 )
-			if [[ ! -z $FILE ]]; then
-				DEV_FILES="$DEV_FILES $FILE"
-			else
-				COUNT=$( \ls -1 "$WDIR/"*.dev 2>/dev/null | \wc -l )
-				if [[ $COUNT -eq 0 ]]; then
-					failure "No project group .dev files found here"
-				else
-					failure "Unknown project group: $1"
-				fi
-				failure
-				exit 1
-			fi
-		fi
-	;;
-	esac
-	\shift
-done
-
-
-
-if [[ -z $TARGET_PATH ]]; then
-#	TARGET_PATH="$WDIR"
-	TARGET_PATH="$WDIR/target"
-fi
-
-
-
-did_notice=$NO
-if [[ $IS_DRY -eq $YES ]]; then
-	notice "Dry-run"
-	did_notice=$YES
-fi
-if [[ $DEBUG_FLAGS -eq $YES ]]; then
-	notice "Enable debug flags"
-	did_notice=$YES
-fi
-if [[ $BUILD_RELEASE -eq $YES ]]; then
-	notice "Production Mode"
-	did_notice=$YES
-	if [[ $DEBUG_FLAGS -eq $YES ]]; then
-		warning "Production mode and debug mode are active at the same time"
-	fi
-fi
-if [[ $DO_PACK -eq $YES ]]; then
-	notice "Deploy to: $TARGET_PATH"
-	did_notice=$YES
-fi
-if [[ $ONLY_BIN -eq $YES ]]; then
-	notice "Bin Only"
-	did_notice=$YES
-fi
-if [[ $ONLY_WEB -eq $YES ]]; then
-	notice "Web Only"
-	did_notice=$YES
-fi
-[[ $did_notice -eq $YES ]] && echo
-
-if [[ $DO_ALL -eq $YES ]]; then
-	DEV_FILES=$( \ls -1v "$WDIR/"*.dev 2>/dev/null | \sort --version-sort )
-fi
-if [[ ! -z $DEV_FILES ]]; then
-	echo "Using files:"
-	for FILE in $DEV_FILES; do
-		echo -e "  ${COLOR_GREEN}"${FILE##*/}"${COLOR_RESET}"
-	done
-	echo
-fi
-
-
-
-# project vars
-PROJECT_NAME=""
-PROJECT_PATH=""
-CURRENT_PATH="$WDIR"
-REPO=""
-PACKAGES_ALL=()
-
-let COUNT_PRJ=0
-let COUNT_OPS=0
-
-TIME_START=$( \date "+%s%N" )
-let TIME_START_PRJ=0
-let TIME_LAST=0
-
-
-
 function DisplayTime() {
 	TIME_CURRENT=$( \date "+%s%N" )
 	ELAPSED=$( echo "scale=3;($TIME_CURRENT - $TIME_LAST) / 1000 / 1000 / 1000" | bc )
@@ -367,6 +168,71 @@ function MakeSymlink() {
 	RESULT=$?
 	echo -ne "$COLOR_RESET"
 	[[ $RESULT ]] || exit 1
+}
+
+
+
+# --pp
+function doPullPush() {
+	if [[ -z $REPO ]]; then
+		return
+	fi
+	# clone repo
+	if [[ ! -e "$PROJECT_PATH" ]]; then
+		title C "$PROJECT_NAME" "Clone"
+		\pushd "$CURRENT_PATH/" >/dev/null  || exit 1
+			# git clone
+			echo -e " > ${COLOR_CYAN}git clone  $REPO  $PROJECT_NAME${COLOR_RESET}"
+			if [[ $IS_DRY -eq $NO ]]; then
+				\git clone "$REPO" "$PROJECT_NAME"  || exit 1
+			fi
+			echo
+		\popd >/dev/null
+		COUNT_OPS=$((COUNT_OPS+1))
+		return
+	fi
+	if [[ ! -d "$PROJECT_PATH/.git" ]]; then
+		notice ".git/ not found, skipping"
+	fi
+	title C "$PROJECT_NAME" "Pull/Push"
+	\pushd "$PROJECT_PATH/" >/dev/null  || exit 1
+		# git pull
+		echo -e " > ${COLOR_CYAN}git pull${COLOR_RESET}"
+		if [[ $IS_DRY -eq $NO ]]; then
+			\git pull  || exit 1
+			echo
+		fi
+		# git push
+		echo -e " > ${COLOR_CYAN}git push${COLOR_RESET}"
+		if [[ $IS_DRY -eq $NO ]]; then
+			\git push  || exit 1
+			echo
+		fi
+	\popd >/dev/null
+	COUNT_OPS=$((COUNT_OPS+1))
+}
+
+
+
+# --gg
+function doGitGUI() {
+	if [[ ! -d "$PROJECT_PATH/.git" ]]; then
+		return
+	fi
+	# git-gui
+	\pushd "$CURRENT_PATH/$PROJECT_NAME/" >/dev/null  || exit 1
+		echo -ne " > ${COLOR_CYAN}git-gui${COLOR_RESET}"
+		if [[ $IS_DRY -eq $NO ]]; then
+			/usr/libexec/git-core/git-gui &
+			GG_PID=$!
+			echo -e " ${COLOR_BLUE}$GG_PID${COLOR_RESET}"
+			\sleep 0.2
+		else
+			echo
+		fi
+		echo
+	\popd >/dev/null
+	COUNT_OPS=$((COUNT_OPS+1))
 }
 
 
@@ -522,71 +388,6 @@ function doClean() {
 		fi
 		echo
 	fi
-	COUNT_OPS=$((COUNT_OPS+1))
-}
-
-
-
-# --pp
-function doPullPush() {
-	if [[ -z $REPO ]]; then
-		return
-	fi
-	# clone repo
-	if [[ ! -e "$PROJECT_PATH" ]]; then
-		title C "$PROJECT_NAME" "Clone"
-		\pushd "$CURRENT_PATH/" >/dev/null  || exit 1
-			# git clone
-			echo -e " > ${COLOR_CYAN}git clone  $REPO  $PROJECT_NAME${COLOR_RESET}"
-			if [[ $IS_DRY -eq $NO ]]; then
-				\git clone "$REPO" "$PROJECT_NAME"  || exit 1
-			fi
-			echo
-		\popd >/dev/null
-		COUNT_OPS=$((COUNT_OPS+1))
-		return
-	fi
-	if [[ ! -d "$PROJECT_PATH/.git" ]]; then
-		notice ".git/ not found, skipping"
-	fi
-	title C "$PROJECT_NAME" "Pull/Push"
-	\pushd "$PROJECT_PATH/" >/dev/null  || exit 1
-		# git pull
-		echo -e " > ${COLOR_CYAN}git pull${COLOR_RESET}"
-		if [[ $IS_DRY -eq $NO ]]; then
-			\git pull  || exit 1
-			echo
-		fi
-		# git push
-		echo -e " > ${COLOR_CYAN}git push${COLOR_RESET}"
-		if [[ $IS_DRY -eq $NO ]]; then
-			\git push  || exit 1
-			echo
-		fi
-	\popd >/dev/null
-	COUNT_OPS=$((COUNT_OPS+1))
-}
-
-
-
-# --gg
-function doGitGUI() {
-	if [[ ! -d "$PROJECT_PATH/.git" ]]; then
-		return
-	fi
-	# git-gui
-	\pushd "$CURRENT_PATH/$PROJECT_NAME/" >/dev/null  || exit 1
-		echo -ne " > ${COLOR_CYAN}git-gui${COLOR_RESET}"
-		if [[ $IS_DRY -eq $NO ]]; then
-			/usr/libexec/git-core/git-gui &
-			GG_PID=$!
-			echo -e " ${COLOR_BLUE}$GG_PID${COLOR_RESET}"
-			\sleep 0.2
-		else
-			echo
-		fi
-		echo
-	\popd >/dev/null
 	COUNT_OPS=$((COUNT_OPS+1))
 }
 
@@ -929,6 +730,42 @@ function doPack() {
 
 
 
+# ----------------------------------------
+
+
+
+function Repo() {
+	if [[ ! -z $1 ]]; then
+		REPO="$1"
+	fi
+}
+
+
+
+function LoadConf() {
+	doCleanupVars
+	if [[ -z $1 ]]; then
+		failure "LoadConf() requires file argument"
+		failure ; exit 1
+	fi
+	if [[ "$1" != *".dev" ]] && [[ "$1" != *"/xbuild.conf" ]]; then
+		failure "Invalid config file: $1"
+		failure ; exit 1
+	fi
+	local LAST_PATH="$CURRENT_PATH"
+	CURRENT_PATH=${1%/*}
+	\pushd "$CURRENT_PATH" >/dev/null  || exit 1
+		# load xbuild.conf
+		source "$1" || exit 1
+		# last project in conf file
+		doProject
+		doCleanupVars
+	\popd >/dev/null
+	CURRENT_PATH="$LAST_PATH"
+}
+
+
+
 function Project() {
 	if [[ ! -z $PROJECT_NAME ]]; then
 		doProject
@@ -996,12 +833,6 @@ function doProject() {
 	doCleanupVars
 }
 
-function Repo() {
-	if [[ ! -z $1 ]]; then
-		REPO="$1"
-	fi
-}
-
 function doCleanupVars() {
 	PROJECT_NAME=""
 	PROJECT_PATH=""
@@ -1010,27 +841,209 @@ function doCleanupVars() {
 	TIME_LAST=$TIME_START_PRJ
 }
 
-function LoadConf() {
-	doCleanupVars
-	if [[ -z $1 ]]; then
-		failure "LoadConf() requires file argument"
-		failure ; exit 1
+
+
+# ----------------------------------------
+
+
+
+# parse args
+echo
+if [[ $# -eq 0 ]]; then
+	DisplayHelp
+	exit 1
+fi
+while [ $# -gt 0 ]; do
+	case "$1" in
+	# all project groups
+	-a|--all)
+		DO_ALL=$YES
+	;;
+	# recursive xbuild.conf files
+	-r|--recursive)
+		DO_RECURSIVE=$YES
+	;;
+	# build binary projects only
+	--binonly)
+		ONLY_BIN=$YES
+	;;
+	# build web projects only
+	--webonly)
+		ONLY_WEB=$YES
+	;;
+	# git pull/push
+	--pp|--pull-push|--push-pull)
+		DO_PP=$YES
+	;;
+	# git-gui
+	--gg|--git-gui)
+		DO_GG=$YES
+	;;
+	# cleanup
+	-c|--clean|--clear|--cleanup)
+		DO_CLEAN=$YES
+	;;
+	# --configure
+	-C|--config|--configure)
+		DO_CONFIG=$YES
+	;;
+	# --build
+	-b|--build|--compile)
+		DO_BUILD=$YES
+	;;
+	# make distributable packages
+	-p|--pack|--package)
+		DO_PACK=$YES
+	;;
+	# config, build
+	--cb)
+		DO_CONFIG=$YES
+		DO_BUILD=$YES
+	;;
+	# config, build, pack
+	--cbp)
+		DO_CONFIG=$YES
+		DO_BUILD=$YES
+		DO_PACK=$YES
+	;;
+	# clean, config, build
+	--ccb)
+		DO_CLEAN=$YES
+		DO_CONFIG=$YES
+		DO_BUILD=$YES
+	;;
+	# clean, config, build, pack
+	--ccbp)
+		DO_CLEAN=$YES
+		DO_CONFIG=$YES
+		DO_BUILD=$YES
+		DO_PACK=$YES
+	;;
+	# debug flags
+	-d|--debug|--debug-flag|--debug-flags)
+		DEBUG_FLAGS=$YES
+	;;
+	# build number
+	-n|--build-number)
+		\shift
+		BUILD_NUMBER="$1"
+	;;
+	--build-number=*)
+		BUILD_NUMBER="${1#*=}"
+	;;
+	-R|--release)
+		BUILD_RELEASE=$YES
+	;;
+	# build tests
+	--test|--tests|--testing)
+		DO_TESTS=$YES
+	;;
+	# path for finished binaries
+	--target)
+		shift
+		TARGET_PATH="$1"
+	;;
+	--target=*)
+		TARGET_PATH="${1#*=}"
+	;;
+	# dry mode
+	-D|--dry)
+		IS_DRY=$YES
+	;;
+	# verbose logging
+	-v|--verbose)
+		VERBOSE=$YES
+	;;
+	# display version
+	-V|--version)
+		DisplayVersion
+		exit 1
+	;;
+	# display help
+	-h|--help)
+		DisplayHelp
+		exit 1
+	;;
+	-*)
+		failure "Unknown argument: $1"
+		failure
+		DisplayHelp
+		exit 1
+	;;
+	*)
+		if [[ -f "$WDIR/$1" ]]; then
+			DEV_FILES="$DEV_FILES $WDIR/$1"
+		elif [[ -f "$WDIR/${1}.dev" ]]; then
+			DEV_FILES="$DEV_FILES $WDIR/${1}.dev"
+		else
+			FILE=$( \ls -1v "$WDIR/"*"-${1}.dev" 2>/dev/null | \sort --version-sort | \head -n1 )
+			if [[ ! -z $FILE ]]; then
+				DEV_FILES="$DEV_FILES $FILE"
+			else
+				COUNT=$( \ls -1 "$WDIR/"*.dev 2>/dev/null | \wc -l )
+				if [[ $COUNT -eq 0 ]]; then
+					failure "No project group .dev files found here"
+				else
+					failure "Unknown project group: $1"
+				fi
+				failure
+				exit 1
+			fi
+		fi
+	;;
+	esac
+	\shift
+done
+
+
+
+if [[ -z $TARGET_PATH ]]; then
+#	TARGET_PATH="$WDIR"
+	TARGET_PATH="$WDIR/target"
+fi
+
+
+
+did_notice=$NO
+if [[ $IS_DRY -eq $YES ]]; then
+	notice "Dry-run"
+	did_notice=$YES
+fi
+if [[ $DEBUG_FLAGS -eq $YES ]]; then
+	notice "Enable debug flags"
+	did_notice=$YES
+fi
+if [[ $BUILD_RELEASE -eq $YES ]]; then
+	notice "Production Mode"
+	did_notice=$YES
+	if [[ $DEBUG_FLAGS -eq $YES ]]; then
+		warning "Production mode and debug mode are active at the same time"
 	fi
-	if [[ "$1" != *".dev" ]] && [[ "$1" != *"/xbuild.conf" ]]; then
-		failure "Invalid config file: $1"
-		failure ; exit 1
-	fi
-	local LAST_PATH="$CURRENT_PATH"
-	CURRENT_PATH=${1%/*}
-	\pushd "$CURRENT_PATH" >/dev/null  || exit 1
-		# load xbuild.conf
-		source "$1" || exit 1
-		# last project in conf file
-		doProject
-		doCleanupVars
-	\popd >/dev/null
-	CURRENT_PATH="$LAST_PATH"
-}
+fi
+if [[ $DO_PACK -eq $YES ]]; then
+	notice "Deploy to: $TARGET_PATH"
+	did_notice=$YES
+fi
+if [[ $ONLY_BIN -eq $YES ]]; then
+	notice "Bin Only"
+	did_notice=$YES
+fi
+if [[ $ONLY_WEB -eq $YES ]]; then
+	notice "Web Only"
+	did_notice=$YES
+fi
+[[ $did_notice -eq $YES ]] && echo
+
+if [[ $DO_ALL -eq $YES ]]; then
+	DEV_FILES=$( \ls -1v "$WDIR/"*.dev 2>/dev/null | \sort --version-sort )
+fi
+if [[ ! -z $DEV_FILES ]]; then
+	echo "Using files:"
+	for FILE in $DEV_FILES; do
+		echo -e "  ${COLOR_GREEN}"${FILE##*/}"${COLOR_RESET}"
+	done
+	echo
+fi
 
 
 
