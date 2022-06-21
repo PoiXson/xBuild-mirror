@@ -563,17 +563,27 @@ function doBuild() {
 			echo
 			did_something=$YES
 		fi
-		# rust
+		# rust/cargo
 		if [[ -f "$PROJECT_PATH/Cargo.toml" ]]; then
 			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
 				if [[ $BUILD_RELEASE -eq $YES ]]; then
-					\cargo build --release --timings  || exit 1
-					\grcov . -s .  \
-						--binary-path ./target/release/         \
-						-t html --branch --ignore-not-existing  \
-						-o ./coverage/
+					echo -e " > ${COLOR_CYAN}cargo build --release --timings${COLOR_RESET}"
+					if [[ $IS_DRY -eq $NO ]]; then
+						\cargo build --release --timings  || exit 1
+					fi
+					echo -e " > ${COLOR_CYAN}grcov . -s . --binary-path ./target/release/"
+					echo -e "   -t html --branch --ignore-not-existing -o ./coverage/${COLOR_RESET}"
+					if [[ $IS_DRY -eq $NO ]]; then
+						\grcov . -s .  \
+							--binary-path ./target/release/         \
+							-t html --branch --ignore-not-existing  \
+							-o ./coverage/
+					fi
 				else
-					\cargo build  || exit 1
+					echo -e " > ${COLOR_CYAN}cargo build${COLOR_RESET}"
+					if [[ $IS_DRY -eq $NO ]]; then
+						\cargo build  || exit 1
+					fi
 				fi
 			\popd >/dev/null
 			echo
