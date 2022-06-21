@@ -569,10 +569,9 @@ function doBuild() {
 				if [[ $BUILD_RELEASE -eq $YES ]]; then
 					\cargo build --release --timings  || exit 1
 					\grcov . -s .  \
-						--binary-path ./target/debug/           \
+						--binary-path ./target/release/         \
 						-t html --branch --ignore-not-existing  \
-						-o ./coverage/                          \
-					&& \cargocov
+						-o ./coverage/
 				else
 					\cargo build  || exit 1
 				fi
