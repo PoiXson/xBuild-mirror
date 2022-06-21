@@ -743,7 +743,7 @@ function Repo() {
 
 
 function LoadConf() {
-	doCleanupVars
+	ProjectCleanup
 	if [[ -z $1 ]]; then
 		failure "LoadConf() requires file argument"
 		failure ; exit 1
@@ -759,7 +759,7 @@ function LoadConf() {
 		source "$1" || exit 1
 		# last project in conf file
 		doProject
-		doCleanupVars
+		ProjectCleanup
 	\popd >/dev/null
 	CURRENT_PATH="$LAST_PATH"
 }
@@ -769,7 +769,7 @@ function LoadConf() {
 function Project() {
 	if [[ ! -z $PROJECT_NAME ]]; then
 		doProject
-		doCleanupVars
+		ProjectCleanup
 	fi
 	if [[ ! -z $1 ]]; then
 		PROJECT_PATH="$1"
@@ -783,7 +783,7 @@ function Project() {
 
 function doProject() {
 	if [[ -z $PROJECT_NAME ]] || [[ -z $PROJECT_PATH ]]; then
-		doCleanupVars
+		ProjectCleanup
 		return
 	fi
 	# current path
@@ -794,7 +794,7 @@ function doProject() {
 	fi
 	# invaliid project name
 	if [[ $PROJECT_NAME == "." ]]; then
-		doCleanupVars
+		ProjectCleanup
 	fi
 	title B "$PROJECT_NAME"
 	echo -e " ${COLOR_GREEN}>${COLOR_RESET} ${COLOR_BLUE}$PROJECT_PATH${COLOR_RESET}"
@@ -812,7 +812,7 @@ function doProject() {
 			else
 				notice "Skipping recursive project"
 			fi
-			doCleanupVars
+			ProjectCleanup
 			return
 		fi
 	fi
@@ -830,10 +830,10 @@ function doProject() {
 	# project done
 	COUNT_PRJ=$((COUNT_PRJ+1))
 	DisplayTimeProject
-	doCleanupVars
+	ProjectCleanup
 }
 
-function doCleanupVars() {
+function ProjectCleanup() {
 	PROJECT_NAME=""
 	PROJECT_PATH=""
 	REPO=""
@@ -1058,11 +1058,11 @@ elif [[ -f "$WDIR/xbuild.conf" ]]; then
 	LoadConf "$WDIR/xbuild.conf"
 # project in current path
 #else
-#	doCleanupVars
+#	ProjectCleanup
 #	PROJECT_NAME="PROJECT"
 #	PROJECT_PATH="$WDIR"
 #	doProject
-#	doCleanupVars
+#	ProjectCleanup
 fi
 
 echo -e "${COLOR_GREEN}===============================================${COLOR_RESET}"
