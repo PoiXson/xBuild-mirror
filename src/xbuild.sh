@@ -247,7 +247,7 @@ function doClean() {
 	let count=0
 	let rm_groups=0
 	# make clean
-	if [[ $ONLY_WEB -eq $NO ]]; then
+	if [[ $DO_WEB_ONLY -eq $NO ]]; then
 		if [[ -f "$PROJECT_PATH/Makefile.am" ]]; then
 			if [[ -f "$PROJECT_PATH/Makefile" ]]; then
 				\pushd "$PROJECT_PATH/" >/dev/null || exit 1
@@ -357,7 +357,7 @@ function doClean() {
 		fi
 	fi
 	# clean php project
-	if [[ $ONLY_BIN -eq $NO ]]; then
+	if [[ $DO_BIN_ONLY -eq $NO ]]; then
 		if [[ -f "$PROJECT_PATH/composer.json" ]]; then
 			if [[ -d "$PROJECT_PATH/vendor" ]]; then
 				\pushd "$PROJECT_PATH/" >/dev/null || exit 1
@@ -383,9 +383,9 @@ function doClean() {
 		fi
 		DisplayTime "Cleaned"
 	elif [[ $rm_groups -le 0 ]]; then
-		if [[ $ONLY_WEB -eq $YES ]]; then
+		if [[ $DO_WEB_ONLY -eq $YES ]]; then
 			echo "web only; skipping.."
-		elif [[ $ONLY_BIN -eq $YES ]]; then
+		elif [[ $DO_BIN_ONLY -eq $YES ]]; then
 			echo "bin only; skipping.."
 		else
 			notice "Nothing to clean.."
@@ -399,7 +399,7 @@ function doClean() {
 
 function doConfig() {
 	did_something=$NO
-	if [[ $ONLY_WEB -eq $NO ]]; then
+	if [[ $DO_WEB_ONLY -eq $NO ]]; then
 		# generate automake files
 		if [[ -f "$PROJECT_PATH/autotools.conf" ]]; then
 			[[ $QUIET -eq $NO ]] && \
@@ -447,7 +447,7 @@ function doConfig() {
 			did_something=$YES
 		fi
 	fi
-	if [[ $ONLY_BIN -eq $NO ]]; then
+	if [[ $DO_BIN_ONLY -eq $NO ]]; then
 		# composer
 		if [[ -f "$PROJECT_PATH/composer.json" ]]; then
 			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
@@ -493,9 +493,9 @@ function doConfig() {
 	else
 		[[ $QUIET -eq $NO ]] && \
 			title C "$PROJECT_NAME" "Configure"
-		if [[ $ONLY_WEB -eq $YES ]]; then
+		if [[ $DO_WEB_ONLY -eq $YES ]]; then
 			echo "web only; skipping.."
-		elif [[ $ONLY_BIN -eq $YES ]]; then
+		elif [[ $DO_BIN_ONLY -eq $YES ]]; then
 			echo "bin only; skipping.."
 		else
 			notice "Nothing found to configure.."
@@ -511,7 +511,7 @@ function doBuild() {
 	[[ $QUIET -eq $NO ]] && \
 		title C "$PROJECT_NAME" "Build"
 	# automake
-	if [[ $ONLY_WEB -eq $YES ]]; then
+	if [[ $DO_WEB_ONLY -eq $YES ]]; then
 		echo "web only; skipping.."
 	else
 		if [[ -f "$PROJECT_PATH/configure" ]]; then
