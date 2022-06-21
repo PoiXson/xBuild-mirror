@@ -34,30 +34,34 @@ fi
 
 
 
-DEV_FILES=""
-DO_ALL=$NO
+# actions
+VERBOSE=$NO
+QUIET=$NO
+NO_COLORS=$NO
 DO_RECURSIVE=$NO
-ONLY_BIN=$NO
-ONLY_WEB=$NO
-DO_CLEAN=$NO
+IS_DRY=$NO
+DEBUG_FLAGS=$NO
+DO_BIN_ONLY=$NO
+DO_WEB_ONLY=$NO
 DO_PP=$NO
 DO_GG=$NO
+DO_CLEAN=$NO
 DO_CONFIG=$NO
 DO_BUILD=$NO
 DO_TESTS=$NO
 DO_PACK=$NO
-TARGET_PATH=""
-IS_DRY=$NO
+
 BUILD_NUMBER=""
 BUILD_RELEASE=$NO
-DEBUG_FLAGS=$NO
-VERBOSE=$NO
+TARGET_PATH=""
+PROJECT_FILTERS=""
 
 # project vars
 PROJECT_NAME=""
 PROJECT_PATH=""
 CURRENT_PATH="$WDIR"
-REPO=""
+PROJECT_REPO=""
+PROJECT_ALIASES=""
 
 PACKAGES_ALL=()
 let COUNT_PRJ=0
@@ -73,22 +77,16 @@ function DisplayHelp() {
 	echo -e "${COLOR_BROWN}Usage:${COLOR_RESET}"
 	echo    "  xbuild [options] <group>"
 	echo
-	echo -e "${COLOR_BROWN}Workspace Groups:${COLOR_RESET}"
-	let count=0
-	for FILE in $( \ls -1v "$WDIR/"*.dev 2>/dev/null | \sort --version-sort ); do
-		NAME="${FILE%%.dev}"
-		NAME="${NAME##*/}"
-		echo -e "  ${COLOR_GREEN}$NAME${COLOR_RESET}"
-		count=$((count+1))
-	done
-	if [[ $count -eq 0 ]]; then
-		echo "  No .dev or xbuild.conf files found here"
-	fi
-	echo
 	echo -e "${COLOR_BROWN}Options:${COLOR_RESET}"
-	echo -e "  ${COLOR_GREEN}-a, --all${COLOR_RESET}                 Use all .dev files found"
-	echo -e "  ${COLOR_GREEN}-D, --dry${COLOR_RESET}                 Dry-run, no changes will be performed by actions"
 	echo -e "  ${COLOR_GREEN}-r, --recursive${COLOR_RESET}           Recursively load xbuild.conf files"
+	echo -e "  ${COLOR_GREEN}-D, --dry${COLOR_RESET}                 Dry-run, no changes will be performed by actions"
+	echo -e "  ${COLOR_GREEN}-d, --debug-flags${COLOR_RESET}         Build with debug flags"
+	echo -e "  ${COLOR_GREEN}-R, --release${COLOR_RESET}             Build a production release"
+	echo -e "  ${COLOR_GREEN}-n, --build-number <n>${COLOR_RESET}    Build number to use for builds and packages"
+	echo -e                             "                              default: x"
+	echo -e "  ${COLOR_GREEN}--target <path>${COLOR_RESET}           Sets the destination path for finished binaries"
+	echo -e                             "                              default: target/"
+	echo
 	echo -e "  ${COLOR_GREEN}--binonly${COLOR_RESET}                 Build binary projects only"
 	echo -e "  ${COLOR_GREEN}--webonly${COLOR_RESET}                 Build web projects only"
 	echo
@@ -98,22 +96,22 @@ function DisplayHelp() {
 	echo -e "  ${COLOR_GREEN}-c, --clean, --cleanup${COLOR_RESET}    Cleanup workspace; delete generated files"
 	echo -e "  ${COLOR_GREEN}-C, --config, --configure${COLOR_RESET} Configure projects, with autotools or composer"
 	echo -e "  ${COLOR_GREEN}-b, --build, --compile${COLOR_RESET}    Compile the projects"
+	echo -e "  ${COLOR_GREEN}--tests${COLOR_RESET}                   Compile and run tests for the project"
 	echo -e "  ${COLOR_GREEN}-p, --pack, --package${COLOR_RESET}     Build distributable packages"
 	echo
 	echo -e "  ${COLOR_GREEN}--cb${COLOR_RESET}                      Config, build"
 	echo -e "  ${COLOR_GREEN}--cbp${COLOR_RESET}                     Config, build, pack"
 	echo -e "  ${COLOR_GREEN}--ccb${COLOR_RESET}                     Clean, config, build"
+	echo -e "  ${COLOR_GREEN}--cbtp${COLOR_RESET}                    Config, build, test, pack"
 	echo -e "  ${COLOR_GREEN}--ccbp${COLOR_RESET}                    Clean, config, build, pack"
-	echo
-	echo -e "  ${COLOR_GREEN}-d, --debug-flags${COLOR_RESET}         Build with debug flags"
-	echo -e "  ${COLOR_GREEN}-n, --build-number${COLOR_RESET}        Build number to use for builds and packages"
-	echo -e                             "                              default: x"
-	echo -e "  ${COLOR_GREEN}-R, --release${COLOR_RESET}             Build a production release"
-	echo -e "  ${COLOR_GREEN}--tests${COLOR_RESET}                   Compile and run tests for the project"
-	echo -e "  ${COLOR_GREEN}--target <path>${COLOR_RESET}           Sets the destination path for finished binaries"
-	echo -e                             "                              default: target/"
+	echo -e "  ${COLOR_GREEN}--ccbtp${COLOR_RESET}                   Clean, config, build, test, pack"
+	echo -e "  ${COLOR_GREEN}--ci <n>${COLOR_RESET}                  Sets flags commonly used for continuous integration"
+	echo -e                             "                              Shortcut to: --ccbtp -v -r -R -n <n>"
 	echo
 	echo -e "  ${COLOR_GREEN}-v, --verbose${COLOR_RESET}             Enable debug logs"
+	echo -e "  ${COLOR_GREEN}-q, --quiet${COLOR_RESET}               Hide extra logs"
+	echo -e "  ${COLOR_GREEN}--colors${COLOR_RESET}                  Enable console colors"
+	echo -e "  ${COLOR_GREEN}--no-colors${COLOR_RESET}               Disable console colors"
 	echo -e "  ${COLOR_GREEN}-V, --version${COLOR_RESET}             Display the version"
 	echo -e "  ${COLOR_GREEN}-h, --help${COLOR_RESET}                Display this help message and exit"
 	echo
@@ -176,7 +174,7 @@ function MakeSymlink() {
 
 # --pp
 function doPullPush() {
-	if [[ -z $REPO ]]; then
+	if [[ -z $PROJECT_REPO ]]; then
 		return
 	fi
 	# clone repo
@@ -184,10 +182,11 @@ function doPullPush() {
 		[[ $QUIET -eq $NO ]] && \
 			title C "$PROJECT_NAME" "Clone"
 		\pushd "$CURRENT_PATH/" >/dev/null  || exit 1
+			local CLONE_PATH=${PROJECT_PATH##*/}
 			# git clone
-			echo -e " > ${COLOR_CYAN}git clone  $REPO  $PROJECT_NAME${COLOR_RESET}"
+			echo -e " > ${COLOR_CYAN}git clone  $PROJECT_REPO  $CLONE_PATH${COLOR_RESET}"
 			if [[ $IS_DRY -eq $NO ]]; then
-				\git clone "$REPO" "$PROJECT_NAME"  || exit 1
+				\git clone "$PROJECT_REPO" "$CLONE_PATH"  || exit 1
 			fi
 			echo
 		\popd >/dev/null
@@ -751,7 +750,7 @@ function doPack() {
 
 function Repo() {
 	if [[ ! -z $1 ]]; then
-		REPO="$1"
+		PROJECT_REPO="$1"
 	fi
 }
 
@@ -763,7 +762,7 @@ function LoadConf() {
 		failure "LoadConf() requires file argument"
 		failure ; exit 1
 	fi
-	if [[ "$1" != *".dev" ]] && [[ "$1" != *"/xbuild.conf" ]]; then
+	if [[ "$1" != *"/xbuild.conf" ]]; then
 		failure "Invalid config file: $1"
 		failure ; exit 1
 	fi
@@ -771,7 +770,7 @@ function LoadConf() {
 	CURRENT_PATH=${1%/*}
 	\pushd "$CURRENT_PATH" >/dev/null  || exit 1
 		# load xbuild.conf
-		source "$1" || exit 1
+		source "$CURRENT_PATH/xbuild.conf" || exit 1
 		# last project in conf file
 		doProject
 		ProjectCleanup
@@ -787,29 +786,31 @@ function Project() {
 		ProjectCleanup
 	fi
 	if [[ ! -z $1 ]]; then
-		PROJECT_PATH="$1"
-		if [[ -z $2 ]]; then
-			PROJECT_NAME="$1"
-		else
-			PROJECT_NAME="$2"
-		fi
+		PROJECT_NAME="$1"
 	fi
 }
 
 function doProject() {
-	if [[ -z $PROJECT_NAME ]] || [[ -z $PROJECT_PATH ]]; then
+	if [[ -z $PROJECT_NAME ]]; then
 		ProjectCleanup
 		return
 	fi
-	# current path
-	if [[ $PROJECT_PATH == "." ]]; then
-		PROJECT_PATH="$CURRENT_PATH"
+	if [[ -z $PROJECT_PATH ]]; then
+		# project in named path
+		if [[ -f "$CURRENT_PATH/$PROJECT_NAME/xbuild.conf" ]]; then
+			PROJECT_PATH="$CURRENT_PATH/$PROJECT_NAME"
+		# current path
+		else
+			PROJECT_PATH="$CURRENT_PATH"
+		fi
 	else
-		PROJECT_PATH="$CURRENT_PATH/$PROJECT_PATH"
-	fi
-	# invaliid project name
-	if [[ $PROJECT_NAME == "." ]]; then
-		ProjectCleanup
+		# current path
+		if [[ $PROJECT_PATH == "." ]]; then
+			PROJECT_PATH="$CURRENT_PATH"
+		# defined path
+		else
+			PROJECT_PATH="$CURRENT_PATH/$PROJECT_PATH"
+		fi
 	fi
 	if [[ $QUIET -eq $NO ]] && [[ "$PROJECT_PATH" != "$CURRENT_PATH" ]]; then
 		title B "$PROJECT_NAME"
@@ -824,12 +825,10 @@ function doProject() {
 	if [[ -f "$PROJECT_PATH/xbuild.conf" ]]; then
 		if [[ "$PROJECT_PATH" != "$CURRENT_PATH" ]]; then
 			if [[ $DO_RECURSIVE -eq $YES ]]; then
-				[[ $VERBOSE -eq $YES ]] && \
-					notice "Recursive: $PROJECT_PATH"
+#				notice "Recursive: $PROJECT_PATH"
 				LoadConf "$PROJECT_PATH/xbuild.conf"
-			else
-				[[ $VERBOSE -eq $YES ]] && \
-					notice "Skipping recursive"
+#			else
+#				notice "Skipping recursive"
 			fi
 			ProjectCleanup
 			return
@@ -855,7 +854,7 @@ function doProject() {
 function ProjectCleanup() {
 	PROJECT_NAME=""
 	PROJECT_PATH=""
-	REPO=""
+	PROJECT_REPO=""
 	TIME_START_PRJ=$( \date "+%s%N" )
 	TIME_LAST=$TIME_START_PRJ
 }
@@ -874,115 +873,47 @@ if [[ $# -eq 0 ]]; then
 fi
 while [ $# -gt 0 ]; do
 	case "$1" in
-	# all project groups
-	-a|--all)
-		DO_ALL=$YES
-	;;
-	# recursive xbuild.conf files
-	-r|--recursive)
-		DO_RECURSIVE=$YES
-	;;
-	# build binary projects only
-	--binonly)
-		ONLY_BIN=$YES
-	;;
-	# build web projects only
-	--webonly)
-		ONLY_WEB=$YES
-	;;
-	# git pull/push
-	--pp|--pull-push|--push-pull)
-		DO_PP=$YES
-	;;
-	# git-gui
-	--gg|--git-gui)
-		DO_GG=$YES
-	;;
-	# cleanup
-	-c|--clean|--clear|--cleanup)
-		DO_CLEAN=$YES
-	;;
-	# --configure
-	-C|--config|--configure)
-		DO_CONFIG=$YES
-	;;
-	# --build
-	-b|--build|--compile)
-		DO_BUILD=$YES
-	;;
-	# make distributable packages
-	-p|--pack|--package)
-		DO_PACK=$YES
-	;;
-	# config, build
-	--cb)
-		DO_CONFIG=$YES
-		DO_BUILD=$YES
-	;;
-	# config, build, pack
-	--cbp)
-		DO_CONFIG=$YES
-		DO_BUILD=$YES
-		DO_PACK=$YES
-	;;
-	# clean, config, build
-	--ccb)
-		DO_CLEAN=$YES
-		DO_CONFIG=$YES
-		DO_BUILD=$YES
-	;;
-	# clean, config, build, pack
-	--ccbp)
-		DO_CLEAN=$YES
-		DO_CONFIG=$YES
-		DO_BUILD=$YES
-		DO_PACK=$YES
-	;;
-	# debug flags
-	-d|--debug|--debug-flag|--debug-flags)
-		DEBUG_FLAGS=$YES
-	;;
-	# build number
-	-n|--build-number)
-		\shift
-		BUILD_NUMBER="$1"
-	;;
-	--build-number=*)
-		BUILD_NUMBER="${1#*=}"
-	;;
-	-R|--release)
-		BUILD_RELEASE=$YES
-	;;
-	# build tests
-	--test|--tests|--testing)
-		DO_TESTS=$YES
-	;;
-	# path for finished binaries
-	--target)
-		shift
-		TARGET_PATH="$1"
-	;;
-	--target=*)
-		TARGET_PATH="${1#*=}"
-	;;
-	# dry mode
-	-D|--dry)
-		IS_DRY=$YES
-	;;
-	# verbose logging
-	-v|--verbose)
+
+	-r|--recursive)  DO_RECURSIVE=$YES  ;;
+	-D|--dry)        IS_DRY=$YES        ;;
+	-d|--debug|--debug-flag|--debug-flags)  DEBUG_FLAGS=$YES  ;;
+	-R|--release)      BUILD_RELEASE=$YES          ;;
+	-n|--build-number) \shift ; BUILD_NUMBER="$1"  ;;
+	--build-number=*)  BUILD_NUMBER=${1#*=}        ;;
+	--target)          \shift ; TARGET_PATH="$1"   ;;
+	--target=*)        TARGET_PATH=${1#*=}         ;;
+
+	--binonly)  DO_BIN_ONLY=$YES  ;;
+	--webonly)  DO_WEB_ONLY=$YES  ;;
+
+	--pp|--pull-push|--push-pull)  DO_PP=$YES  ;;
+	--gg|--git-gui)                DO_GG=$YES  ;;
+
+	-c|--clean|--clear|--cleanup)  DO_CLEAN=$YES   ;;
+	-C|--config|--configure)       DO_CONFIG=$YES  ;;
+	-b|--build|--compile)          DO_BUILD=$YES   ;;
+	--test|--tests|--testing)      DO_TESTS=$YES   ;;
+	-p|--pack|--package)           DO_PACK=$YES    ;;
+
+	--cb)     DO_CONFIG=$YES ; DO_BUILD=$YES  ;;
+	--cbp)    DO_CONFIG=$YES ; DO_BUILD=$YES  ; DO_PACK=$YES   ;;
+	--ccb)    DO_CLEAN=$YES  ; DO_CONFIG=$YES ; DO_BUILD=$YES  ;;
+	--cbtp)   DO_CONFIG=$YES ; DO_BUILD=$YES  ; DO_TESTS=$YES ; DO_PACK=$YES   ;;
+	--ccbp)   DO_CLEAN=$YES  ; DO_CONFIG=$YES ; DO_BUILD=$YES ; DO_PACK=$YES  ;;
+	--ccbtp)  DO_CLEAN=$YES  ; DO_CONFIG=$YES ; DO_BUILD=$YES ; DO_TESTS=$YES ; DO_PACK=$YES  ;;
+	--ci)     DO_CLEAN=$YES  ; DO_CONFIG=$YES ; DO_BUILD=$YES ; DO_TESTS=$YES ; DO_PACK=$YES
+		DO_RECURSIVE=$YES ; BUILD_RELEASE=$YES
 		VERBOSE=$YES
+		\shift ; BUILD_NUMBER="$1"
 	;;
-	# display version
-	-V|--version)
-		DisplayVersion
-		exit 1
-	;;
-	# display help
-	-h|--help)
-		DisplayHelp
-		exit 1
-	;;
+
+	-v|--verbose)  VERBOSE=$YES  ;;
+	-q|--quiet)    QUIET=$YES    ;;
+	--color|--colors)       NO_COLORS=$NO  ; enable_colors  ;;
+	--no-color|--no-colors) NO_COLORS=$YES ; disable_colors ;;
+	-V|--version)  DisplayVersion ; exit 1  ;;
+	-h|--help)     DisplayHelp    ; exit 1  ;;
+
 	-*)
 		failure "Unknown argument: $1"
 		failure
@@ -990,31 +921,17 @@ while [ $# -gt 0 ]; do
 		exit 1
 	;;
 	*)
-		if [[ -f "$WDIR/$1" ]]; then
-			DEV_FILES="$DEV_FILES $WDIR/$1"
-		elif [[ -f "$WDIR/${1}.dev" ]]; then
-			DEV_FILES="$DEV_FILES $WDIR/${1}.dev"
-		else
-			FILE=$( \ls -1v "$WDIR/"*"-${1}.dev" 2>/dev/null | \sort --version-sort | \head -n1 )
-			if [[ ! -z $FILE ]]; then
-				DEV_FILES="$DEV_FILES $FILE"
-			else
-				COUNT=$( \ls -1 "$WDIR/"*.dev 2>/dev/null | \wc -l )
-				if [[ $COUNT -eq 0 ]]; then
-					failure "No project group .dev files found here"
-				else
-					failure "Unknown project group: $1"
-				fi
-				failure
-				exit 1
-			fi
-		fi
+		PROJECT_FILTERS="$PROJECT_FILTERS $1"
 	;;
+
 	esac
 	\shift
 done
 
-
+if [[ ! -f "$WDIR/xbuild.conf" ]]; then
+	failure "xbuild.conf not found here"
+	failure ; exit 1
+fi
 
 if [[ -z $TARGET_PATH ]]; then
 #	TARGET_PATH="$WDIR"
@@ -1022,77 +939,61 @@ if [[ -z $TARGET_PATH ]]; then
 fi
 
 if [[ $QUIET -ne $YES ]]; then
-
-
-did_notice=$NO
-if [[ $IS_DRY -eq $YES ]]; then
-	notice "Dry-run"
-	did_notice=$YES
-fi
-if [[ $DEBUG_FLAGS -eq $YES ]]; then
-	notice "Enable debug flags"
-	did_notice=$YES
-fi
-if [[ $BUILD_RELEASE -eq $YES ]]; then
-	notice "Production Mode"
-	did_notice=$YES
+	did_notice=$NO
+	if [[ $IS_DRY -eq $YES ]]; then
+		notice "Dry-run"
+		did_notice=$YES
+	fi
 	if [[ $DEBUG_FLAGS -eq $YES ]]; then
-		warning "Production mode and debug mode are active at the same time"
+		notice "Enable debug flags"
+		did_notice=$YES
+	fi
+	if [[ $BUILD_RELEASE -eq $YES ]]; then
+		notice "Production Mode"
+		did_notice=$YES
+		if [[ $DEBUG_FLAGS -eq $YES ]]; then
+			warning "Production mode and debug mode are active at the same time"
+		fi
+	fi
+	if [[ $DO_PACK -eq $YES ]]; then
+		notice "Deploy to: $TARGET_PATH"
+		did_notice=$YES
+	fi
+	if [[ $DO_BIN_ONLY -eq $YES ]]; then
+		notice "Bin Only"
+		did_notice=$YES
+	fi
+	if [[ $DO_WEB_ONLY -eq $YES ]]; then
+		notice "Web Only"
+		did_notice=$YES
+	fi
+	[[ $did_notice -eq $YES ]] && echo
+
+	if [[ ! -z $PROJECT_FILTERS ]]; then
+		echo "Filters:"
+		for FILTER in $PROJECT_FILTERS; do
+			echo -e "  ${COLOR_BLUE}"${FILTER##*/}"${COLOR_RESET}"
+		done
+#TODO
+warning "Filters are unfinished and unsupported"
+		echo
 	fi
 fi
-if [[ $DO_PACK -eq $YES ]]; then
-	notice "Deploy to: $TARGET_PATH"
-	did_notice=$YES
-fi
-if [[ $ONLY_BIN -eq $YES ]]; then
-	notice "Bin Only"
-	did_notice=$YES
-fi
-if [[ $ONLY_WEB -eq $YES ]]; then
-	notice "Web Only"
-	did_notice=$YES
-fi
-[[ $did_notice -eq $YES ]] && echo
 
-if [[ $DO_ALL -eq $YES ]]; then
-	DEV_FILES=$( \ls -1v "$WDIR/"*.dev 2>/dev/null | \sort --version-sort )
-fi
-if [[ ! -z $DEV_FILES ]]; then
-	echo "Using files:"
-	for FILE in $DEV_FILES; do
-		echo -e "  ${COLOR_GREEN}"${FILE##*/}"${COLOR_RESET}"
-	done
+
+
+# start loading
+LoadConf "$WDIR/xbuild.conf"
+
+
+
+if [[ $QUIET -eq $NO ]]; then
+	echo -e "${COLOR_GREEN}===============================================${COLOR_RESET}"
 	echo
-fi
-
-
-
-# group.dev files
-if [[ ! -z $DEV_FILES ]]; then
-	for FILE in $DEV_FILES; do
-		LoadConf "$FILE"
-	done
-
-# xbuild.conf project file
-elif [[ -f "$WDIR/xbuild.conf" ]]; then
-	LoadConf "$WDIR/xbuild.conf"
-# project in current path
-#else
-#	ProjectCleanup
-#	PROJECT_NAME="PROJECT"
-#	PROJECT_PATH="$WDIR"
-#	doProject
-#	ProjectCleanup
-fi
-
-echo -e "${COLOR_GREEN}===============================================${COLOR_RESET}"
-echo
-
-if [[ $COUNT_OPS -le 0 ]]; then
-	warning "No actions performed"
-	echo
-	DisplayHelp
-	exit 1
+	if [[ $COUNT_OPS -le 0 ]]; then
+		warning "No actions performed"
+		warning ; exit 1
+	fi
 fi
 
 echo -ne "${COLOR_GREEN}Performed $COUNT_OPS operation"
