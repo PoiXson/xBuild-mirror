@@ -1,6 +1,19 @@
 xBuild - A tool to simplify building and managing projects in your workspace
 
 
+2022-06-21 - 2.1.19
+===================
+* reorganized xbuild script to improve build logic
+* removed support for .dev files - handled by improved xbuild.conf files
+* added more shortcut flags to xbuild script
+* fixed cargocov call in xbuild script
+* added Path() Repo() and Alias() functions for use in xbuild.conf files
+* added AddProvides() function and fixed AddRequires() in genspec script
+* renamed doCleanupVars() function to ProjectCleanup() in xbuild script
+* added -v and -q flags to xbuild script and improved logging
+* more fixes and cleanup
+
+
 2022-05-22 - 2.1.10
 ===================
 * removed symlinks to bin scripts
