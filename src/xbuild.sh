@@ -4,7 +4,7 @@
 ## <https://poixson.com> <https://mattsoft.net>
 ## Released under the GPL 3.0
 ##
-## Description: Auto compile a project and build rpm's
+## Description: Auto compile a project and build rpms
 ##
 ## This program is free software: you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -156,27 +156,32 @@ function MakeSymlink() {
 		failure ; exit 1
 	fi
 	echo -ne " > ${COLOR_CYAN}Symlink: "
+	local RESULT=0
 	if [[ $IS_DRY -eq $NO ]]; then
 		if [[ -z $2 ]]; then
 			\ln -svf "$1"
 		else
 			\ln -svf "$1" "$2"
 		fi
+		RESULT=$?
 	else
 		echo "$1 -> $2"
 	fi
-	RESULT=$?
 	echo -ne "$COLOR_RESET"
 	[[ $RESULT ]] || exit 1
 }
 
 
 
+# ----------------------------------------
+
+
+
 # --pp
 function doPullPush() {
-	if [[ -z $PROJECT_REPO ]]; then
+	[[ -z $PROJECT_REPO ]] && \
+	[[ ! -d "$PROJECT_PATH/.git" ]] && \
 		return
-	fi
 	# clone repo
 	if [[ ! -e "$PROJECT_PATH" ]]; then
 		[[ $QUIET -eq $NO ]] && \
@@ -192,9 +197,6 @@ function doPullPush() {
 		\popd >/dev/null
 		COUNT_OPS=$((COUNT_OPS+1))
 		return
-	fi
-	if [[ ! -d "$PROJECT_PATH/.git" ]]; then
-		notice ".git/ not found, skipping"
 	fi
 	[[ $QUIET -eq $NO ]] && \
 		title C "$PROJECT_NAME" "Pull/Push"
@@ -219,9 +221,8 @@ function doPullPush() {
 
 # --gg
 function doGitGUI() {
-	if [[ ! -d "$PROJECT_PATH/.git" ]]; then
-		return
-	fi
+	[[ ! -d "$PROJECT_PATH/.git" ]] \
+		&& return
 	# git-gui
 	\pushd "$CURRENT_PATH/$PROJECT_NAME/" >/dev/null  || exit 1
 		echo -ne " > ${COLOR_CYAN}git-gui${COLOR_RESET}"
@@ -397,6 +398,7 @@ function doClean() {
 
 
 
+# --config
 function doConfig() {
 	did_something=$NO
 	if [[ $DO_WEB_ONLY -eq $NO ]]; then
@@ -506,6 +508,7 @@ function doConfig() {
 
 
 
+# --build
 function doBuild() {
 	did_something=$NO
 	[[ $QUIET -eq $NO ]] && \
@@ -590,6 +593,7 @@ function doBuild() {
 
 
 
+# --test
 function doTests() {
 	did_something=$NO
 	[[ $QUIET -eq $NO ]] && \
@@ -629,6 +633,7 @@ function doTests() {
 
 
 
+# --pack
 function doPack() {
 	did_something=$NO
 	[[ $QUIET -eq $NO ]] && \
@@ -654,8 +659,8 @@ function doPack() {
 	SPEC_NAME=""
 	if [[ $SPEC_FILE_COUNT -eq 1 ]]; then
 		SPEC_FILE=$( \ls -1 "$PROJECT_PATH/"*.spec )
-		SPEC_NAME="${SPEC_FILE%.*}"
-		SPEC_NAME="${SPEC_NAME##*/}"
+		SPEC_NAME=${SPEC_FILE%.*}
+		SPEC_NAME=${SPEC_NAME##*/}
 	fi
 	# build rpm
 	if [[ ! -z $SPEC_FILE ]]; then
@@ -673,7 +678,7 @@ function doPack() {
 		c=$( \mkdir -pv "$PROJECT_PATH"/rpmbuild/{BUILD,BUILDROOT,SOURCES,SPECS,RPMS,SRPMS,TMP} | \wc -l )
 		[[ 0 -ne $? ]] && exit 1
 		echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
-		echo -e " > ${COLOR_CYAN}cp  ${SPEC_FILE##*/}  rpmbuild/SPECS/${COLOR_RESET}"
+		echo -e " > ${COLOR_CYAN}cp  "${SPEC_FILE##*/}"  rpmbuild/SPECS/${COLOR_RESET}"
 		if [[ $IS_DRY -eq $NO ]]; then
 			\cp -vf  "$SPEC_FILE"  "$PROJECT_PATH/rpmbuild/SPECS/"  || exit 1
 		fi
@@ -748,9 +753,21 @@ function doPack() {
 
 
 
+function Path() {
+	if [[ ! -z $1 ]]; then
+		PROJECT_PATH="$1"
+	fi
+}
+
 function Repo() {
 	if [[ ! -z $1 ]]; then
 		PROJECT_REPO="$1"
+	fi
+}
+
+function Alias() {
+	if [[ ! -z $1 ]]; then
+		PROJECT_ALIASES="$PROJECT_ALIASES $1"
 	fi
 }
 
@@ -781,6 +798,7 @@ function LoadConf() {
 
 
 function Project() {
+	# perform previous project
 	if [[ ! -z $PROJECT_NAME ]]; then
 		doProject
 		ProjectCleanup
@@ -825,10 +843,12 @@ function doProject() {
 	if [[ -f "$PROJECT_PATH/xbuild.conf" ]]; then
 		if [[ "$PROJECT_PATH" != "$CURRENT_PATH" ]]; then
 			if [[ $DO_RECURSIVE -eq $YES ]]; then
-#				notice "Recursive: $PROJECT_PATH"
+				[[ $VERBOSE -eq $YES ]] && \
+					notice "Recursive: $PROJECT_PATH"
 				LoadConf "$PROJECT_PATH/xbuild.conf"
-#			else
-#				notice "Skipping recursive"
+			else
+				[[ $VERBOSE -eq $YES ]] && \
+					notice "Skipping recursive"
 			fi
 			ProjectCleanup
 			return
@@ -855,6 +875,7 @@ function ProjectCleanup() {
 	PROJECT_NAME=""
 	PROJECT_PATH=""
 	PROJECT_REPO=""
+	PROJECT_ALIASES=""
 	TIME_START_PRJ=$( \date "+%s%N" )
 	TIME_LAST=$TIME_START_PRJ
 }
@@ -933,8 +954,8 @@ if [[ ! -f "$WDIR/xbuild.conf" ]]; then
 	failure ; exit 1
 fi
 
+# default target path
 if [[ -z $TARGET_PATH ]]; then
-#	TARGET_PATH="$WDIR"
 	TARGET_PATH="$WDIR/target"
 fi
 
@@ -1010,7 +1031,7 @@ echo
 if [[ ! -z $PACKAGES_ALL ]]; then
 	echo -e "${COLOR_BLUE} Packages finished:${COLOR_RESET}"
 	for ENTRY in ${PACKAGES_ALL[@]}; do
-		echo -e "${COLOR_BLUE}   ${ENTRY##*/}${COLOR_RESET}"
+		echo -e "${COLOR_BLUE}   "${ENTRY##*/}"${COLOR_RESET}"
 	done
 	echo
 fi
