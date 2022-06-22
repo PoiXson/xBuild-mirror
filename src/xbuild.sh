@@ -58,10 +58,13 @@ PROJECT_FILTERS=""
 
 # project vars
 PROJECT_NAME=""
+PROJECT_VERSION=""
 PROJECT_PATH=""
 CURRENT_PATH="$WDIR"
 PROJECT_REPO=""
 PROJECT_ALIASES=""
+PROJECT_TAG_FILES=""
+PROJECT_TAGS_DONE=$NO
 
 PACKAGES_ALL=()
 let COUNT_PRJ=0
@@ -247,6 +250,7 @@ function doClean() {
 		title C "$PROJECT_NAME" "Clean"
 	let count=0
 	let rm_groups=0
+	restoreProjectTags
 	# make clean
 	if [[ $DO_WEB_ONLY -eq $NO ]]; then
 		if [[ -f "$PROJECT_PATH/Makefile.am" ]]; then
@@ -401,6 +405,7 @@ function doClean() {
 # --config
 function doConfig() {
 	did_something=$NO
+	doProjectTags
 	if [[ $DO_WEB_ONLY -eq $NO ]]; then
 		# generate automake files
 		if [[ -f "$PROJECT_PATH/autotools.conf" ]]; then
@@ -511,6 +516,7 @@ function doConfig() {
 # --build
 function doBuild() {
 	did_something=$NO
+	doProjectTags
 	[[ $QUIET -eq $NO ]] && \
 		title C "$PROJECT_NAME" "Build"
 	# automake
@@ -762,6 +768,12 @@ function doPack() {
 
 
 
+function Version() {
+	if [[ ! -z $1 ]]; then
+		PROJECT_VERSION="${1/x/$BUILD_NUMBER}"
+	fi
+}
+
 function Path() {
 	if [[ ! -z $1 ]]; then
 		PROJECT_PATH="$1"
@@ -777,6 +789,12 @@ function Repo() {
 function Alias() {
 	if [[ ! -z $1 ]]; then
 		PROJECT_ALIASES="$PROJECT_ALIASES $1"
+	fi
+}
+
+function TagFile() {
+	if [[ ! -z $1 ]]; then
+		PROJECT_TAG_FILES="$PROJECT_TAG_FILES $1"
 	fi
 }
 
@@ -802,6 +820,50 @@ function LoadConf() {
 		ProjectCleanup
 	\popd >/dev/null
 	CURRENT_PATH="$LAST_PATH"
+}
+
+
+
+function doProjectTags() {
+	[[ $PROJECT_TAGS_DONE -eq $YES ]] && return
+	PROJECT_TAGS_DONE=$YES
+	for F in $PROJECT_TAG_FILES; do
+		[[ $VERBOSE -eq $YES ]] && \
+			notice "Replacing tags in: $F"
+		if [[ ! -f "$PROJECT_PATH/$F" ]] \
+		&& [[ ! -f "$PROJECT_PATH/${F}.xbuild_temp" ]]; then
+			failure "File not found: $F"
+			failure ; exit 1
+		fi
+#TODO: handle dry
+		# file already tagged
+		if [[ -e "$PROJECT_PATH/${F}.xbuild_temp" ]]; then
+			[[ $VERBOSE -eq $YES ]] && \
+				notice "File already exists: ${F}.xbuild_temp"
+			# restore original
+			\rm -fv  "$PROJECT_PATH/$F"  || exit 1
+		else
+			\mv -v  "$PROJECT_PATH/$F"  "$PROJECT_PATH/${F}.xbuild_temp"  || exit 1
+		fi
+		\cp -v  "$PROJECT_PATH/${F}.xbuild_temp"  "$PROJECT_PATH/$F"  || exit 1
+		# tags
+		if [[ ! -z $PROJECT_VERSION ]]; then
+			\sed -i  "s/{{{VERSION}}}/$PROJECT_VERSION/"  "$PROJECT_PATH/$F"  || exit 1
+		fi
+	done
+}
+function restoreProjectTags() {
+	[[ $PROJECT_TAGS_DONE -ne $YES ]] && return
+	for F in $PROJECT_TAG_FILES; do
+		[[ $VERBOSE -eq $YES ]] && \
+			notice "Restoring tags in: $F"
+		if [[ -e "$PROJECT_PATH/${F}.xbuild_temp" ]]; then
+			if [[ -e "$PROJECT_PATH/$F" ]]; then
+				\rm -f  "$PROJECT_PATH/$F"  || exit 1
+			fi
+			\mv  "$PROJECT_PATH/${F}.xbuild_temp"  "$PROJECT_PATH/$F"  || exit 1
+		fi
+	done
 }
 
 
@@ -844,6 +906,9 @@ function doProject() {
 		echo -e " ${COLOR_GREEN}>${COLOR_RESET} ${COLOR_BLUE}$PROJECT_PATH${COLOR_RESET}"
 		echo
 	fi
+	if [[ ! -z $PROJECT_VERSION ]]; then
+		echo -e "Version: $COLOR_GREEN$PROJECT_VERSION$COLOR_RESET"
+	fi
 	# --pp
 	[[ $DO_PP -eq $YES ]] && doPullPush
 	# --gg
@@ -881,10 +946,14 @@ function doProject() {
 }
 
 function ProjectCleanup() {
+	restoreProjectTags
 	PROJECT_NAME=""
+	PROJECT_VERSION=""
 	PROJECT_PATH=""
 	PROJECT_REPO=""
 	PROJECT_ALIASES=""
+	PROJECT_TAG_FILES=""
+	PROJECT_TAGS_DONE=$NO
 	TIME_START_PRJ=$( \date "+%s%N" )
 	TIME_LAST=$TIME_START_PRJ
 }
