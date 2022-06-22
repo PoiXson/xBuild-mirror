@@ -106,7 +106,7 @@ function DisplayHelp() {
 	echo -e "  ${COLOR_GREEN}--ccbp${COLOR_RESET}                    Clean, config, build, pack"
 	echo -e "  ${COLOR_GREEN}--ccbtp${COLOR_RESET}                   Clean, config, build, test, pack"
 	echo -e "  ${COLOR_GREEN}--ci <n>${COLOR_RESET}                  Sets flags commonly used for continuous integration"
-	echo -e                             "                              Shortcut to: --ccbtp -v -r -R -n <n>"
+	echo -e                             "                              Shortcut to: -v -r -R -n <n> --clean --build --test --pack"
 	echo
 	echo -e "  ${COLOR_GREEN}-v, --verbose${COLOR_RESET}             Enable debug logs"
 	echo -e "  ${COLOR_GREEN}-q, --quiet${COLOR_RESET}               Hide extra logs"
@@ -931,9 +931,8 @@ while [ $# -gt 0 ]; do
 	--cbtp)   DO_CONFIG=$YES ; DO_BUILD=$YES  ; DO_TESTS=$YES ; DO_PACK=$YES   ;;
 	--ccbp)   DO_CLEAN=$YES  ; DO_CONFIG=$YES ; DO_BUILD=$YES ; DO_PACK=$YES  ;;
 	--ccbtp)  DO_CLEAN=$YES  ; DO_CONFIG=$YES ; DO_BUILD=$YES ; DO_TESTS=$YES ; DO_PACK=$YES  ;;
-	--ci)     DO_CLEAN=$YES  ; DO_CONFIG=$YES ; DO_BUILD=$YES ; DO_TESTS=$YES ; DO_PACK=$YES
-		DO_RECURSIVE=$YES ; BUILD_RELEASE=$YES
-		VERBOSE=$YES
+	--ci)     DO_CLEAN=$YES  ; DO_BUILD=$YES  ; DO_TESTS=$YES ; DO_PACK=$YES
+		VERBOSE=$YES ; DO_RECURSIVE=$YES ; BUILD_RELEASE=$YES
 		\shift ; BUILD_NUMBER="$1"
 	;;
 
