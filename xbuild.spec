@@ -55,8 +55,6 @@ echo "Install.."
 # /etc/
 %{__install} -m 0644  "%{_topdir}/../maven-versions.conf.example"  "%{buildroot}%{_sysconfdir}/"  || exit 1
 
-# {{{version}}} tag
-
 
 
 ### Files ###
