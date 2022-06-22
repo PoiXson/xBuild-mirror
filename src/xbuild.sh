@@ -571,8 +571,8 @@ function doBuild() {
 					if [[ $IS_DRY -eq $NO ]]; then
 						\cargo build --release --timings  || exit 1
 					fi
-					echo -e " > ${COLOR_CYAN}grcov . -s . --binary-path ./target/release/"
-					echo -e "   -t html --branch --ignore-not-existing -o ./coverage/${COLOR_RESET}"
+					echo -e " > ${COLOR_CYAN}grcov . -s . --binary-path ./target/release/ " \
+						"-t html --branch --ignore-not-existing -o ./coverage/${COLOR_RESET}"
 					if [[ $IS_DRY -eq $NO ]]; then
 						\grcov . -s .  \
 							--binary-path ./target/release/         \
