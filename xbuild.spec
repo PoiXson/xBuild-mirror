@@ -56,11 +56,6 @@ echo "Install.."
 %{__install} -m 0644  "%{_topdir}/../maven-versions.conf.example"  "%{buildroot}%{_sysconfdir}/"  || exit 1
 
 # {{{version}}} tag
-\sed -i  's/{{{VERSION}}}/%{version}/'  "%{buildroot}%{_bindir}/xbuild"        || exit 1
-\sed -i  's/{{{VERSION}}}/%{version}/'  "%{buildroot}%{_bindir}/genautotools"  || exit 1
-\sed -i  's/{{{VERSION}}}/%{version}/'  "%{buildroot}%{_bindir}/genpom"        || exit 1
-\sed -i  's/{{{VERSION}}}/%{version}/'  "%{buildroot}%{_bindir}/genspec"       || exit 1
-\sed -i  's/{{{VERSION}}}/%{version}/'  "%{buildroot}%{_bindir}/buildrepos"    || exit 1
 
 
 
