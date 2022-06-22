@@ -579,12 +579,13 @@ function doBuild() {
 					fi
 					echo -e " > ${COLOR_CYAN}grcov . -s . --binary-path ./target/release/ " \
 						"-t html --branch --ignore-not-existing -o ./coverage/${COLOR_RESET}"
-					if [[ $IS_DRY -eq $NO ]]; then
-						\grcov . -s .  \
-							--binary-path ./target/release/         \
-							-t html --branch --ignore-not-existing  \
-							-o ./coverage/
-					fi
+#TODO
+#					if [[ $IS_DRY -eq $NO ]]; then
+#						\grcov . -s .  \
+#							--binary-path ./target/release/         \
+#							-t html --branch --ignore-not-existing  \
+#							-o ./coverage/
+#					fi
 				else
 					echo -e " > ${COLOR_CYAN}cargo build${COLOR_RESET}"
 					if [[ $IS_DRY -eq $NO ]]; then
@@ -906,6 +907,7 @@ function doProject() {
 		echo -e " ${COLOR_GREEN}>${COLOR_RESET} ${COLOR_BLUE}$PROJECT_PATH${COLOR_RESET}"
 		echo
 	fi
+#TODO: improve this
 	if [[ ! -z $PROJECT_VERSION ]]; then
 		echo -e "Version: $COLOR_GREEN$PROJECT_VERSION$COLOR_RESET"
 	fi
