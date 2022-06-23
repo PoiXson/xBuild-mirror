@@ -438,7 +438,10 @@ function doConfig() {
 			[[ $QUIET -eq $NO ]] && \
 				title C "$PROJECT_NAME" "Generate pom"
 			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
-				genpom  || exit 1
+				echo -e " > ${COLOR_CYAN}genpom${COLOR_RESET}"
+				if [[ $IS_DRY -eq $NO ]]; then
+					genpom  || exit 1
+				fi
 			\popd >/dev/null
 			echo
 			did_something=$YES
@@ -448,7 +451,10 @@ function doConfig() {
 			[[ $QUIET -eq $NO ]] && \
 				title C "$PROJECT_NAME" "Generate spec"
 			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
-				genspec  || exit 1
+				echo -e " > ${COLOR_CYAN}genspec${COLOR_RESET}"
+				if [[ $IS_DRY -eq $NO ]]; then
+					genspec  || exit 1
+				fi
 			\popd >/dev/null
 			echo
 			did_something=$YES
@@ -844,16 +850,26 @@ function doProjectTags() {
 			[[ $VERBOSE -eq $YES ]] && \
 				notice "File already exists: ${F}.xbuild_temp"
 			# restore original
-			\rm -fv  "$PROJECT_PATH/$F"  || exit 1
+			echo -e " > ${COLOR_CYAN}rm -fv $F${COLOR_RESET}"
+			[[ $IS_DRY -eq $NO ]] && \
+				\rm -fv  "$PROJECT_PATH/$F"  || exit 1
 		else
-			\mv -v  "$PROJECT_PATH/$F"  "$PROJECT_PATH/${F}.xbuild_temp"  || exit 1
+			echo -e " > ${COLOR_CYAN}mv -v $F ${F}.xbuild_temp${COLOR_RESET}"
+			[[ $IS_DRY -eq $NO ]] && \
+				\mv -v  "$PROJECT_PATH/$F"  "$PROJECT_PATH/${F}.xbuild_temp"  || exit 1
 		fi
-		\cp -v  "$PROJECT_PATH/${F}.xbuild_temp"  "$PROJECT_PATH/$F"  || exit 1
+		echo -e " > ${COLOR_CYAN}cp -v ${F}.xbuild_temp $F${COLOR_RESET}"
+		[[ $IS_DRY -eq $NO ]] && \
+			\cp -v  "$PROJECT_PATH/${F}.xbuild_temp"  "$PROJECT_PATH/$F"  || exit 1
 		# tags
 		if [[ ! -z $PROJECT_VERSION ]]; then
-			\sed -i  "s/{{{VERSION}}}/$PROJECT_VERSION/"  "$PROJECT_PATH/$F"  || exit 1
+			echo -e " > ${COLOR_CYAN}sed -i 's/{{{VERSION}}}/$PROJECT_VERSION/' $F${COLOR_RESET}"
+			[[ $IS_DRY -eq $NO ]] && \
+				\sed -i  "s/{{{VERSION}}}/$PROJECT_VERSION/"  "$PROJECT_PATH/$F"  || exit 1
 		fi
 	done
+	[[ $VERBOSE -eq $YES ]] && \
+		echo
 }
 function restoreProjectTags() {
 	[[ $PROJECT_TAGS_DONE -ne $YES ]] && return
@@ -867,6 +883,8 @@ function restoreProjectTags() {
 			\mv  "$PROJECT_PATH/${F}.xbuild_temp"  "$PROJECT_PATH/$F"  || exit 1
 		fi
 	done
+	[[ $VERBOSE -eq $YES ]] && \
+		echo
 }
 
 
