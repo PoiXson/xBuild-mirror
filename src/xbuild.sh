@@ -347,6 +347,7 @@ function doClean() {
 		fi
 		# clean target
 		if [[ -d "$PROJECT_PATH/target" ]]; then
+			# defer clean root target/
 			if [[ "$PROJECT_PATH/target" != "$TARGET_PATH" ]]; then
 				\pushd "$PROJECT_PATH/" >/dev/null || exit 1
 					echo -ne " > ${COLOR_CYAN}rm -rf target${COLOR_RESET}"
@@ -856,20 +857,24 @@ function doProjectTags() {
 			[[ $VERBOSE -eq $YES ]] && \
 				notice "File already exists: ${F}.xbuild_temp"
 			# restore original
-			echo -e " > ${COLOR_CYAN}rm -fv $F${COLOR_RESET}"
+			[[ $VERBOSE -eq $YES ]] && \
+				echo -e " > ${COLOR_CYAN}rm -fv $F${COLOR_RESET}"
 			[[ $IS_DRY -eq $NO ]] && \
 				\rm -fv  "$PROJECT_PATH/$F"  || exit 1
 		else
-			echo -e " > ${COLOR_CYAN}mv -v $F ${F}.xbuild_temp${COLOR_RESET}"
+			[[ $VERBOSE -eq $YES ]] && \
+				echo -e " > ${COLOR_CYAN}mv -v $F ${F}.xbuild_temp${COLOR_RESET}"
 			[[ $IS_DRY -eq $NO ]] && \
 				\mv -v  "$PROJECT_PATH/$F"  "$PROJECT_PATH/${F}.xbuild_temp"  || exit 1
 		fi
-		echo -e " > ${COLOR_CYAN}cp -v ${F}.xbuild_temp $F${COLOR_RESET}"
+		[[ $VERBOSE -eq $YES ]] && \
+			echo -e " > ${COLOR_CYAN}cp -v ${F}.xbuild_temp $F${COLOR_RESET}"
 		[[ $IS_DRY -eq $NO ]] && \
 			\cp -v  "$PROJECT_PATH/${F}.xbuild_temp"  "$PROJECT_PATH/$F"  || exit 1
 		# tags
 		if [[ ! -z $PROJECT_VERSION ]]; then
-			echo -e " > ${COLOR_CYAN}sed -i 's/{{""{VERSION}}}/$PROJECT_VERSION/' $F${COLOR_RESET}"
+			[[ $VERBOSE -eq $YES ]] && \
+				echo -e " > ${COLOR_CYAN}sed -i 's/{{""{VERSION}}}/$PROJECT_VERSION/' $F${COLOR_RESET}"
 			[[ $IS_DRY -eq $NO ]] && \
 				\sed -i  "s/{{""{VERSION}}}/$PROJECT_VERSION/"  "$PROJECT_PATH/$F"  || exit 1
 		fi
@@ -1108,7 +1113,7 @@ fi
 
 
 
-# clean target/
+# clean root target/
 if [[ $DO_CLEAN -eq $YES ]]; then
 	if [[ ! -z $TARGET_PATH ]] \
 	&& [[ -d "$TARGET_PATH" ]]; then
