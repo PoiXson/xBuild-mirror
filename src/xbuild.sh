@@ -779,7 +779,11 @@ function doPack() {
 
 function Version() {
 	if [[ ! -z $1 ]]; then
-		PROJECT_VERSION="${1/x/$BUILD_NUMBER}"
+		if [[ -z $BUILD_NUMBER ]]; then
+			PROJECT_VERSION="$1"
+		else
+			PROJECT_VERSION=${1/x/$BUILD_NUMBER}
+		fi
 	fi
 }
 
