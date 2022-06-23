@@ -867,9 +867,9 @@ function doProjectTags() {
 			\cp -v  "$PROJECT_PATH/${F}.xbuild_temp"  "$PROJECT_PATH/$F"  || exit 1
 		# tags
 		if [[ ! -z $PROJECT_VERSION ]]; then
-			echo -e " > ${COLOR_CYAN}sed -i 's/{{{VERSION}}}/$PROJECT_VERSION/' $F${COLOR_RESET}"
+			echo -e " > ${COLOR_CYAN}sed -i 's/{{""{VERSION}}}/$PROJECT_VERSION/' $F${COLOR_RESET}"
 			[[ $IS_DRY -eq $NO ]] && \
-				\sed -i  "s/{{{VERSION}}}/$PROJECT_VERSION/"  "$PROJECT_PATH/$F"  || exit 1
+				\sed -i  "s/{{""{VERSION}}}/$PROJECT_VERSION/"  "$PROJECT_PATH/$F"  || exit 1
 		fi
 	done
 	[[ $VERBOSE -eq $YES ]] && \
