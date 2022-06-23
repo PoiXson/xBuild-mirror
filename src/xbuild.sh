@@ -612,6 +612,7 @@ function doBuild() {
 # --test
 function doTests() {
 	did_something=$NO
+	doProjectTags
 	[[ $QUIET -eq $NO ]] && \
 		title C "$PROJECT_NAME" "Testing"
 	# make check
@@ -652,6 +653,7 @@ function doTests() {
 # --pack
 function doPack() {
 	did_something=$NO
+	doProjectTags
 	[[ $QUIET -eq $NO ]] && \
 		title C "$PROJECT_NAME" "Package"
 	# make dist
