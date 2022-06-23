@@ -1,6 +1,16 @@
 xBuild - A tool to simplify building and managing projects in your workspace
 
 
+2022-06-22 - 2.1.28
+===================
+* removed --config flag from --ci shortcut
+* fixed cleanup of root target/ dir - do first, not in sequence
+* cargocov/grcov needs fixing
+* added support for replacing {{{VERSION}}} tag in files
+* special case for Cargo.toml files, replacing x.x.0 as tag
+* fixed and improved logging
+
+
 2022-06-21 - 2.1.19
 ===================
 * reorganized xbuild script to improve build logic
