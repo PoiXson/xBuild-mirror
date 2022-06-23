@@ -873,18 +873,21 @@ function doProjectTags() {
 			\cp -v  "$PROJECT_PATH/${F}.xbuild_temp"  "$PROJECT_PATH/$F"  || exit 1
 		# tags
 		if [[ ! -z $PROJECT_VERSION ]]; then
-			# {{{VERSION}}}
-			[[ $VERBOSE -eq $YES ]] && \
-				echo -e " > ${COLOR_CYAN}sed -i 's/{{""{VERSION}}}/$PROJECT_VERSION/' $F${COLOR_RESET}"
-			[[ $IS_DRY -eq $NO ]] && \
-				\sed -i  "s/{{""{VERSION}}}/$PROJECT_VERSION/"  "$PROJECT_PATH/$F"  || exit 1
-			# x.x.x
+			# special case for rust/cargo
 			if [[ "$PROJECT_PATH/$F" == *"/Cargo.toml" ]]; then
-				local VERS_GUESS=${PROJECT_VERSION%.*}".0"
+				if [[ ! -z $BUILD_NUMBER ]] && [[ "$BUILD_NUMBER" != "x" ]]; then
+					local VERS_GUESS=${PROJECT_VERSION%.*}".0"
+					[[ $VERBOSE -eq $YES ]] && \
+						echo -e " > ${COLOR_CYAN}sed -i 's/$VERS_GUESS/$PROJECT_VERSION/' $F${COLOR_RESET}"
+					[[ $IS_DRY -eq $NO ]] && \
+						\sed -i  "s/$VERS_GUESS/$PROJECT_VERSION/"  "$PROJECT_PATH/$F"  || exit 1
+				fi
+			# {{{VERSION}}}
+			else
 				[[ $VERBOSE -eq $YES ]] && \
-					echo -e " > ${COLOR_CYAN}sed -i 's/$VERS_GUESS/$PROJECT_VERSION/' $F${COLOR_RESET}"
+					echo -e " > ${COLOR_CYAN}sed -i 's/{{""{VERSION}}}/$PROJECT_VERSION/' $F${COLOR_RESET}"
 				[[ $IS_DRY -eq $NO ]] && \
-					\sed -i  "s/$VERS_GUESS/$PROJECT_VERSION/"  "$PROJECT_PATH/$F"  || exit 1
+					\sed -i  "s/{{""{VERSION}}}/$PROJECT_VERSION/"  "$PROJECT_PATH/$F"  || exit 1
 			fi
 		fi
 	done
