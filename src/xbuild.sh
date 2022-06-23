@@ -259,7 +259,7 @@ function doClean() {
 					echo -ne " > ${COLOR_CYAN}make distclean..${COLOR_RESET}"
 					rm_groups=$((rm_groups+1))
 					if [[ $IS_DRY -eq $NO ]]; then
-						c=$( \make distclean | \wc -l )
+						local c=$( \make distclean | \wc -l )
 						[[ 0 -ne $? ]] && exit 1
 						[[ $c -gt 0 ]] && count=$((count+c))
 						echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
@@ -276,7 +276,7 @@ function doClean() {
 						echo -ne " > ${COLOR_CYAN}rm ${ENTRY}..${COLOR_RESET}"
 						rm_groups=$((rm_groups+1))
 						if [[ $IS_DRY -eq $NO ]]; then
-							c=$( \rm -v "$ENTRY" | \wc -l )
+							local c=$( \rm -v "$ENTRY" | \wc -l )
 							[[ 0 -ne $? ]] && exit 1
 							[[ $c -gt 0 ]] && count=$((count+c))
 							echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
@@ -288,7 +288,7 @@ function doClean() {
 						echo -ne " > ${COLOR_CYAN}rm -rf ${ENTRY}..${COLOR_RESET}"
 						rm_groups=$((rm_groups+1))
 						if [[ $IS_DRY -eq $NO ]]; then
-							c=$( \rm -vrf --preserve-root "$ENTRY" | \wc -l )
+							local c=$( \rm -vrf --preserve-root "$ENTRY" | \wc -l )
 							[[ 0 -ne $? ]] && exit 1
 							[[ $c -gt 0 ]] && count=$((count+c))
 							echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
@@ -306,7 +306,7 @@ function doClean() {
 							if [[ -f "$ENTRY" ]]; then
 								echo -ne " > ${COLOR_CYAN}rm ${ENTRY}..${COLOR_RESET}"
 								if [[ $IS_DRY -eq $NO ]]; then
-									c=$( \rm -v "$ENTRY" | \wc -l )
+									local c=$( \rm -v "$ENTRY" | \wc -l )
 									[[ 0 -ne $? ]] && exit 1
 									[[ $c -gt 0 ]] && count=$((count+c))
 									echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
@@ -317,7 +317,7 @@ function doClean() {
 							if [[ -d "$ENTRY" ]]; then
 								echo -ne " > ${COLOR_CYAN}rm -rf ${ENTRY}..${COLOR_RESET}"
 								if [[ $IS_DRY -eq $NO ]]; then
-									c=$( \rm -vrf --preserve-root "$ENTRY" | \wc -l )
+									local c=$( \rm -vrf --preserve-root "$ENTRY" | \wc -l )
 									[[ 0 -ne $? ]] && exit 1
 									[[ $c -gt 0 ]] && count=$((count+c))
 									echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
@@ -336,7 +336,7 @@ function doClean() {
 				echo -ne " > ${COLOR_CYAN}rm -rf rpmbuild..${COLOR_RESET}"
 				rm_groups=$((rm_groups+1))
 				if [[ $IS_DRY -eq $NO ]]; then
-					c=$( \rm -vrf --preserve-root rpmbuild | wc -l )
+					local c=$( \rm -vrf --preserve-root rpmbuild | wc -l )
 					[[ 0 -ne $? ]] && exit 1
 					[[ $c -gt 0 ]] && count=$((count+c))
 					echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
@@ -351,7 +351,7 @@ function doClean() {
 				echo -ne " > ${COLOR_CYAN}rm -rf target..${COLOR_RESET}"
 				rm_groups=$((rm_groups+1))
 				if [[ $IS_DRY -eq $NO ]]; then
-					c=$( \rm -vrf --preserve-root target | wc -l )
+					local c=$( \rm -vrf --preserve-root target | wc -l )
 					[[ 0 -ne $? ]] && exit 1
 					[[ $c -gt 0 ]] && count=$((count+c))
 					echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
@@ -369,7 +369,7 @@ function doClean() {
 					echo -ne " > ${COLOR_CYAN}rm -rf vendor..${COLOR_RESET}"
 					rm_groups=$((rm_groups+1))
 					if [[ $IS_DRY -eq $NO ]]; then
-						c=$( \rm -vrf --preserve-root vendor | wc -l )
+						local c=$( \rm -vrf --preserve-root vendor | wc -l )
 						[[ 0 -ne $? ]] && exit 1
 						[[ $c -gt 0 ]] && count=$((count+c))
 						echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
@@ -692,14 +692,14 @@ function doPack() {
 		if [[ -d "$PROJECT_PATH/rpmbuild" ]]; then
 			echo -ne " > ${COLOR_CYAN}rm rpmbuild..${COLOR_RESET}"
 			\pushd "$PROJECT_PATH" >/dev/null  || exit 1
-				c=$( \rm -Rvf --preserve-root rpmbuild/ | \wc -l )
+				local c=$( \rm -Rvf --preserve-root rpmbuild/ | \wc -l )
 				[[ 0 -ne $? ]] && exit 1
 				echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
 			\popd >/dev/null
 		fi
 		# make build root dirs
 		echo -ne " > ${COLOR_CYAN}mkdir rpmbuild..${COLOR_RESET}"
-		c=$( \mkdir -pv "$PROJECT_PATH"/rpmbuild/{BUILD,BUILDROOT,SOURCES,SPECS,RPMS,SRPMS,TMP} | \wc -l )
+		local c=$( \mkdir -pv "$PROJECT_PATH"/rpmbuild/{BUILD,BUILDROOT,SOURCES,SPECS,RPMS,SRPMS,TMP} | \wc -l )
 		[[ 0 -ne $? ]] && exit 1
 		echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
 		echo -e " > ${COLOR_CYAN}cp  "${SPEC_FILE##*/}"  rpmbuild/SPECS/${COLOR_RESET}"
