@@ -256,7 +256,7 @@ function doClean() {
 		if [[ -f "$PROJECT_PATH/Makefile.am" ]]; then
 			if [[ -f "$PROJECT_PATH/Makefile" ]]; then
 				\pushd "$PROJECT_PATH/" >/dev/null || exit 1
-					echo -ne " > ${COLOR_CYAN}make distclean..${COLOR_RESET}"
+					echo -ne " > ${COLOR_CYAN}make distclean${COLOR_RESET}"
 					rm_groups=$((rm_groups+1))
 					if [[ $IS_DRY -eq $NO ]]; then
 						local c=$( \make distclean | \wc -l )
@@ -285,7 +285,7 @@ function doClean() {
 						fi
 					fi
 					if [[ -d "$ENTRY" ]]; then
-						echo -ne " > ${COLOR_CYAN}rm -rf ${ENTRY}..${COLOR_RESET}"
+						echo -ne " > ${COLOR_CYAN}rm -rf ${ENTRY}${COLOR_RESET}"
 						rm_groups=$((rm_groups+1))
 						if [[ $IS_DRY -eq $NO ]]; then
 							local c=$( \rm -vrf --preserve-root "$ENTRY" | \wc -l )
@@ -304,7 +304,7 @@ function doClean() {
 					\pushd "$DIR/" >/dev/null || continue
 						for ENTRY in $CLEAN_FILES; do
 							if [[ -f "$ENTRY" ]]; then
-								echo -ne " > ${COLOR_CYAN}rm ${ENTRY}..${COLOR_RESET}"
+								echo -ne " > ${COLOR_CYAN}rm ${ENTRY}${COLOR_RESET}"
 								if [[ $IS_DRY -eq $NO ]]; then
 									local c=$( \rm -v "$ENTRY" | \wc -l )
 									[[ 0 -ne $? ]] && exit 1
@@ -315,7 +315,7 @@ function doClean() {
 								fi
 							fi
 							if [[ -d "$ENTRY" ]]; then
-								echo -ne " > ${COLOR_CYAN}rm -rf ${ENTRY}..${COLOR_RESET}"
+								echo -ne " > ${COLOR_CYAN}rm -rf ${ENTRY}${COLOR_RESET}"
 								if [[ $IS_DRY -eq $NO ]]; then
 									local c=$( \rm -vrf --preserve-root "$ENTRY" | \wc -l )
 									[[ 0 -ne $? ]] && exit 1
@@ -333,7 +333,7 @@ function doClean() {
 		# clean rpm project
 		if [[ -d "$PROJECT_PATH/rpmbuild" ]]; then
 			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
-				echo -ne " > ${COLOR_CYAN}rm -rf rpmbuild..${COLOR_RESET}"
+				echo -ne " > ${COLOR_CYAN}rm -rf rpmbuild${COLOR_RESET}"
 				rm_groups=$((rm_groups+1))
 				if [[ $IS_DRY -eq $NO ]]; then
 					local c=$( \rm -vrf --preserve-root rpmbuild | wc -l )
@@ -348,7 +348,7 @@ function doClean() {
 		# clean target
 		if [[ -d "$PROJECT_PATH/target" ]]; then
 			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
-				echo -ne " > ${COLOR_CYAN}rm -rf target..${COLOR_RESET}"
+				echo -ne " > ${COLOR_CYAN}rm -rf target${COLOR_RESET}"
 				rm_groups=$((rm_groups+1))
 				if [[ $IS_DRY -eq $NO ]]; then
 					local c=$( \rm -vrf --preserve-root target | wc -l )
@@ -366,7 +366,7 @@ function doClean() {
 		if [[ -f "$PROJECT_PATH/composer.json" ]]; then
 			if [[ -d "$PROJECT_PATH/vendor" ]]; then
 				\pushd "$PROJECT_PATH/" >/dev/null || exit 1
-					echo -ne " > ${COLOR_CYAN}rm -rf vendor..${COLOR_RESET}"
+					echo -ne " > ${COLOR_CYAN}rm -rf vendor${COLOR_RESET}"
 					rm_groups=$((rm_groups+1))
 					if [[ $IS_DRY -eq $NO ]]; then
 						local c=$( \rm -vrf --preserve-root vendor | wc -l )
@@ -690,7 +690,7 @@ function doPack() {
 	if [[ ! -z $SPEC_FILE ]]; then
 		# remove previous build root
 		if [[ -d "$PROJECT_PATH/rpmbuild" ]]; then
-			echo -ne " > ${COLOR_CYAN}rm rpmbuild..${COLOR_RESET}"
+			echo -ne " > ${COLOR_CYAN}rm rpmbuild${COLOR_RESET}"
 			\pushd "$PROJECT_PATH" >/dev/null  || exit 1
 				local c=$( \rm -Rvf --preserve-root rpmbuild/ | \wc -l )
 				[[ 0 -ne $? ]] && exit 1
@@ -698,7 +698,7 @@ function doPack() {
 			\popd >/dev/null
 		fi
 		# make build root dirs
-		echo -ne " > ${COLOR_CYAN}mkdir rpmbuild..${COLOR_RESET}"
+		echo -ne " > ${COLOR_CYAN}mkdir rpmbuild${COLOR_RESET}"
 		local c=$( \mkdir -pv "$PROJECT_PATH"/rpmbuild/{BUILD,BUILDROOT,SOURCES,SPECS,RPMS,SRPMS,TMP} | \wc -l )
 		[[ 0 -ne $? ]] && exit 1
 		echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
