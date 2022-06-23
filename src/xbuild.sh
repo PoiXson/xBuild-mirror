@@ -347,18 +347,20 @@ function doClean() {
 		fi
 		# clean target
 		if [[ -d "$PROJECT_PATH/target" ]]; then
-			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
-				echo -ne " > ${COLOR_CYAN}rm -rf target${COLOR_RESET}"
-				rm_groups=$((rm_groups+1))
-				if [[ $IS_DRY -eq $NO ]]; then
-					local c=$( \rm -vrf --preserve-root target | wc -l )
-					[[ 0 -ne $? ]] && exit 1
-					[[ $c -gt 0 ]] && count=$((count+c))
-					echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
-				else
-					echo
-				fi
-			\popd >/dev/null
+			if [[ "$PROJECT_PATH/target" != "$TARGET_PATH" ]]; then
+				\pushd "$PROJECT_PATH/" >/dev/null || exit 1
+					echo -ne " > ${COLOR_CYAN}rm -rf target${COLOR_RESET}"
+					rm_groups=$((rm_groups+1))
+					if [[ $IS_DRY -eq $NO ]]; then
+						local c=$( \rm -vrf --preserve-root target | wc -l )
+						[[ 0 -ne $? ]] && exit 1
+						[[ $c -gt 0 ]] && count=$((count+c))
+						echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
+					else
+						echo
+					fi
+				\popd >/dev/null
+			fi
 		fi
 	fi
 	# clean php project
@@ -1101,6 +1103,21 @@ if [[ $QUIET -ne $YES ]]; then
 #TODO
 warning "Filters are unfinished and unsupported"
 		echo
+	fi
+fi
+
+
+
+# clean target/
+if [[ $DO_CLEAN -eq $YES ]]; then
+	if [[ ! -z $TARGET_PATH ]] \
+	&& [[ -d "$TARGET_PATH" ]]; then
+		echo -ne " > ${COLOR_CYAN}rm -rf target${COLOR_RESET}"
+		if [[ $IS_DRY -eq $NO ]]; then
+			c=$( \rm -vrf --preserve-root target | wc -l )
+			[[ 0 -ne $? ]] && exit 1
+			echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
+		fi
 	fi
 fi
 
