@@ -409,7 +409,8 @@ function doClean() {
 function doConfig() {
 	did_something=$NO
 	doProjectTags
-	if [[ $DO_WEB_ONLY -eq $NO ]]; then
+	if [[ $DO_WEB_ONLY -eq $NO ]] \
+	&& [[ $BUILD_RELEASE -eq $NO ]]; then
 		# generate automake files
 		if [[ -f "$PROJECT_PATH/autotools.conf" ]]; then
 			[[ $QUIET -eq $NO ]] && \
@@ -467,7 +468,7 @@ function doConfig() {
 		# composer
 		if [[ -f "$PROJECT_PATH/composer.json" ]]; then
 			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
-				if [[ $DEBUG_FLAGS -eq $YES ]] \
+				if [[ $BUILD_RELEASE -eq $NO ]] \
 				|| [[ ! -f "$PROJECT_PATH/composer.lock" ]]; then
 					[[ $QUIET -eq $NO ]] && \
 						title C "$PROJECT_NAME" "Composer Update"
@@ -1045,7 +1046,7 @@ while [ $# -gt 0 ]; do
 	--cbtp)   DO_CONFIG=$YES ; DO_BUILD=$YES  ; DO_TESTS=$YES ; DO_PACK=$YES   ;;
 	--ccbp)   DO_CLEAN=$YES  ; DO_CONFIG=$YES ; DO_BUILD=$YES ; DO_PACK=$YES  ;;
 	--ccbtp)  DO_CLEAN=$YES  ; DO_CONFIG=$YES ; DO_BUILD=$YES ; DO_TESTS=$YES ; DO_PACK=$YES  ;;
-	--ci)     DO_CLEAN=$YES  ; DO_BUILD=$YES  ; DO_TESTS=$YES ; DO_PACK=$YES
+	--ci)     DO_CLEAN=$YES  ; DO_CONFIG=$YES ; DO_BUILD=$YES ; DO_TESTS=$YES ; DO_PACK=$YES
 		VERBOSE=$YES ; DO_RECURSIVE=$YES ; BUILD_RELEASE=$YES
 		\shift ; BUILD_NUMBER="$1"
 	;;
