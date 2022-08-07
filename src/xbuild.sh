@@ -63,6 +63,8 @@ PROJECT_PATH=""
 CURRENT_PATH="$WDIR"
 PROJECT_REPO=""
 PROJECT_ALIASES=""
+PROJECT_PHAR=$NO
+PROJECT_PHAR_DIRS=""
 PROJECT_TAG_FILES=""
 PROJECT_TAGS_DONE=$NO
 
@@ -381,6 +383,18 @@ function doClean() {
 					fi
 				\popd >/dev/null
 			fi
+			if [[ $PROJECT_PHAR -eq $YES ]]; then
+				\ls *.phar >/dev/null 2>/dev/null && {
+					echo -ne " > ${COLOR_CYAN}rm -f *.phar${COLOR_RESET}"
+					rm_groups=$((rm_groups+1))
+					if [[ $IS_DRY -eq $NO ]]; then
+						local c=$( \rm -vrf --preserve-root *.phar | wc -l )
+						[[ 0 -ne $? ]] && exit 1
+						[[ $c -gt 0 ]] && count=$((count+c))
+						echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
+					fi
+				}
+			fi
 		fi
 	fi
 	# nothing to do
@@ -666,6 +680,22 @@ function doPack() {
 	doProjectTags
 	[[ $QUIET -eq $NO ]] && \
 		title C "$PROJECT_NAME" "Package"
+	# build phar
+	if [[ $PROJECT_PHAR -eq $YES ]]; then
+		if [[ -d build-phar ]]; then
+			\rm -Rf --preserve-root  build-phar  || exit 1
+		fi
+		\mkdir -v  build-phar/  || exit 1
+		\cp  composer.{json,lock}  build-phar/  || exit 1
+		\cp -a  src     build-phar/  || exit 1
+		\cp -a  vendor  build-phar/  || exit 1
+		if [[ ! -z $PROJECT_PHAR_DIRS ]]; then
+			for D in $PROJECT_PHAR_DIRS; do
+				\cp -a  "$D"  build-phar/  || exit 1
+			done
+		fi
+		vendor/bin/phar-composer  build  build-phar  || exit 1
+	fi
 	# make dist
 	if [[ -f "$PROJECT_PATH/Makefile" ]]; then
 		\pushd "$PROJECT_PATH/" >/dev/null || exit 1
@@ -815,6 +845,13 @@ function TagFile() {
 	fi
 }
 
+function AddPhar() {
+	if [[ -d "$1" ]]; then
+		failure "Path not found, cannot add to phar: $1"
+		failure ; exit 1
+	fi
+	PROJECT_PHAR_DIRS="$PROJECT_PHAR_DIRS $1"
+}
 
 
 function LoadConf() {
@@ -998,6 +1035,8 @@ function ProjectCleanup() {
 	PROJECT_PATH=""
 	PROJECT_REPO=""
 	PROJECT_ALIASES=""
+	PROJECT_PHAR=$NO
+	PROJECT_PHAR_FILES=""
 	PROJECT_TAG_FILES=""
 	PROJECT_TAGS_DONE=$NO
 	TIME_START_PRJ=$( \date "+%s%N" )
