@@ -1,6 +1,15 @@
 xBuild - A tool to simplify building and managing projects in your workspace
 
 
+2022-08-07 - 2.1.32
+===================
+* added support for handling .gitignore
+  * master gitignore file is stored in /etc/xbuild
+* added support for building phar files
+* fixed xbuild --ci flag now also runs composer install
+* fixed handling of version tags and special case rust/cargo files
+
+
 2022-06-22 - 2.1.28
 ===================
 * removed --config flag from --ci shortcut
