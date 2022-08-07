@@ -65,6 +65,7 @@ PROJECT_REPO=""
 PROJECT_ALIASES=""
 PROJECT_PHAR=$NO
 PROJECT_PHAR_DIRS=""
+PROJECT_GITIGNORE=""
 PROJECT_TAG_FILES=""
 PROJECT_TAGS_DONE=$NO
 
@@ -845,6 +846,12 @@ function TagFile() {
 	fi
 }
 
+function AddIgnore() {
+	if [[ ! -z $1 ]]; then
+		PROJECT_GITIGNORE="$PROJECT_GITIGNORE $1"
+	fi
+}
+
 function AddPhar() {
 	if [[ -d "$1" ]]; then
 		failure "Path not found, cannot add to phar: $1"
@@ -992,6 +999,18 @@ function doProject() {
 	if [[ ! -z $PROJECT_VERSION ]]; then
 		echo -e "Version: $COLOR_GREEN$PROJECT_VERSION$COLOR_RESET"
 	fi
+	# .gitignore
+#TODO: write to tmp and diff
+	if [[ -f "$PROJECT_PATH/.gitignore" ]]; then
+		echo -n "" >"$PROJECT_PATH/.gitignore"
+		if [[ ! -z $PROJECT_GITIGNORE ]]; then
+			for ENTRY in $PROJECT_GITIGNORE; do
+				echo "$ENTRY" >>"$PROJECT_PATH/.gitignore"
+			done
+			echo "" >>"$PROJECT_PATH/.gitignore"
+		fi
+		\cat /etc/xbuild/gitignore >>"$PROJECT_PATH/.gitignore"
+	fi
 	# --pp
 	[[ $DO_PP -eq $YES ]] && doPullPush
 	# --gg
@@ -1037,6 +1056,7 @@ function ProjectCleanup() {
 	PROJECT_ALIASES=""
 	PROJECT_PHAR=$NO
 	PROJECT_PHAR_FILES=""
+	PROJECT_GITIGNORE=""
 	PROJECT_TAG_FILES=""
 	PROJECT_TAGS_DONE=$NO
 	TIME_START_PRJ=$( \date "+%s%N" )
