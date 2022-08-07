@@ -69,7 +69,7 @@ echo "Install.."
 %{_sysconfdir}/profile.d/xbuild.sh
 %{_sysconfdir}/maven-versions.conf.example
 %dir %{_sysconfdir}/xbuild/
-%attr(0440,-,-) %{_sysconfdir}/xbuild/gitignore
+%attr(0444,-,-) %{_sysconfdir}/xbuild/gitignore
 
 %files -n xbuild-repos
 %defattr(0555, root, root, 0755)
