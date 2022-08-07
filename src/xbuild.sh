@@ -426,14 +426,27 @@ function doConfig() {
 	# .gitignore
 #TODO: write to tmp and diff
 	if [[ -f "$PROJECT_PATH/.gitignore" ]]; then
-		echo -n "" >"$PROJECT_PATH/.gitignore"
+		local OUT_FILE=$( mktemp )
+		local RESULT=$?
+		if [[ $RESULT -ne 0 ]] || [[ -z $OUT_FILE ]]; then
+			failure "Failed to create a temp file for .gitignore"
+			failure ; exit $RESULT
+		fi
 		if [[ ! -z $PROJECT_GITIGNORE ]]; then
 			for ENTRY in $PROJECT_GITIGNORE; do
-				echo "$ENTRY" >>"$PROJECT_PATH/.gitignore"
+				echo "$ENTRY" >>"$OUT_FILE"
 			done
-			echo "" >>"$PROJECT_PATH/.gitignore"
+			echo >>"$OUT_FILE"
 		fi
-		\cat /etc/xbuild/gitignore >>"$PROJECT_PATH/.gitignore"
+		\cat /etc/xbuild/gitignore >>"$OUT_FILE" || exit 1
+		local HASH_A=$( \cat "$OUT_FILE"                | \md5sum )
+		local HASH_B=$( \cat "$PROJECT_PATH/.gitignore" | \md5sum )
+		if [[ "$HASH_A" != "$HASH_B" ]]; then
+			title C "Updating .gitignore.."
+			\cp  "$OUT_FILE"  "$PROJECT_PATH/.gitignore"  || exit 1
+			did_something=$YES
+		fi
+		\rm -f "$OUT_FILE"
 	fi
 	doProjectTags
 	if [[ $DO_WEB_ONLY -eq $NO ]] \
