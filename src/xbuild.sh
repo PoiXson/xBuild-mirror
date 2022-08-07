@@ -423,6 +423,18 @@ function doClean() {
 # --config
 function doConfig() {
 	did_something=$NO
+	# .gitignore
+#TODO: write to tmp and diff
+	if [[ -f "$PROJECT_PATH/.gitignore" ]]; then
+		echo -n "" >"$PROJECT_PATH/.gitignore"
+		if [[ ! -z $PROJECT_GITIGNORE ]]; then
+			for ENTRY in $PROJECT_GITIGNORE; do
+				echo "$ENTRY" >>"$PROJECT_PATH/.gitignore"
+			done
+			echo "" >>"$PROJECT_PATH/.gitignore"
+		fi
+		\cat /etc/xbuild/gitignore >>"$PROJECT_PATH/.gitignore"
+	fi
 	doProjectTags
 	if [[ $DO_WEB_ONLY -eq $NO ]] \
 	&& [[ $BUILD_RELEASE -eq $NO ]]; then
@@ -998,18 +1010,6 @@ function doProject() {
 #TODO: improve this
 	if [[ ! -z $PROJECT_VERSION ]]; then
 		echo -e "Version: $COLOR_GREEN$PROJECT_VERSION$COLOR_RESET"
-	fi
-	# .gitignore
-#TODO: write to tmp and diff
-	if [[ -f "$PROJECT_PATH/.gitignore" ]]; then
-		echo -n "" >"$PROJECT_PATH/.gitignore"
-		if [[ ! -z $PROJECT_GITIGNORE ]]; then
-			for ENTRY in $PROJECT_GITIGNORE; do
-				echo "$ENTRY" >>"$PROJECT_PATH/.gitignore"
-			done
-			echo "" >>"$PROJECT_PATH/.gitignore"
-		fi
-		\cat /etc/xbuild/gitignore >>"$PROJECT_PATH/.gitignore"
 	fi
 	# --pp
 	[[ $DO_PP -eq $YES ]] && doPullPush
