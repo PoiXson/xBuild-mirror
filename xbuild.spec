@@ -41,6 +41,7 @@ echo "Install.."
 %{__install} -d -m 0755  \
 	"%{buildroot}%{prefix}/"                 \
 	"%{buildroot}%{_sysconfdir}/profile.d/"  \
+	"%{buildroot}%{_sysconfdir}/xbuild/"     \
 		|| exit 1
 
 # /usr/bin/
@@ -54,6 +55,7 @@ echo "Install.."
 %{__install} -m 0644  "%{_topdir}/../src/etc-profile.d-buildrepos.sh"  "%{buildroot}%{_sysconfdir}/profile.d/buildrepos.sh"  || exit 1
 # /etc/
 %{__install} -m 0644  "%{_topdir}/../maven-versions.conf.example"  "%{buildroot}%{_sysconfdir}/"  || exit 1
+%{__install} -m 0644  "%{_topdir}/../.gitignore"  "%{buildroot}%{_sysconfdir}/xbuild/gitignore"   || exit 1
 
 
 
@@ -66,6 +68,8 @@ echo "Install.."
 %{_bindir}/genspec
 %{_sysconfdir}/profile.d/xbuild.sh
 %{_sysconfdir}/maven-versions.conf.example
+%dir %{_sysconfdir}/xbuild/
+%attr(0440,-,-) %{_sysconfdir}/xbuild/gitignore
 
 %files -n xbuild-repos
 %defattr(0555, root, root, 0755)
