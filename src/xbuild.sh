@@ -387,6 +387,21 @@ function doClean() {
 			fi
 			# clean phar
 			if [[ $PROJECT_PHAR -eq $YES ]]; then
+				# clean build-phar/
+				if [[ -d "$PROJECT_PATH/build-phar" ]]; then
+					\pushd "$PROJECT_PATH/" >/dev/null || exit 1
+						echo -ne " > ${COLOR_CYAN}rm -rf build-phar${COLOR_RESET}"
+						rm_groups=$((rm_groups+1))
+						if [[ $IS_DRY -eq $NO ]]; then
+							local c=$( \rm -vrf --preserve-root build-phar | wc -l )
+							[[ 0 -ne $? ]] && exit 1
+							[[ $c -gt 0 ]] && count=$((count+c))
+							echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
+						else
+							echo
+						fi
+					\popd >/dev/null
+				fi
 				# clean project.phar
 				\ls *.phar >/dev/null 2>/dev/null && {
 					echo -ne " > ${COLOR_CYAN}rm -f *.phar${COLOR_RESET}"
