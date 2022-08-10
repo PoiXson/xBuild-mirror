@@ -348,7 +348,7 @@ function doClean() {
 				fi
 			\popd >/dev/null
 		fi
-		# clean target
+		# clean target/
 		if [[ -d "$PROJECT_PATH/target" ]]; then
 			# defer clean root target/
 			if [[ "$PROJECT_PATH/target" != "$TARGET_PATH" ]]; then
@@ -370,6 +370,7 @@ function doClean() {
 	# clean php project
 	if [[ $DO_BIN_ONLY -eq $NO ]]; then
 		if [[ -f "$PROJECT_PATH/composer.json" ]]; then
+			# clean vendor/
 			if [[ -d "$PROJECT_PATH/vendor" ]]; then
 				\pushd "$PROJECT_PATH/" >/dev/null || exit 1
 					echo -ne " > ${COLOR_CYAN}rm -rf vendor${COLOR_RESET}"
@@ -384,7 +385,9 @@ function doClean() {
 					fi
 				\popd >/dev/null
 			fi
+			# clean phar
 			if [[ $PROJECT_PHAR -eq $YES ]]; then
+				# clean project.phar
 				\ls *.phar >/dev/null 2>/dev/null && {
 					echo -ne " > ${COLOR_CYAN}rm -f *.phar${COLOR_RESET}"
 					rm_groups=$((rm_groups+1))
@@ -424,7 +427,6 @@ function doClean() {
 function doConfig() {
 	did_something=$NO
 	# .gitignore
-#TODO: write to tmp and diff
 	if [[ -f "$PROJECT_PATH/.gitignore" ]] \
 	&& [[ $BUILD_RELEASE -eq $NO ]]; then
 		local OUT_FILE=$( mktemp )
