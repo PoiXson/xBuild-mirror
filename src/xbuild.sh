@@ -444,7 +444,7 @@ function doConfig() {
 		local HASH_B=$( \cat "$PROJECT_PATH/.gitignore" | \md5sum )
 		if [[ "$HASH_A" != "$HASH_B" ]]; then
 			title C "Updating .gitignore.."
-			\cp  "$OUT_FILE"  "$PROJECT_PATH/.gitignore"  || exit 1
+			\cat  "$OUT_FILE"  >"$PROJECT_PATH/.gitignore"  || exit 1
 			did_something=$YES
 		fi
 		\rm -f "$OUT_FILE"
