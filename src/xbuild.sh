@@ -425,7 +425,8 @@ function doConfig() {
 	did_something=$NO
 	# .gitignore
 #TODO: write to tmp and diff
-	if [[ -f "$PROJECT_PATH/.gitignore" ]]; then
+	if [[ -f "$PROJECT_PATH/.gitignore" ]] \
+	&& [[ $BUILD_RELEASE -eq $NO ]]; then
 		local OUT_FILE=$( mktemp )
 		local RESULT=$?
 		if [[ $RESULT -ne 0 ]] || [[ -z $OUT_FILE ]]; then
