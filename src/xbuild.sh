@@ -461,7 +461,10 @@ function doConfig() {
 		local HASH_B=$( \cat "$PROJECT_PATH/.gitignore" | \md5sum )
 		if [[ "$HASH_A" != "$HASH_B" ]]; then
 			title C "Updating .gitignore.."
-			\cat  "$OUT_FILE"  >"$PROJECT_PATH/.gitignore"  || exit 1
+			echo -e " > ${COLOR_CYAN}cat $OUT_FILE > $PROJECT_PATH/.gitignore${COLOR_RESET}"
+			if [[ $IS_DRY -eq $NO ]]; then
+				\cat  "$OUT_FILE"  >"$PROJECT_PATH/.gitignore"  || exit 1
+			fi
 			did_something=$YES
 		fi
 		\rm -f "$OUT_FILE"
@@ -727,18 +730,39 @@ function doPack() {
 	# build phar
 	if [[ $PROJECT_PHAR -eq $YES ]]; then
 		if [[ -d build-phar ]]; then
-			\rm -Rf --preserve-root  build-phar  || exit 1
+			echo -e " > ${COLOR_CYAN}rm -Rf build-phar${COLOR_RESET}"
+			if [[ $IS_DRY -eq $NO ]]; then
+				\rm -Rf --preserve-root  build-phar  || exit 1
+			fi
 		fi
-		\mkdir -v  build-phar/  || exit 1
-		\cp  composer.{json,lock}  build-phar/  || exit 1
-		\cp -a  src     build-phar/  || exit 1
-		\cp -a  vendor  build-phar/  || exit 1
+		echo -e " > ${COLOR_CYAN}mkdir build-phar${COLOR_RESET}"
+		if [[ $IS_DRY -eq $NO ]]; then
+			\mkdir -v  build-phar/  || exit 1
+		fi
+		echo -e " > ${COLOR_CYAN}cp composer.{json,lock} build-phar${COLOR_RESET}"
+		if [[ $IS_DRY -eq $NO ]]; then
+			\cp  composer.{json,lock}  build-phar/  || exit 1
+		fi
+		echo -e " > ${COLOR_CYAN}cp src build-phar${COLOR_RESET}"
+		if [[ $IS_DRY -eq $NO ]]; then
+			\cp -a  src     build-phar/  || exit 1
+		fi
+		echo -e " > ${COLOR_CYAN}cp vendor build-phar${COLOR_RESET}"
+		if [[ $IS_DRY -eq $NO ]]; then
+			\cp -a  vendor  build-phar/  || exit 1
+		fi
 		if [[ ! -z $PROJECT_PHAR_DIRS ]]; then
 			for D in $PROJECT_PHAR_DIRS; do
-				\cp -a  "$D"  build-phar/  || exit 1
+				echo -e " > ${COLOR_CYAN}cp $D build-phar${COLOR_RESET}"
+				if [[ $IS_DRY -eq $NO ]]; then
+					\cp -a  "$D"  build-phar/  || exit 1
+				fi
 			done
 		fi
-		vendor/bin/phar-composer  build  build-phar  || exit 1
+		echo -e " > ${COLOR_CYAN}phar-composer  build  build-phar${COLOR_RESET}"
+		if [[ $IS_DRY -eq $NO ]]; then
+			vendor/bin/phar-composer  build  build-phar  || exit 1
+		fi
 	fi
 	# make dist
 	if [[ -f "$PROJECT_PATH/Makefile" ]]; then
