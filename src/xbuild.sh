@@ -761,7 +761,9 @@ function doPack() {
 		fi
 		echo -e " > ${COLOR_CYAN}phar-composer  build  build-phar${COLOR_RESET}"
 		if [[ $IS_DRY -eq $NO ]]; then
-			vendor/bin/phar-composer  build  build-phar  || exit 1
+			/usr/bin/php -d phar.readonly=off  \
+			vendor/bin/phar-composer  build  build-phar  \
+				|| exit 1
 		fi
 	fi
 	# make dist
