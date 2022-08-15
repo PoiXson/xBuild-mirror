@@ -729,41 +729,45 @@ function doPack() {
 		title C "$PROJECT_NAME" "Package"
 	# build phar
 	if [[ $PROJECT_PHAR -eq $YES ]]; then
-		if [[ -d build-phar ]]; then
-			echo -e " > ${COLOR_CYAN}rm -Rf build-phar${COLOR_RESET}"
-			if [[ $IS_DRY -eq $NO ]]; then
-				\rm -Rf --preserve-root  build-phar  || exit 1
-			fi
-		fi
-		echo -e " > ${COLOR_CYAN}mkdir build-phar${COLOR_RESET}"
-		if [[ $IS_DRY -eq $NO ]]; then
-			\mkdir -v  build-phar/  || exit 1
-		fi
-		echo -e " > ${COLOR_CYAN}cp composer.{json,lock} build-phar${COLOR_RESET}"
-		if [[ $IS_DRY -eq $NO ]]; then
-			\cp  composer.{json,lock}  build-phar/  || exit 1
-		fi
-		echo -e " > ${COLOR_CYAN}cp src build-phar${COLOR_RESET}"
-		if [[ $IS_DRY -eq $NO ]]; then
-			\cp -a  src     build-phar/  || exit 1
-		fi
-		echo -e " > ${COLOR_CYAN}cp vendor build-phar${COLOR_RESET}"
-		if [[ $IS_DRY -eq $NO ]]; then
-			\cp -a  vendor  build-phar/  || exit 1
-		fi
-		if [[ ! -z $PROJECT_PHAR_DIRS ]]; then
-			for D in $PROJECT_PHAR_DIRS; do
-				echo -e " > ${COLOR_CYAN}cp $D build-phar${COLOR_RESET}"
+		if [[ $DEBUG_FLAGS -eq $YES ]]; then
+			notice "Skipping building phar (debug)"
+		else
+			if [[ -d build-phar ]]; then
+				echo -e " > ${COLOR_CYAN}rm -Rf build-phar${COLOR_RESET}"
 				if [[ $IS_DRY -eq $NO ]]; then
-					\cp -a  "$D"  build-phar/  || exit 1
+					\rm -Rf --preserve-root  build-phar  || exit 1
 				fi
-			done
-		fi
-		echo -e " > ${COLOR_CYAN}phar-composer  build  build-phar${COLOR_RESET}"
-		if [[ $IS_DRY -eq $NO ]]; then
-			/usr/bin/php -d phar.readonly=off  \
-			vendor/bin/phar-composer  build  build-phar  \
-				|| exit 1
+			fi
+			echo -e " > ${COLOR_CYAN}mkdir build-phar${COLOR_RESET}"
+			if [[ $IS_DRY -eq $NO ]]; then
+				\mkdir -v  build-phar/  || exit 1
+			fi
+			echo -e " > ${COLOR_CYAN}cp composer.{json,lock} build-phar${COLOR_RESET}"
+			if [[ $IS_DRY -eq $NO ]]; then
+				\cp  composer.{json,lock}  build-phar/  || exit 1
+			fi
+			echo -e " > ${COLOR_CYAN}cp src build-phar${COLOR_RESET}"
+			if [[ $IS_DRY -eq $NO ]]; then
+				\cp -a  src     build-phar/  || exit 1
+			fi
+			echo -e " > ${COLOR_CYAN}cp vendor build-phar${COLOR_RESET}"
+			if [[ $IS_DRY -eq $NO ]]; then
+				\cp -a  vendor  build-phar/  || exit 1
+			fi
+			if [[ ! -z $PROJECT_PHAR_DIRS ]]; then
+				for D in $PROJECT_PHAR_DIRS; do
+					echo -e " > ${COLOR_CYAN}cp $D build-phar${COLOR_RESET}"
+					if [[ $IS_DRY -eq $NO ]]; then
+						\cp -a  "$D"  build-phar/  || exit 1
+					fi
+				done
+			fi
+			echo -e " > ${COLOR_CYAN}phar-composer  build  build-phar${COLOR_RESET}"
+			if [[ $IS_DRY -eq $NO ]]; then
+				/usr/bin/php -d phar.readonly=off  \
+				vendor/bin/phar-composer  build  build-phar  \
+					|| exit 1
+			fi
 		fi
 	fi
 	# make dist
