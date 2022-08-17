@@ -547,15 +547,15 @@ function doConfig() {
 				else
 					[[ $QUIET -eq $NO ]] && \
 						title C "$PROJECT_NAME" "Composer Install"
-					if [[ $DEBUG_FLAGS -eq $YES ]]; then
-						echo -e " > ${COLOR_CYAN}composer install --dev${COLOR_RESET}"
-						if [[ $IS_DRY -eq $NO ]]; then
-							\composer install --dev  || exit 1
-						fi
-					else
+					if [[ $BUILD_RELEASE -eq $YES ]]; then
 						echo -e " > ${COLOR_CYAN}composer install --no-dev --classmap-authoritative --optimize-autoloader${COLOR_RESET}"
 						if [[ $IS_DRY -eq $NO ]]; then
 							\composer install --no-dev --classmap-authoritative --optimize-autoloader  || exit 1
+						fi
+					else
+						echo -e " > ${COLOR_CYAN}composer install --dev${COLOR_RESET}"
+						if [[ $IS_DRY -eq $NO ]]; then
+							\composer install --dev  || exit 1
 						fi
 					fi
 				fi
