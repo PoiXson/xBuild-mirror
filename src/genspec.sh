@@ -64,6 +64,10 @@ function AddProvides() {
 	OUT_POSTHEAD="${OUT_POSTHEAD}Provides: $1
 "
 }
+function AddObsoletes() {
+	OUT_POSTHEAD="${OUT_POSTHEAD}Obsoletes: $1
+"
+}
 
 
 
