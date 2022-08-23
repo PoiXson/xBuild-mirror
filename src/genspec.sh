@@ -46,22 +46,22 @@ DEF_ATTR_DIR="0500"
 
 
 
-OUT_REQUIRES=""
+OUT_POSTHEAD=""
 
 function AddRequires() {
-	OUT_REQUIRES="${OUT_REQUIRES}Requires: $1
+	OUT_POSTHEAD="${OUT_POSTHEAD}Requires: $1
 "
 }
 function AddBuildRequires() {
-	OUT_REQUIRES="${OUT_REQUIRES}BuildRequires: $1
+	OUT_POSTHEAD="${OUT_POSTHEAD}BuildRequires: $1
 "
 }
 function AddConflicts() {
-	OUT_REQUIRES="${OUT_REQUIRES}Conflicts: $1
+	OUT_POSTHEAD="${OUT_POSTHEAD}Conflicts: $1
 "
 }
 function AddProvides() {
-	OUT_REQUIRES="${OUT_REQUIRES}Provides: $1
+	OUT_POSTHEAD="${OUT_POSTHEAD}Provides: $1
 "
 }
 
@@ -122,8 +122,8 @@ Summary : $SUMMARY
 
 EOF
 
-if [[ ! -z $OUT_REQUIRES ]]; then
-	echo "$OUT_REQUIRES" >>"$OUT_FILE"
+if [[ ! -z $OUT_POSTHEAD ]]; then
+	echo "$OUT_POSTHEAD" >>"$OUT_FILE"
 fi
 
 \cat >>"$OUT_FILE" <<EOF
