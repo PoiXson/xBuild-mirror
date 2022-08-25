@@ -4,7 +4,7 @@
 ## <https://poixson.com> <https://mattsoft.net>
 ## Released under the GPL 3.0
 ##
-## Description: Auto compile a project and build rpm's
+## Description: Automates updating yum/dnf repositories
 ##
 ## This program is free software: you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
