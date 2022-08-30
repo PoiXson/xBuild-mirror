@@ -729,46 +729,65 @@ function doPack() {
 		title C "$PROJECT_NAME" "Package"
 	# build phar
 	if [[ $PROJECT_PHAR -eq $YES ]]; then
-		if [[ $DEBUG_FLAGS -eq $YES ]]; then
-			notice "Skipping building phar (debug)"
-		else
+			local CP_FLAGS=" -a"
+			if [[ $DEBUG_FLAGS -eq $YES ]]; then
+				local CP_FLAGS=" -L --copy-contents"
+			fi
+			# rm build-phar/
 			if [[ -d build-phar ]]; then
-				echo -e " > ${COLOR_CYAN}rm -Rf build-phar${COLOR_RESET}"
+				echo -ne " > ${COLOR_CYAN}rm -Rf build-phar${COLOR_RESET}"
 				if [[ $IS_DRY -eq $NO ]]; then
-					\rm -Rf --preserve-root  build-phar  || exit 1
+					\pushd "$PROJECT_PATH" >/dev/null  || exit 1
+						local c=$( \rm -Rvf --preserve-root build-phar | \wc -l )
+						[[ 0 -ne $? ]] && exit 1
+						echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
+					\popd >/dev/null
 				fi
 			fi
+			# mkdir build-phar/
 			echo -e " > ${COLOR_CYAN}mkdir build-phar${COLOR_RESET}"
 			if [[ $IS_DRY -eq $NO ]]; then
 				\mkdir -v  build-phar/  || exit 1
 			fi
-			echo -e " > ${COLOR_CYAN}cp composer.{json,lock} build-phar${COLOR_RESET}"
+			# cp composer.json/lock
+			echo -ne " > ${COLOR_CYAN}cp$CP_FLAGS -v composer.{json,lock} build-phar/${COLOR_RESET}"
 			if [[ $IS_DRY -eq $NO ]]; then
-				\cp  composer.{json,lock}  build-phar/  || exit 1
+				local c=$( \cp$CP_FLAGS -v  composer.{json,lock}  build-phar/ | \wc -l )
+				[[ 0 -ne $? ]] && exit 1
+				echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
 			fi
-			echo -e " > ${COLOR_CYAN}cp src build-phar${COLOR_RESET}"
+			# cp src/
+			echo -ne " > ${COLOR_CYAN}cp$CP_FLAGS -vR src build-phar/${COLOR_RESET}"
 			if [[ $IS_DRY -eq $NO ]]; then
-				\cp -a  src     build-phar/  || exit 1
+				local c=$( \cp$CP_FLAGS -vR  src  build-phar/ | \wc -l )
+				[[ 0 -ne $? ]] && exit 1
+				echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
 			fi
-			echo -e " > ${COLOR_CYAN}cp vendor build-phar${COLOR_RESET}"
+			# cp vendor/
+			echo -ne " > ${COLOR_CYAN}cp$CP_FLAGS -vR vendor build-phar/${COLOR_RESET}"
 			if [[ $IS_DRY -eq $NO ]]; then
-				\cp -a  vendor  build-phar/  || exit 1
+				local c=$( \cp$CP_FLAGS -vR  vendor  build-phar/ | \wc -l )
+				[[ 0 -ne $? ]] && exit 1
+				echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
 			fi
+			# cp more/
 			if [[ ! -z $PROJECT_PHAR_DIRS ]]; then
 				for D in $PROJECT_PHAR_DIRS; do
-					echo -e " > ${COLOR_CYAN}cp $D build-phar${COLOR_RESET}"
+					echo -e " > ${COLOR_CYAN}cp$CP_FLAGS -vR $D build-phar/${COLOR_RESET}"
 					if [[ $IS_DRY -eq $NO ]]; then
-						\cp -a  "$D"  build-phar/  || exit 1
+						local c=$( \cp$CP_FLAGS -vR  "$D"  build-phar/ | \wc -l )
+						[[ 0 -ne $? ]] && exit 1
+						echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
 					fi
 				done
 			fi
+			# build phar
 			echo -e " > ${COLOR_CYAN}phar-composer  build  build-phar${COLOR_RESET}"
 			if [[ $IS_DRY -eq $NO ]]; then
 				/usr/bin/php -d phar.readonly=off  \
 				vendor/bin/phar-composer  build  build-phar  \
 					|| exit 1
 			fi
-		fi
 	fi
 	# make dist
 	if [[ -f "$PROJECT_PATH/Makefile" ]]; then
