@@ -814,15 +814,27 @@ function doPack() {
 		local SPEC_NAME=${SPEC_NAME##*/}
 	fi
 	# build rpm
-	if [[ ! -z $SPEC_FILE ]]; then
-		# remove previous build root
-		if [[ -d "$PROJECT_PATH/rpmbuild" ]]; then
-			echo -ne " > ${COLOR_CYAN}rm rpmbuild${COLOR_RESET}"
+	if [[ -d rpmbuild ]]; then
+		echo -ne " > ${COLOR_CYAN}rm rpmbuild${COLOR_RESET}"
+		if [[ $IS_DRY -eq $NO ]]; then
 			\pushd "$PROJECT_PATH" >/dev/null  || exit 1
 				local c=$( \rm -Rvf --preserve-root rpmbuild/ | \wc -l )
 				[[ 0 -ne $? ]] && exit 1
 				echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
 			\popd >/dev/null
+		fi
+	fi
+	if [[ ! -z $SPEC_FILE ]]; then
+		# rm rpmbuild/
+		if [[ -d "$PROJECT_PATH/rpmbuild" ]]; then
+			echo -ne " > ${COLOR_CYAN}rm rpmbuild${COLOR_RESET}"
+			if [[ $IS_DRY -eq $NO ]]; then
+				\pushd "$PROJECT_PATH" >/dev/null  || exit 1
+					local c=$( \rm -Rvf --preserve-root rpmbuild/ | \wc -l )
+					[[ 0 -ne $? ]] && exit 1
+					echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
+				\popd >/dev/null
+			fi
 		fi
 		# make build root dirs
 		echo -ne " > ${COLOR_CYAN}mkdir rpmbuild${COLOR_RESET}"
