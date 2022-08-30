@@ -234,7 +234,7 @@ function doGitGUI() {
 		echo -ne " > ${COLOR_CYAN}git-gui${COLOR_RESET}"
 		if [[ $IS_DRY -eq $NO ]]; then
 			/usr/libexec/git-core/git-gui &
-			GG_PID=$!
+			local GG_PID=$!
 			echo -e " ${COLOR_BLUE}$GG_PID${COLOR_RESET}"
 			\sleep 0.2
 		else
@@ -260,7 +260,7 @@ function doClean() {
 			if [[ -f "$PROJECT_PATH/Makefile" ]]; then
 				\pushd "$PROJECT_PATH/" >/dev/null || exit 1
 					echo -ne " > ${COLOR_CYAN}make distclean${COLOR_RESET}"
-					rm_groups=$((rm_groups+1))
+					let rm_groups=$((rm_groups+1))
 					if [[ $IS_DRY -eq $NO ]]; then
 						local c=$( \make distclean | \wc -l )
 						[[ 0 -ne $? ]] && exit 1
@@ -277,7 +277,7 @@ function doClean() {
 				for ENTRY in $RESULT; do
 					if [[ -f "$ENTRY" ]]; then
 						echo -ne " > ${COLOR_CYAN}rm ${ENTRY}..${COLOR_RESET}"
-						rm_groups=$((rm_groups+1))
+						let rm_groups=$((rm_groups+1))
 						if [[ $IS_DRY -eq $NO ]]; then
 							local c=$( \rm -v "$ENTRY" | \wc -l )
 							[[ 0 -ne $? ]] && exit 1
@@ -289,7 +289,7 @@ function doClean() {
 					fi
 					if [[ -d "$ENTRY" ]]; then
 						echo -ne " > ${COLOR_CYAN}rm -rf ${ENTRY}${COLOR_RESET}"
-						rm_groups=$((rm_groups+1))
+						let rm_groups=$((rm_groups+1))
 						if [[ $IS_DRY -eq $NO ]]; then
 							local c=$( \rm -vrf --preserve-root "$ENTRY" | \wc -l )
 							[[ 0 -ne $? ]] && exit 1
@@ -337,7 +337,7 @@ function doClean() {
 		if [[ -d "$PROJECT_PATH/rpmbuild" ]]; then
 			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
 				echo -ne " > ${COLOR_CYAN}rm -rf rpmbuild${COLOR_RESET}"
-				rm_groups=$((rm_groups+1))
+				let rm_groups=$((rm_groups+1))
 				if [[ $IS_DRY -eq $NO ]]; then
 					local c=$( \rm -vrf --preserve-root rpmbuild | wc -l )
 					[[ 0 -ne $? ]] && exit 1
@@ -354,7 +354,7 @@ function doClean() {
 			if [[ "$PROJECT_PATH/target" != "$TARGET_PATH" ]]; then
 				\pushd "$PROJECT_PATH/" >/dev/null || exit 1
 					echo -ne " > ${COLOR_CYAN}rm -rf target${COLOR_RESET}"
-					rm_groups=$((rm_groups+1))
+					let rm_groups=$((rm_groups+1))
 					if [[ $IS_DRY -eq $NO ]]; then
 						local c=$( \rm -vrf --preserve-root target | wc -l )
 						[[ 0 -ne $? ]] && exit 1
@@ -374,7 +374,7 @@ function doClean() {
 			if [[ -d "$PROJECT_PATH/vendor" ]]; then
 				\pushd "$PROJECT_PATH/" >/dev/null || exit 1
 					echo -ne " > ${COLOR_CYAN}rm -rf vendor${COLOR_RESET}"
-					rm_groups=$((rm_groups+1))
+					let rm_groups=$((rm_groups+1))
 					if [[ $IS_DRY -eq $NO ]]; then
 						local c=$( \rm -vrf --preserve-root vendor | wc -l )
 						[[ 0 -ne $? ]] && exit 1
@@ -391,7 +391,7 @@ function doClean() {
 				if [[ -d "$PROJECT_PATH/build-phar" ]]; then
 					\pushd "$PROJECT_PATH/" >/dev/null || exit 1
 						echo -ne " > ${COLOR_CYAN}rm -rf build-phar${COLOR_RESET}"
-						rm_groups=$((rm_groups+1))
+						let rm_groups=$((rm_groups+1))
 						if [[ $IS_DRY -eq $NO ]]; then
 							local c=$( \rm -vrf --preserve-root build-phar | wc -l )
 							[[ 0 -ne $? ]] && exit 1
@@ -405,7 +405,7 @@ function doClean() {
 				# clean project.phar
 				\ls *.phar >/dev/null 2>/dev/null && {
 					echo -ne " > ${COLOR_CYAN}rm -f *.phar${COLOR_RESET}"
-					rm_groups=$((rm_groups+1))
+					let rm_groups=$((rm_groups+1))
 					if [[ $IS_DRY -eq $NO ]]; then
 						local c=$( \rm -vrf --preserve-root *.phar | wc -l )
 						[[ 0 -ne $? ]] && exit 1
@@ -723,7 +723,7 @@ function doTests() {
 
 # --pack
 function doPack() {
-	did_something=$NO
+	local did_something=$NO
 	doProjectTags
 	[[ $QUIET -eq $NO ]] && \
 		title C "$PROJECT_NAME" "Package"
@@ -798,20 +798,20 @@ function doPack() {
 			fi
 		\popd >/dev/null
 		echo
-		did_something=$YES
+		local did_something=$YES
 	fi
 	# find .spec file
-	SPEC_FILE_COUNT=$( \ls -1 "$PROJECT_PATH/"*.spec 2>/dev/null | \wc -l )
+	local SPEC_FILE_COUNT=$( \ls -1 "$PROJECT_PATH/"*.spec 2>/dev/null | \wc -l )
 	if [[ $SPEC_FILE_COUNT -gt 1 ]]; then
 		failure "$SPEC_FILE_COUNT .spec files were found here"
 		failure ; exit 1
 	fi
-	SPEC_FILE=""
-	SPEC_NAME=""
+	local SPEC_FILE=""
+	local SPEC_NAME=""
 	if [[ $SPEC_FILE_COUNT -eq 1 ]]; then
-		SPEC_FILE=$( \ls -1 "$PROJECT_PATH/"*.spec )
-		SPEC_NAME=${SPEC_FILE%.*}
-		SPEC_NAME=${SPEC_NAME##*/}
+		local SPEC_FILE=$( \ls -1 "$PROJECT_PATH/"*.spec )
+		local SPEC_NAME=${SPEC_FILE%.*}
+		local SPEC_NAME=${SPEC_NAME##*/}
 	fi
 	# build rpm
 	if [[ ! -z $SPEC_FILE ]]; then
@@ -833,7 +833,7 @@ function doPack() {
 		if [[ $IS_DRY -eq $NO ]]; then
 			\cp -vf  "$SPEC_FILE"  "$PROJECT_PATH/rpmbuild/SPECS/"  || exit 1
 		fi
-		PACKAGES=""
+		local PACKAGES=""
 		\pushd "$PROJECT_PATH/rpmbuild/" >/dev/null  || exit 1
 			if [[ -z $TARGET_PATH ]]; then
 				failure "Target path not set"
@@ -886,7 +886,7 @@ function doPack() {
 			echo -e "   ${COLOR_CYAN}DRY${COLOR_RESET}"
 		fi
 		echo -e "${COLOR_CYAN}-----------------------------------------------${COLOR_RESET}"
-		did_something=$YES
+		local did_something=$YES
 	fi
 	# nothing to do
 	if [[ $did_something -eq $YES ]]; then
