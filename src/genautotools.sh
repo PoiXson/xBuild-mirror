@@ -147,8 +147,8 @@ if test "x\$enable_debug" = xyes; then
 	CFLAGS="\$CFLAGS -Og -ggdb3 -Wno-uninitialized"
 else
 	AC_MSG_RESULT([Production Mode])
-    AC_DEFINE([NDEBUG],[],[No-debug Mode])
-    CFLAGS="\$CFLAGS -O3 -D_FORTIFY_SOURCE"
+	AC_DEFINE([NDEBUG],[],[No-debug Mode])
+	CFLAGS="\$CFLAGS -O3 -D_FORTIFY_SOURCE"
 fi
 echo -ne "\nCFLAGS=\$CFLAGS\n\n"
 AC_SUBST([CFLAGS])
