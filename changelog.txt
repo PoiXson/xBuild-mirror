@@ -1,6 +1,16 @@
 xBuild - A tool to simplify building and managing projects in your workspace
 
 
+2022-09-10 - 2.1.42
+===================
+* changing license from GPL3 to AGPL3
+* added LICENSE variable to genspec script
+* added cargo update when using xbuild build --debug
+* fixed and improved --pack phar files - now supports --debug
+* fixed cleanup of rpmbuild/
+* few other fixes and cleanup
+
+
 2022-08-24 - 2.1.39
 ===================
 * improved handling of gitignore files
