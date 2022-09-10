@@ -42,6 +42,7 @@ fi
 
 # defaults
 ARCH="noarch"
+LICENSE="GPLv3"
 URL="https://poixson.com"
 PREFIX="%{_bindir}"
 OWNER="root"
@@ -137,7 +138,7 @@ fi
 \cat >>"$OUT_FILE" <<EOF
 BuildArch : $ARCH
 Packager  : PoiXson <support@poixson.com>
-License   : GPLv3
+License   : $LICENSE
 URL       : $URL
 
 Prefix: $PREFIX
