@@ -650,6 +650,9 @@ function doBuild() {
 				if [[ $BUILD_RELEASE -eq $YES ]]; then
 					echo -e " > ${COLOR_CYAN}cargo build --release --timings${COLOR_RESET}"
 					if [[ $IS_DRY -eq $NO ]]; then
+						if [[ $DEBUG_FLAGS -eq $YES ]]; then
+							\cargo update  || exit 1
+						fi
 						\cargo build --release --timings  || exit 1
 					fi
 					echo -e " > ${COLOR_CYAN}grcov . -s . --binary-path ./target/release/ " \
