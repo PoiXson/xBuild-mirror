@@ -1177,8 +1177,9 @@ fi
 while [ $# -gt 0 ]; do
 	case "$1" in
 
-	-r|--recursive)  DO_RECURSIVE=$YES  ;;
-	-D|--dry)        IS_DRY=$YES        ;;
+	-r|--recursive)  DO_RECURSIVE=$YES   ;;
+	-D|--dry)        IS_DRY=$YES         ;;
+	-R|--release)    BUILD_RELEASE=$YES  ;;
 	-d|--debug|--debug-flag|--debug-flags)  DEBUG_FLAGS=$YES  ;;
 	-n|--build-number)
 		if [[ "$2" == "-"* ]]; then
@@ -1210,7 +1211,6 @@ while [ $# -gt 0 ]; do
 			failure ; DisplayHelp ; exit 1
 		fi
 	;;
-	-R|--release)      BUILD_RELEASE=$YES          ;;
 
 	--binonly)  DO_BIN_ONLY=$YES  ;;
 	--webonly)  DO_WEB_ONLY=$YES  ;;
