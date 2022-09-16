@@ -1180,11 +1180,37 @@ while [ $# -gt 0 ]; do
 	-r|--recursive)  DO_RECURSIVE=$YES  ;;
 	-D|--dry)        IS_DRY=$YES        ;;
 	-d|--debug|--debug-flag|--debug-flags)  DEBUG_FLAGS=$YES  ;;
+	-n|--build-number)
+		if [[ "$2" == "-"* ]]; then
+			failure "--build-number flag requires a value"
+			failure ; DisplayHelp ; exit 1
+		fi
+		\shift
+		BUILD_NUMBER="$1"
+	;;
+	--build-number=*)
+		BUILD_NUMBER=${1#*=}
+		if [[ -z $BUILD_NUMBER ]]; then
+			failure "--build-number flag requires a value"
+			failure ; DisplayHelp ; exit 1
+		fi
+	;;
+	--target)
+		if [[ "$2" == "-"* ]]; then
+			failure "--target flag requires a value"
+			failure ; DisplayHelp ; exit 1
+		fi
+		\shift
+		TARGET_PATH="$1"
+	;;
+	--target=*)
+		TARGET_PATH=${1#*=}
+		if [[ -z $TARGET_PATH ]]; then
+			failure "--target flag requires a value"
+			failure ; DisplayHelp ; exit 1
+		fi
+	;;
 	-R|--release)      BUILD_RELEASE=$YES          ;;
-	-n|--build-number) \shift ; BUILD_NUMBER="$1"  ;;
-	--build-number=*)  BUILD_NUMBER=${1#*=}        ;;
-	--target)          \shift ; TARGET_PATH="$1"   ;;
-	--target=*)        TARGET_PATH=${1#*=}         ;;
 
 	--binonly)  DO_BIN_ONLY=$YES  ;;
 	--webonly)  DO_WEB_ONLY=$YES  ;;
@@ -1204,9 +1230,17 @@ while [ $# -gt 0 ]; do
 	--cbtp)   DO_CONFIG=$YES ; DO_BUILD=$YES  ; DO_TESTS=$YES ; DO_PACK=$YES   ;;
 	--ccbp)   DO_CLEAN=$YES  ; DO_CONFIG=$YES ; DO_BUILD=$YES ; DO_PACK=$YES  ;;
 	--ccbtp)  DO_CLEAN=$YES  ; DO_CONFIG=$YES ; DO_BUILD=$YES ; DO_TESTS=$YES ; DO_PACK=$YES  ;;
-	--ci)     DO_CLEAN=$YES  ; DO_CONFIG=$YES ; DO_BUILD=$YES ; DO_TESTS=$YES ; DO_PACK=$YES
-		VERBOSE=$YES ; DO_RECURSIVE=$YES ; BUILD_RELEASE=$YES
-		\shift ; BUILD_NUMBER="$1"
+
+	--ci)
+		if [[ "$2" == "-"* ]]; then
+			failure "--ci flag requires a value"
+			failure ; DisplayHelp ; exit 1
+		fi
+		DO_CLEAN=$YES  ; DO_CONFIG=$YES ; DO_BUILD=$YES ;
+		DO_TESTS=$YES ; DO_PACK=$YES VERBOSE=$YES
+		DO_RECURSIVE=$YES ; BUILD_RELEASE=$YES
+		\shift
+		BUILD_NUMBER="$1"
 	;;
 
 	-v|--verbose)  VERBOSE=$YES  ;;
