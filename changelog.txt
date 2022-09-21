@@ -1,6 +1,12 @@
 xBuild - A tool to simplify building and managing projects in your workspace
 
 
+2022-09-21 - 2.1.44
+===================
+* added checks for --flags with missing values
+* fixed and improved composer calls when using xbuild --config
+
+
 2022-09-10 - 2.1.42
 ===================
 * changing license from GPL3 to AGPL3
