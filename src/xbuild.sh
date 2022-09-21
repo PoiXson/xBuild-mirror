@@ -533,33 +533,31 @@ function doConfig() {
 		# composer
 		if [[ -f "$PROJECT_PATH/composer.json" ]]; then
 			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
-				if [[ $BUILD_RELEASE -eq $NO ]] \
-				|| [[ ! -f "$PROJECT_PATH/composer.lock" ]]; then
+				# configure for release
+				if [[ $BUILD_RELEASE -eq $YES ]] \
+				&& [[ -f "$PROJECT_PATH/composer.lock" ]]; then
 					[[ $QUIET -eq $NO ]] && \
-						title C "$PROJECT_NAME" "Composer Update"
-					if [[ $DEBUG_FLAGS -eq $YES ]]; then
+						title C "$PROJECT_NAME" "Composer Install"
+					echo -e " > ${COLOR_CYAN}composer install -a -o --no-dev --prefer-dist${COLOR_RESET}"
+					if [[ $IS_DRY -eq $NO ]]; then
+						\composer install --no-dev --prefer-dist --classmap-authoritative --optimize-autoloader  || exit 1
+					fi
+				# configure for dev
+				else
+					if [[ $DEBUG_FLAGS -eq $YES ]] \
+					|| [[ ! -f "$PROJECT_PATH/composer.lock" ]]; then
+						[[ $QUIET -eq $NO ]] && \
+							title C "$PROJECT_NAME" "Composer Update"
 						echo -e " > ${COLOR_CYAN}composer update${COLOR_RESET}"
 						if [[ $IS_DRY -eq $NO ]]; then
 							\composer update  || exit 1
 						fi
 					else
-						echo -e " > ${COLOR_CYAN}composer update --no-dev --classmap-authoritative --optimize-autoloader${COLOR_RESET}"
+						[[ $QUIET -eq $NO ]] && \
+							title C "$PROJECT_NAME" "Composer Install"
+						echo -e " > ${COLOR_CYAN}composer install${COLOR_RESET}"
 						if [[ $IS_DRY -eq $NO ]]; then
-							\composer update --no-dev --classmap-authoritative --optimize-autoloader  || exit 1
-						fi
-					fi
-				else
-					[[ $QUIET -eq $NO ]] && \
-						title C "$PROJECT_NAME" "Composer Install"
-					if [[ $BUILD_RELEASE -eq $YES ]]; then
-						echo -e " > ${COLOR_CYAN}composer install --no-dev --classmap-authoritative --optimize-autoloader${COLOR_RESET}"
-						if [[ $IS_DRY -eq $NO ]]; then
-							\composer install --no-dev --classmap-authoritative --optimize-autoloader  || exit 1
-						fi
-					else
-						echo -e " > ${COLOR_CYAN}composer install --dev${COLOR_RESET}"
-						if [[ $IS_DRY -eq $NO ]]; then
-							\composer install --dev  || exit 1
+							\composer install  || exit 1
 						fi
 					fi
 				fi
