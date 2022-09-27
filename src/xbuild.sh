@@ -115,6 +115,8 @@ function DisplayHelp() {
 	echo -e "  ${COLOR_GREEN}--cbtp${COLOR_RESET}                    Config, build, test, pack"
 	echo -e "  ${COLOR_GREEN}--ccbp${COLOR_RESET}                    Clean, config, build, pack"
 	echo -e "  ${COLOR_GREEN}--ccbtp${COLOR_RESET}                   Clean, config, build, test, pack"
+	echo -e "  ${COLOR_GREEN}--dev${COLOR_RESET}                     Sets flags commonly used for development builds"
+	echo -e                             "                              Shortcut to: -v -r --debug --cbp"
 	echo -e "  ${COLOR_GREEN}--ci <n>${COLOR_RESET}                  Sets flags commonly used for continuous integration"
 	echo -e                             "                              Shortcut to: -v -r -R -n <n> --clean --build --test --pack"
 	echo
@@ -1229,6 +1231,10 @@ while [ $# -gt 0 ]; do
 	--ccbp)   DO_CLEAN=$YES  ; DO_CONFIG=$YES ; DO_BUILD=$YES ; DO_PACK=$YES  ;;
 	--ccbtp)  DO_CLEAN=$YES  ; DO_CONFIG=$YES ; DO_BUILD=$YES ; DO_TESTS=$YES ; DO_PACK=$YES  ;;
 
+	--dev)
+		DO_CONFIG=$YES ; DO_BUILD=$YES ; DO_PACK=$YES
+		DEBUG_FLAGS=$YES ; DO_RECURSIVE=$YES ; VERBOSE=$YES
+	;;
 	--ci)
 		if [[ "$2" == "-"* ]]; then
 			failure "--ci flag requires a value"
