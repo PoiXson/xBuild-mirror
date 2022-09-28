@@ -651,21 +651,24 @@ function doBuild() {
 				if [[ $BUILD_RELEASE -eq $YES ]]; then
 					echo -e " > ${COLOR_CYAN}cargo build --release --timings${COLOR_RESET}"
 					if [[ $IS_DRY -eq $NO ]]; then
-						if [[ $DEBUG_FLAGS -eq $YES ]]; then
-							\cargo update  || exit 1
-						fi
 						\cargo build --release --timings  || exit 1
 					fi
-					echo -e " > ${COLOR_CYAN}grcov . -s . --binary-path ./target/release/ " \
-						"-t html --branch --ignore-not-existing -o ./coverage/${COLOR_RESET}"
+				else
+					if [[ $DEBUG_FLAGS -eq $YES ]]; then
+						echo -e " > ${COLOR_CYAN}cargo update${COLOR_RESET}"
+						if [[ $IS_DRY -eq $NO ]]; then
+							\cargo update  || exit 1
+						fi
+					fi
 #TODO
+#					echo -e " > ${COLOR_CYAN}grcov . -s . --binary-path ./target/release/ "  \
+#						"-t html --branch --ignore-not-existing -o ./coverage/${COLOR_RESET}"
 #					if [[ $IS_DRY -eq $NO ]]; then
 #						\grcov . -s .  \
 #							--binary-path ./target/release/         \
 #							-t html --branch --ignore-not-existing  \
 #							-o ./coverage/
 #					fi
-				else
 					echo -e " > ${COLOR_CYAN}cargo build${COLOR_RESET}"
 					if [[ $IS_DRY -eq $NO ]]; then
 						\cargo build  || exit 1
