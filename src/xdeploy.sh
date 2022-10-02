@@ -174,6 +174,14 @@ function doProject() {
 		fi
 		# composer install
 		\pushd  "$PROJECT_PATH/$PROJECT_DOMAIN/"  >/dev/null  || exit 1
+			if [[ ! -d "$PROJECT_PATH/$PROJECT_DOMAIN/cache" ]]; then
+				echo -e " > ${COLOR_CYAN}mkdir cache${COLOR_RESET}"
+				if [[ $IS_DRY -eq $NO ]]; then
+					\sudo -u "$PROJECT_USER"  \
+						\mkdir -v  "cache"  || exit 1
+					echo
+				fi
+			fi
 			echo -e " > ${COLOR_CYAN}composer install${COLOR_RESET}"
 			if [[ $IS_DRY -eq $NO ]]; then
 				\sudo -u "$PROJECT_USER"  \
