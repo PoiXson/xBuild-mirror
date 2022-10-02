@@ -18,6 +18,11 @@ Requires : bash, bc, zip, unzip, grep
 #Requires : composer
 #Obsoletes: project-tools
 
+%package -n xdeploy
+Summary  : Auto deploy a project or website
+Requires : pxnscripts >= 2.1.0
+Requires : git, composer
+
 %package -n xbuild-repos
 Summary  : Setup and maintain a yum/dnf repo
 Provides : xbuild-repo
@@ -26,6 +31,9 @@ Requires : bash, createrepo_c
 
 %description
 A tool to simplify building and managing projects in your workspace.
+
+%description -n xdeploy
+Auto deploy a project or website
 
 %description -n xbuild-repos
 A tool to simplify setting up a yum/dnf repository.
@@ -56,6 +64,9 @@ echo "Install.."
 # /etc/
 %{__install} -m 0644  "%{_topdir}/../maven-versions.conf.example"  "%{buildroot}%{_sysconfdir}/"  || exit 1
 %{__install} -m 0644  "%{_topdir}/../.gitignore"  "%{buildroot}%{_sysconfdir}/xbuild/gitignore"   || exit 1
+	%{__install} -m 0644  "xdeploy.sh"       "%{buildroot}%{_bindir}/xdeploy"       || exit 1
+	%{__install} -m 0644  "etc-profile.d-xdeploy.sh"     "%{buildroot}%{_sysconfdir}/profile.d/xdeploy.sh"     || exit 1
+	%{__install} -m 0644  "xdeploy-example.conf"  "%{buildroot}/xdeploy.conf"  || exit 1
 
 
 
@@ -70,6 +81,12 @@ echo "Install.."
 %{_sysconfdir}/maven-versions.conf.example
 %dir %{_sysconfdir}/xbuild/
 %attr(0444,-,-) %{_sysconfdir}/xbuild/gitignore
+
+%files -n xdeploy
+%defattr(0555, root, root, 0755)
+%{_bindir}/xdeploy
+%{_sysconfdir}/profile.d/xdeploy.sh
+%attr(0600,-,-) %config(noreplace) /xdeploy.conf
 
 %files -n xbuild-repos
 %defattr(0555, root, root, 0755)
