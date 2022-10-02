@@ -48,6 +48,8 @@ PROJECT_PATH=""
 PROJECT_USER=""
 PROJECT_DOMAIN=""
 PROJECT_REPO=""
+PROJECT_MKDIRS=()
+PROJECT_SYMLINKS=()
 
 PROJECT_FILTERS=""
 PACKAGES_ALL=()
@@ -173,23 +175,42 @@ function doProject() {
 				echo
 			fi
 		fi
-		# composer install
-		\pushd  "$PROJECT_PATH/$PROJECT_DOMAIN/"  >/dev/null  || exit 1
-			if [[ ! -d "$PROJECT_PATH/$PROJECT_DOMAIN/cache" ]]; then
-				echo -e " > ${COLOR_CYAN}mkdir cache${COLOR_RESET}"
+		if [[ ! -d "$PROJECT_PATH/$PROJECT_DOMAIN/" ]]; then
+			if [[ $IS_DRY -eq $YES ]]; then
+				echo "Project path not found, skipping.."
+			else
+				failure "Path not found: $PROJECT_PATH/$PROJECT_DOMAIN"
+				failure ; exit 1
+			fi
+		else
+			\pushd  "$PROJECT_PATH/$PROJECT_DOMAIN/"  >/dev/null  || exit 1
+				# mkdirs
+				for D in ${PROJECT_MKDIRS[@]}; do
+					echo -e " > ${COLOR_CYAN}mkdir $D${COLOR_RESET}"
+					if [[ $IS_DRY -eq $NO ]]; then
+						\sudo -u "$PROJECT_USER"  \
+							\mkdir -pv "$D"  || exit 1
+					fi
+				done
+				# symlinks
+				for D in ${PROJECT_SYMLINKS[@]}; do
+					local D1=${D%%;*}
+					local D2=${D#*;}
+					echo -e " > ${COLOR_CYAN}ln -s $D1 $D2${COLOR_RESET}"
+					if [[ $IS_DRY -eq $NO ]]; then
+						\sudo -u "$PROJECT_USER"  \
+							\ln -svf  "$D1"  "$D2"  || exit 1
+					fi
+				done
+				# composer install
+				echo -e " > ${COLOR_CYAN}composer install${COLOR_RESET}"
 				if [[ $IS_DRY -eq $NO ]]; then
 					\sudo -u "$PROJECT_USER"  \
-						\mkdir -v  "cache"  || exit 1
+						\composer install  || exit 1
 					echo
 				fi
-			fi
-			echo -e " > ${COLOR_CYAN}composer install${COLOR_RESET}"
-			if [[ $IS_DRY -eq $NO ]]; then
-				\sudo -u "$PROJECT_USER"  \
-					\composer install  || exit 1
-				echo
-			fi
-		\popd  >/dev/null
+			\popd  >/dev/null
+		fi
 	\popd  >/dev/null
 	# project done
 	echo
@@ -214,12 +235,29 @@ function Domain() {
 		PROJECT_DOMAIN="$1"
 	fi
 }
+function MKDir() {
+	if [[ -z $1 ]]; then
+		failure "MKDir value is missing for project: $PROJECT_NAME"
+		failure ; exit 1
+	fi
+	PROJECT_MKDIRS+=("$1")
+}
+function SymLink() {
+	if [[ -z $1 ]] || [[ -z $2 ]]; then
+		failure "SymLink values are missing for project: $PROJECT_NAME"
+		failure ; exit 1
+	fi
+	PROJECT_SYMLINKS+=("$1;$2")
+}
+
 function ProjectCleanup() {
 	PROJECT_NAME=""
 	PROJECT_PATH=""
 	PROJECT_USER=""
 	PROJECT_DOMAIN=""
 	PROJECT_REPO=""
+	PROJECT_MKDIRS=()
+	PROJECT_SYMLINKS=()
 }
 
 
