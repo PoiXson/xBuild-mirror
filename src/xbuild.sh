@@ -831,43 +831,50 @@ function doPack() {
 
 
 function Version() {
-	if [[ ! -z $1 ]]; then
-		if [[ -z $BUILD_NUMBER ]]; then
-			PROJECT_VERSION="$1"
-		else
-			PROJECT_VERSION=${1/x/$BUILD_NUMBER}
-		fi
+	if [[ -z $1 ]]; then
+		failure "Version value is missing for project: $PROJECT_NAME"
+		failure ; exit 1
+	fi
+	if [[ -z $BUILD_NUMBER ]]; then
+		PROJECT_VERSION="$1"
+	else
+		PROJECT_VERSION=${1/x/$BUILD_NUMBER}
 	fi
 }
-
 function Path() {
-	if [[ ! -z $1 ]]; then
-		PROJECT_PATH="$1"
+	if [[ -z $1 ]]; then
+		failure "Path value is missing for project: $PROJECT_NAME"
+		failure ; exit 1
 	fi
+	PROJECT_PATH="$1"
 }
-
 function Repo() {
-	if [[ ! -z $1 ]]; then
-		PROJECT_REPO="$1"
+	if [[ -z $1 ]]; then
+		failure "Repo value is missing for project: $PROJECT_NAME"
+		failure ; exit 1
 	fi
+	PROJECT_REPO="$1"
 }
-
 function Alias() {
-	if [[ ! -z $1 ]]; then
-		PROJECT_ALIASES="$PROJECT_ALIASES $1"
+	if [[ -z $1 ]]; then
+		failure "Alias value is missing for project: $PROJECT_NAME"
+		failure ; exit 1
 	fi
+	PROJECT_ALIASES="$PROJECT_ALIASES $1"
 }
-
 function TagFile() {
-	if [[ ! -z $1 ]]; then
-		PROJECT_TAG_FILES="$PROJECT_TAG_FILES $1"
+	if [[ -z $1 ]]; then
+		failure "TagFile value is missing for project: $PROJECT_NAME"
+		failure ; exit 1
 	fi
+	PROJECT_TAG_FILES="$PROJECT_TAG_FILES $1"
 }
-
 function AddIgnore() {
-	if [[ ! -z $1 ]]; then
-		PROJECT_GITIGNORE="$PROJECT_GITIGNORE $1"
+	if [[ -z $1 ]]; then
+		failure "AddIgnore value is missing for project: $PROJECT_NAME"
+		failure ; exit 1
 	fi
+	PROJECT_GITIGNORE="$PROJECT_GITIGNORE $1"
 }
 
 
