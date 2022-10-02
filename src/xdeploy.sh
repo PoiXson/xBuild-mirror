@@ -221,19 +221,25 @@ function doProject() {
 
 
 function Repo() {
-	if [[ ! -z $1 ]]; then
-		PROJECT_REPO="$1"
+	if [[ -z $1 ]]; then
+		failure "Repo value is missing for project: $PROJECT_NAME"
+		failure ; exit 1
 	fi
+	PROJECT_REPO="$1"
 }
 function User() {
-	if [[ ! -z $1 ]]; then
-		PROJECT_USER="$1"
+	if [[ -z $1 ]]; then
+		failure "User value is missing for project: $PROJECT_NAME"
+		failure ; exit 1
 	fi
+	PROJECT_USER="$1"
 }
 function Domain() {
-	if [[ ! -z $1 ]]; then
-		PROJECT_DOMAIN="$1"
+	if [[ -z $1 ]]; then
+		failure "Domain value is missing for project: $PROJECT_NAME"
+		failure ; exit 1
 	fi
+	PROJECT_DOMAIN="$1"
 }
 function MKDir() {
 	if [[ -z $1 ]]; then
