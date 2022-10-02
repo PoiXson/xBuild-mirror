@@ -52,21 +52,25 @@ echo "Install.."
 	"%{buildroot}%{_sysconfdir}/xbuild/"     \
 		|| exit 1
 
-# /usr/bin/
-%{__install} -m 0644  "%{_topdir}/../src/xbuild.sh"        "%{buildroot}%{_bindir}/xbuild"        || exit 1
-%{__install} -m 0644  "%{_topdir}/../src/genautotools.sh"  "%{buildroot}%{_bindir}/genautotools"  || exit 1
-%{__install} -m 0644  "%{_topdir}/../src/genpom.sh"        "%{buildroot}%{_bindir}/genpom"        || exit 1
-%{__install} -m 0644  "%{_topdir}/../src/genspec.sh"       "%{buildroot}%{_bindir}/genspec"       || exit 1
-%{__install} -m 0644  "%{_topdir}/../src/buildrepos.sh"    "%{buildroot}%{_bindir}/buildrepos"    || exit 1
-# /etc/profile.d/
-%{__install} -m 0644  "%{_topdir}/../src/etc-profile.d-xbuild.sh"      "%{buildroot}%{_sysconfdir}/profile.d/xbuild.sh"      || exit 1
-%{__install} -m 0644  "%{_topdir}/../src/etc-profile.d-buildrepos.sh"  "%{buildroot}%{_sysconfdir}/profile.d/buildrepos.sh"  || exit 1
-# /etc/
-%{__install} -m 0644  "%{_topdir}/../maven-versions.conf.example"  "%{buildroot}%{_sysconfdir}/"  || exit 1
-%{__install} -m 0644  "%{_topdir}/../.gitignore"  "%{buildroot}%{_sysconfdir}/xbuild/gitignore"   || exit 1
+\pushd  "%{_topdir}/../src/"  >/dev/null  || exit 1
+	# /usr/bin/
+	%{__install} -m 0644  "xbuild.sh"        "%{buildroot}%{_bindir}/xbuild"        || exit 1
 	%{__install} -m 0644  "xdeploy.sh"       "%{buildroot}%{_bindir}/xdeploy"       || exit 1
+	%{__install} -m 0644  "genautotools.sh"  "%{buildroot}%{_bindir}/genautotools"  || exit 1
+	%{__install} -m 0644  "genpom.sh"        "%{buildroot}%{_bindir}/genpom"        || exit 1
+	%{__install} -m 0644  "genspec.sh"       "%{buildroot}%{_bindir}/genspec"       || exit 1
+	%{__install} -m 0644  "buildrepos.sh"    "%{buildroot}%{_bindir}/buildrepos"    || exit 1
+	# /etc/profile.d/
+	%{__install} -m 0644  "etc-profile.d-xbuild.sh"      "%{buildroot}%{_sysconfdir}/profile.d/xbuild.sh"      || exit 1
 	%{__install} -m 0644  "etc-profile.d-xdeploy.sh"     "%{buildroot}%{_sysconfdir}/profile.d/xdeploy.sh"     || exit 1
+	%{__install} -m 0644  "etc-profile.d-buildrepos.sh"  "%{buildroot}%{_sysconfdir}/profile.d/buildrepos.sh"  || exit 1
+\popd  >/dev/null
+\pushd  "%{_topdir}/../"  >/dev/null  || exit 1
 	%{__install} -m 0644  "xdeploy-example.conf"  "%{buildroot}/xdeploy.conf"  || exit 1
+	# /etc/
+	%{__install} -m 0644  "maven-versions.conf.example"  "%{buildroot}%{_sysconfdir}/"  || exit 1
+	%{__install} -m 0644  ".gitignore"  "%{buildroot}%{_sysconfdir}/xbuild/gitignore"   || exit 1
+\popd  >/dev/null
 
 
 
@@ -80,7 +84,7 @@ echo "Install.."
 %{_sysconfdir}/profile.d/xbuild.sh
 %{_sysconfdir}/maven-versions.conf.example
 %dir %{_sysconfdir}/xbuild/
-%attr(0444,-,-) %{_sysconfdir}/xbuild/gitignore
+%attr(0644,-,-) %config(noreplace) %{_sysconfdir}/xbuild/gitignore
 
 %files -n xdeploy
 %defattr(0555, root, root, 0755)
