@@ -175,6 +175,7 @@ function doProject() {
 				echo
 			fi
 		fi
+		# dir not found
 		if [[ ! -d "$PROJECT_PATH/$PROJECT_DOMAIN/" ]]; then
 			if [[ $IS_DRY -eq $YES ]]; then
 				echo "Project path not found, skipping.."
@@ -182,18 +183,24 @@ function doProject() {
 				failure "Path not found: $PROJECT_PATH/$PROJECT_DOMAIN"
 				failure ; exit 1
 			fi
+		# dir found
 		else
 			\pushd  "$PROJECT_PATH/$PROJECT_DOMAIN/"  >/dev/null  || exit 1
 				# mkdirs
+				local did_something=$NO
 				for D in ${PROJECT_MKDIRS[@]}; do
+					did_something=$YES
 					echo -e " > ${COLOR_CYAN}mkdir $D${COLOR_RESET}"
 					if [[ $IS_DRY -eq $NO ]]; then
 						\sudo -u "$PROJECT_USER"  \
 							\mkdir -pv "$D"  || exit 1
 					fi
 				done
+				[[ $did_something -eq $YES ]] && echo
 				# symlinks
+				local did_something=$NO
 				for D in ${PROJECT_SYMLINKS[@]}; do
+					did_something=$YES
 					local D1=${D%%;*}
 					local D2=${D#*;}
 					echo -e " > ${COLOR_CYAN}ln -s $D1 $D2${COLOR_RESET}"
@@ -202,6 +209,7 @@ function doProject() {
 							\ln -svf  "$D1"  "$D2"  || exit 1
 					fi
 				done
+				[[ $did_something -eq $YES ]] && echo
 				# composer install
 				echo -e " > ${COLOR_CYAN}composer install${COLOR_RESET}"
 				if [[ $IS_DRY -eq $NO ]]; then
