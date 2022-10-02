@@ -144,10 +144,11 @@ function doProject() {
 			if [[ $DO_CLEAN -eq $YES ]]; then
 				echo -ne " > ${COLOR_CYAN}rm $PROJECT_DOMAIN${COLOR_RESET}"
 				if [[ $IS_DRY -eq $NO ]]; then
-					local c=$( \sudo -u "$PROJECT_USER"  \
+					local c=$(
 						\sudo -u "$PROJECT_USER"  \
 							\rm --preserve-root -Rfdv  "$PROJECT_DOMAIN"  \
-								| \wc -l  || exit 1)
+								| \wc -l  || exit 1  \
+					)
 					echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
 					echo
 				fi
