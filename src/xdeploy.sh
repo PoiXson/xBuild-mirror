@@ -335,11 +335,14 @@ fi
 
 
 
-if [[ ! -f /xdeploy.conf ]]; then
-    failure "/xdeploy.conf file not found"
-    failure ; exit 1
+if [[ -f "/xdeploy.conf" ]]; then
+	LoadConf  "/xdeploy.conf"
+elif [[ -f "/home/xdeploy.conf" ]]; then
+	LoadConf  "/home/xdeploy.conf"
+else
+	failure "/xdeploy.conf file not found"
+	failure ; exit 1
 fi
-LoadConf  "/xdeploy.conf"
 
 
 
