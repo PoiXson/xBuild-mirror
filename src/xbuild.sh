@@ -150,9 +150,9 @@ function DisplayTimeProject() {
 	if [[ "$ELAPSED" == "."* ]]; then
 		ELAPSED="0$ELAPSED"
 	fi
-	echo
 	echo -e " ${COLOR_CYAN}Finished project in $ELAPSED seconds: $PROJECT_NAME${COLOR_RESET}"
-	echo ; echo
+	echo -e " ${COLOR_CYAN}--------------------------------------------------${COLOR_RESET}"
+	echo
 }
 
 
@@ -802,8 +802,8 @@ function doPack() {
 			fi
 		\popd >/dev/null
 		echo
-		echo -e "${COLOR_CYAN}-----------------------------------------------${COLOR_RESET}"
-		echo -e "${COLOR_CYAN} Packages finished:${COLOR_RESET}"
+		echo -e " ${COLOR_CYAN}-----------------------------------------------${COLOR_RESET}"
+		echo -e " ${COLOR_CYAN}Packages finished:${COLOR_RESET}"
 		if [[ $IS_DRY -eq $NO ]]; then
 			for ENTRY in $PACKAGES; do
 				echo -e "   ${COLOR_CYAN}$ENTRY${COLOR_RESET}"
@@ -811,7 +811,7 @@ function doPack() {
 		else
 			echo -e "   ${COLOR_CYAN}DRY${COLOR_RESET}"
 		fi
-		echo -e "${COLOR_CYAN}-----------------------------------------------${COLOR_RESET}"
+		echo -e " ${COLOR_CYAN}-----------------------------------------------${COLOR_RESET}"
 		local did_something=$YES
 	fi
 	# nothing to do
@@ -1248,15 +1248,14 @@ LoadConf "$WDIR/xbuild.conf"
 
 
 if [[ $QUIET -eq $NO ]]; then
-	echo -e "${COLOR_GREEN}===============================================${COLOR_RESET}"
-	echo
+	echo -e " ${COLOR_GREEN}===============================================${COLOR_RESET}"
 	if [[ $COUNT_OPS -le 0 ]]; then
 		warning "No actions performed"
 		warning ; exit 1
 	fi
 fi
 
-echo -ne "${COLOR_GREEN}Performed $COUNT_OPS operation"
+echo -ne " ${COLOR_GREEN}Performed $COUNT_OPS operation"
 [[ $COUNT_OPS -gt 1 ]] && echo -n "s"
 [[ $COUNT_PRJ -gt 1 ]] && echo -ne " on $COUNT_PRJ projects"
 echo -e "${COLOR_RESET}"
@@ -1264,13 +1263,13 @@ echo -e "${COLOR_RESET}"
 TIME_END=$(date +%s%N)
 ELAPSED=$( echo "scale=3;($TIME_END - $TIME_START) / 1000 / 1000 / 1000" | \bc )
 [[ "$ELAPSED" == "."* ]] && ELAPSED="0$ELAPSED"
-echo -e "${COLOR_GREEN}Finished in $ELAPSED seconds${COLOR_RESET}"
+echo -e " ${COLOR_GREEN}Finished in $ELAPSED seconds${COLOR_RESET}"
 echo
 
 if [[ ! -z $PACKAGES_ALL ]]; then
-	echo -e "${COLOR_BLUE} Packages finished:${COLOR_RESET}"
+	echo -e " ${COLOR_BLUE}Packages finished:${COLOR_RESET}"
 	for ENTRY in ${PACKAGES_ALL[@]}; do
-		echo -e "${COLOR_BLUE}   "${ENTRY##*/}"${COLOR_RESET}"
+		echo -e "   ${COLOR_BLUE}"${ENTRY##*/}"${COLOR_RESET}"
 	done
 	echo
 fi
