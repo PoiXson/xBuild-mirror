@@ -166,9 +166,9 @@ function MakeSymlink() {
 	local RESULT=0
 	if [[ $IS_DRY -eq $NO ]]; then
 		if [[ -z $2 ]]; then
-			\ln -svf "$1"
+			\ln -svfL "$1"
 		else
-			\ln -svf "$1" "$2"
+			\ln -svfL "$1" "$2"
 		fi
 		RESULT=$?
 	else
