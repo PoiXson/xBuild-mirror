@@ -174,7 +174,7 @@ function CopyFile() {
 		echo -ne "$COLOR_RESET"
 		[[ $RESULT -eq 0 ]] || exit 1
 	else
-		notice "File not found for copy: $1"
+		warning "File not found for copy: $1"
 	fi
 }
 
@@ -184,7 +184,7 @@ function MakeSymlink() {
 		failure ; exit 1
 	fi
 	if [[ ! -e "$1" ]]; then
-		notice "File not found for symlink: $1"
+		warning "File not found for symlink: $1"
 	fi
 	echo -ne " > ${COLOR_CYAN}Symlink: "
 	local RESULT=0
