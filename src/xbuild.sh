@@ -157,6 +157,27 @@ function DisplayTimeProject() {
 
 
 
+function CopyFile() {
+	if [[ -z $1 ]] || [[ -z $2 ]]; then
+		failure "CopyFile() requires arguments"
+		failure ; exit 1
+	fi
+	if [[ -e "$1" ]]; then
+		echo -ne " > ${COLOR_CYAN}Copy: "
+		local RESULT=0
+		if [[ $IS_DRY -eq $NO ]]; then
+			\cp  -fv --preserve=all  "$1" "$2"
+			RESULT=$?
+		else
+			echo "$1 -> $2"
+		fi
+		echo -ne "$COLOR_RESET"
+		[[ $RESULT -eq 0 ]] || exit 1
+	else
+		notice "File not found for copy: $1"
+	fi
+}
+
 function MakeSymlink() {
 	if [[ -z $1 ]]; then
 		failure "MakeSymlink() requires arguments"
