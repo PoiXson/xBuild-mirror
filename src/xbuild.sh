@@ -183,20 +183,23 @@ function MakeSymlink() {
 		failure "MakeSymlink() requires arguments"
 		failure ; exit 1
 	fi
+	if [[ ! -e "$1" ]]; then
+		notice "File not found for symlink: $1"
+	fi
 	echo -ne " > ${COLOR_CYAN}Symlink: "
 	local RESULT=0
 	if [[ $IS_DRY -eq $NO ]]; then
 		if [[ -z $2 ]]; then
-			\ln -svfL "$1"
+			\ln  -svfL  "$1"
 		else
-			\ln -svfL "$1" "$2"
+			\ln  -svfL  "$1"  "$2"
 		fi
 		RESULT=$?
 	else
 		echo "$1 -> $2"
 	fi
 	echo -ne "$COLOR_RESET"
-	[[ $RESULT ]] || exit 1
+	[[ $RESULT -eq 0 ]] || exit 1
 }
 
 
