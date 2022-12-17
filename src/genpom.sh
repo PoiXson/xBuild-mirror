@@ -52,6 +52,7 @@ OUT_PROPS_PLUGINS=""
 OUT_PLUGINS=""
 OUT_DEPS=""
 OUT_REPOS=""
+OUT_RES=""
 
 function AddProp() {
 	OUT_PROPS="$OUT_PROPS\t\t<$1>$2</$1>\n"
@@ -135,6 +136,14 @@ function AddRepo() {
 	OUT_REPOS="$OUT_REPOS\t\t\t\t<enabled>true</enabled>\n"
 	OUT_REPOS="$OUT_REPOS\t\t\t</snapshots>\n"
 	OUT_REPOS="$OUT_REPOS\t\t</repository>\n"
+}
+
+function AddRes() {
+	if [[ -z $1 ]]; then
+		failure "AddRes requires a file argument to include"
+		failure ; exit 1
+	fi
+	OUT_RES="$OUT_RES\t\t\t\t\t<include>$1</include>\n"
 }
 
 
@@ -383,7 +392,8 @@ if [[ -e "$WDIR/tests/" ]]; then
 fi
 
 # resources
-if [[ -e "$WDIR/resources/" ]]; then
+if [[ -e "$WDIR/resources/" ]] \
+&& [[ ! -z $OUT_RES         ]]; then
 #TODO: includes/excludes arrays
 \cat >>"$OUT_FILE" <<EOF
 		<resources>
@@ -391,7 +401,11 @@ if [[ -e "$WDIR/resources/" ]]; then
 				<directory>resources/</directory>
 				<filtering>true</filtering>
 				<includes>
-					<include>plugin.yml</include>
+EOF
+if [[ ! -z $OUT_RES ]]; then
+	echo -ne $OUT_RES >> "$OUT_FILE"
+fi
+\cat >>"$OUT_FILE" <<EOF
 				</includes>
 			</resource>
 		</resources>
