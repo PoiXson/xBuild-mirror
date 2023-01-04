@@ -1264,11 +1264,13 @@ fi
 if [[ $DO_CLEAN -eq $YES ]]; then
 	if [[ ! -z $TARGET_PATH ]] \
 	&& [[ -d "$TARGET_PATH" ]]; then
+		title C "Clean Current Path"
 		echo -ne " > ${COLOR_CYAN}rm -rf target${COLOR_RESET}"
 		if [[ $IS_DRY -eq $NO ]]; then
 			c=$( \rm -vrf --preserve-root target | wc -l )
 			[[ 0 -ne $? ]] && exit 1
 			echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
+			echo
 		fi
 	fi
 fi
