@@ -24,7 +24,7 @@
 ## along with this program.  If not, see <https://www.gnu.org/licenses/>.
 ##==============================================================================
 # genpom.sh
-XBUILD_VERSION="{{{VERSION}}}"
+GENPOM_VERSION="{{{VERSION}}}"
 
 
 

@@ -24,7 +24,7 @@
 ## along with this program.  If not, see <https://www.gnu.org/licenses/>.
 ##==============================================================================
 # genautotools.sh
-XBUILD_VERSION="{{{VERSION}}}"
+GENAUTOTOOLS_VERSION="{{{VERSION}}}"
 
 
 

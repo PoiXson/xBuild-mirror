@@ -20,7 +20,7 @@
 ## along with this program.  If not, see <https://www.gnu.org/licenses/>.
 ##==============================================================================
 # xdeploy.sh
-VERSION="{{{VERSION}}}"
+XDEPLOY_VERSION="{{{VERSION}}}"
 
 
 
@@ -77,7 +77,7 @@ function DisplayHelp() {
 }
 
 function DisplayVersion() {
-	echo -e "${COLOR_BROWN}xBuild${COLOR_RESET} ${COLOR_GREEN}${VERSION}${COLOR_RESET}"
+	echo -e "${COLOR_BROWN}xDeploy${COLOR_RESET} ${COLOR_GREEN}${XDEPLOY_VERSION}${COLOR_RESET}"
 	echo
 }
 
