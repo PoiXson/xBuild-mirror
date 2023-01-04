@@ -45,7 +45,6 @@ function DisplayHelp() {
 	echo    "  genautotools [options] <group>"
 	echo
 	echo -e "${COLOR_BROWN}Options:${COLOR_RESET}"
-	echo
 	echo -e "  ${COLOR_GREEN}-V, --version${COLOR_RESET}             Display the version"
 	echo -e "  ${COLOR_GREEN}-h, --help${COLOR_RESET}                Display this help message and exit"
 	echo
