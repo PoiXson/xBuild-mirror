@@ -24,7 +24,7 @@
 ## along with this program.  If not, see <https://www.gnu.org/licenses/>.
 ##==============================================================================
 # buildrepos.sh
-VERSION="{{{VERSION}}}"
+BUILDREPOS_VERSION="{{{VERSION}}}"
 
 
 
@@ -69,7 +69,7 @@ function DisplayHelp() {
 }
 
 function DisplayVersion() {
-	echo -e "${COLOR_BROWN}BuildRepos${COLOR_RESET} ${COLOR_GREEN}${VERSION}${COLOR_RESET}"
+	echo -e "${COLOR_BROWN}BuildRepos${COLOR_RESET} ${COLOR_GREEN}${BUILDREPOS_VERSION}${COLOR_RESET}"
 	echo
 }
 
