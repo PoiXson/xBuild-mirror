@@ -503,13 +503,13 @@ function doConfig() {
 				if [[ $BUILD_RELEASE -eq $YES ]]; then
 					echo -e " > ${COLOR_CYAN}genpom --release${COLOR_RESET}"
 					if [[ $IS_DRY -eq $NO ]]; then
-						genpom  --release  || exit 1
+						\genpom  --release  || exit 1
 					fi
 				# configure for dev
 				else
 					echo -e " > ${COLOR_CYAN}genpom${COLOR_RESET}"
 					if [[ $IS_DRY -eq $NO ]]; then
-						genpom  || exit 1
+						\genpom  || exit 1
 					fi
 				fi
 			\popd >/dev/null
@@ -523,7 +523,7 @@ function doConfig() {
 			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
 				echo -e " > ${COLOR_CYAN}genspec${COLOR_RESET}"
 				if [[ $IS_DRY -eq $NO ]]; then
-					genspec  || exit 1
+					\genspec  || exit 1
 				fi
 			\popd >/dev/null
 			echo
