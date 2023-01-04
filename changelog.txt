@@ -1,6 +1,16 @@
 xBuild - A tool to simplify building and managing projects in your workspace
 
 
+2022-09-21 - 2.1.56
+===================
+* added xdeploy script
+* added genpom --release flag to remove SNAPSHOT from version
+* added xbuild --dev flag similar to --ci
+* added CopyFile() function for use in xbuild.conf files
+* added AddRes() function for resources
+* other fixes and cleanup
+
+
 2022-09-21 - 2.1.44
 ===================
 * added checks for --flags with missing values
