@@ -1,7 +1,12 @@
 xBuild - A tool to simplify building and managing projects in your workspace
 
 
-2022-09-21 - 2.1.56
+2023-01-04 - 2.1.57
+===================
+* fixed scripts - allow no flags
+
+
+2023-01-04 - 2.1.56
 ===================
 * added xdeploy script
 * added genpom --release flag to remove SNAPSHOT from version
