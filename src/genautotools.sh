@@ -29,14 +29,55 @@ GENAUTOTOOLS_VERSION="{{{VERSION}}}"
 
 
 source /usr/bin/pxn/scripts/common.sh  || exit 1
-echo
 
 
 
 if [ -z $WDIR ]; then
+	echo
 	failure "Failed to find current working directory"
 	failure ; exit 1
 fi
+
+
+
+function DisplayHelp() {
+	echo -e "${COLOR_BROWN}Usage:${COLOR_RESET}"
+	echo    "  genautotools [options] <group>"
+	echo
+	echo -e "${COLOR_BROWN}Options:${COLOR_RESET}"
+	echo
+	echo -e "  ${COLOR_GREEN}-V, --version${COLOR_RESET}             Display the version"
+	echo -e "  ${COLOR_GREEN}-h, --help${COLOR_RESET}                Display this help message and exit"
+	echo
+	exit 1
+}
+
+function DisplayVersion() {
+	echo -e "${COLOR_BROWN}GenAutoTools${COLOR_RESET} ${COLOR_GREEN}${GENAUTOTOOLS_VERSION}${COLOR_RESET}"
+	echo
+}
+
+
+
+# parse args
+echo
+if [[ $# -eq 0 ]]; then
+	DisplayHelp
+	exit 1
+fi
+while [ $# -gt 0 ]; do
+	case "$1" in
+	-V|--version)  DisplayVersion ; exit 1  ;;
+	-h|--help)     DisplayHelp    ; exit 1  ;;
+	*)
+		failure "Unknown argument: $1"
+		failure
+		DisplayHelp
+		exit 1
+	;;
+	esac
+	\shift
+done
 
 
 
