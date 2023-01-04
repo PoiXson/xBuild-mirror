@@ -77,10 +77,6 @@ function DisplayVersion() {
 
 # parse args
 echo
-if [[ $# -eq 0 ]]; then
-	DisplayHelp
-	exit 1
-fi
 while [ $# -gt 0 ]; do
 	case "$1" in
 	-R|--release) SNAPSHOT="" ;;
