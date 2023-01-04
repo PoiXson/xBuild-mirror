@@ -635,9 +635,28 @@ function doBuild() {
 		# maven
 		if [[ -f "$PROJECT_PATH/pom.xml" ]]; then
 			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
+				# generate release pom.xml
+				if [[ $BUILD_RELEASE -eq $YES ]]; then
+					echo -e " > ${COLOR_CYAN}mv  pom.xml  pom.xml.xbuild-save${COLOR_RESET}"
+					echo -e " > ${COLOR_CYAN}genpom --release${COLOR_RESET}"
+					if [[ $IS_DRY -eq $NO ]]; then
+						\mv -v  "$PROJECT_PATH/pom.xml"  "$PROJECT_PATH/pom.xml.xbuild-save"  || exit 1
+						\genpom  --release  || exit 1
+					fi
+				fi
+				# build
 				echo -e " > ${COLOR_CYAN}mvn clean install${COLOR_RESET}"
 				if [[ $IS_DRY -eq $NO ]]; then
 					\mvn clean install  || exit 1
+				fi
+				# restore pom.xml
+				if [[ $BUILD_RELEASE -eq $YES ]]; then
+					echo -e " > ${COLOR_CYAN}rm  pom.xml${COLOR_RESET}"
+					echo -e " > ${COLOR_CYAN}mv  pom.xml.xbuild-save  pom.xml${COLOR_RESET}"
+					if [[ $IS_DRY -eq $NO ]]; then
+						\rm -vf --preserve-root  "$PROJECT_PATH/pom.xml"  || exit 1
+						\mv -v  "$PROJECT_PATH/pom.xml.xbuild-save"  "$PROJECT_PATH/pom.xml"  || exit 1
+					fi
 				fi
 			\popd >/dev/null
 			echo
