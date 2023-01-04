@@ -43,6 +43,7 @@ fi
 MAVEN_VERSIONS_FILE="maven-versions.conf"
 SHADE=$NO
 APPEND_VERS="-version"
+SNAPSHOT="-SNAPSHOT"
 
 OUT_PROPS=""
 OUT_PROPS_DEPS=""
@@ -82,6 +83,7 @@ if [[ $# -eq 0 ]]; then
 fi
 while [ $# -gt 0 ]; do
 	case "$1" in
+	-R|--release) SNAPSHOT="" ;;
 	-V|--version)  DisplayVersion ; exit 1  ;;
 	-h|--help)     DisplayHelp    ; exit 1  ;;
 	*)
@@ -358,7 +360,7 @@ TIMESTAMP=$( date )
 	<name>$NAME</name>
 	<artifactId>$ARTIFACT</artifactId>
 	<groupId>$GROUP</groupId>
-	<version>$VERSION-SNAPSHOT</version>
+	<version>$VERSION$SNAPSHOT</version>
 	<packaging>jar</packaging>
 EOF
 [[ -z $URL  ]] || echo -e "\t<url>$URL</url>"                  >>"$OUT_FILE"
