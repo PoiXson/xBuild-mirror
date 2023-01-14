@@ -90,9 +90,9 @@ function DisplayHelp() {
 	echo -e "  ${COLOR_GREEN}-d, --debug-flags${COLOR_RESET}         Build with debug flags"
 	echo -e "  ${COLOR_GREEN}-R, --release${COLOR_RESET}             Build a production release"
 	echo -e "  ${COLOR_GREEN}-n, --build-number <n>${COLOR_RESET}    Build number to use for builds and packages"
-	echo -e                             "                              default: x"
+	echo                                "                              default: x"
 	echo -e "  ${COLOR_GREEN}--target <path>${COLOR_RESET}           Sets the destination path for finished binaries"
-	echo -e                             "                              default: target/"
+	echo                                "                              default: target/"
 	echo
 	echo -e "  ${COLOR_GREEN}--binonly${COLOR_RESET}                 Build binary projects only"
 	echo -e "  ${COLOR_GREEN}--webonly${COLOR_RESET}                 Build web projects only"
@@ -117,9 +117,9 @@ function DisplayHelp() {
 	echo
 	fi
 	echo -e "  ${COLOR_GREEN}--dev${COLOR_RESET}                     Sets flags commonly used for development builds"
-	echo -e                             "                              Shortcut to: -v -r --debug --cbp"
+	echo                                "                              Shortcut to: -v -r --debug --cbp"
 	echo -e "  ${COLOR_GREEN}--ci <n>${COLOR_RESET}                  Sets flags commonly used for continuous integration"
-	echo -e                             "                              Shortcut to: -v -r -R -n <n> --clean --build --test --pack"
+	echo                                "                              Shortcut to: -v -r -R -n <n> --clean --build --test --pack"
 	echo -e "  ${COLOR_GREEN}--auto <n>${COLOR_RESET}                Detect if the latest git commit is a tag,"
 	echo                                "                              enables --ci, otherwise --dev"
 	echo
@@ -1246,7 +1246,7 @@ while [ $# -gt 0 ]; do
 	;;
 	--ci)
 		if [[ -z $2 ]] || [[ "$2" == "-"* ]]; then
-			failure "--ci flag requires a value"
+			failure "--ci flag requires a build number"
 			failure ; DisplayHelp $NO ; exit 1
 		fi
 		DO_CLEAN=$YES ; DO_CONFIG=$YES ; DO_BUILD=$YES
