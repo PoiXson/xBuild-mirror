@@ -79,10 +79,12 @@ let TIME_LAST=0
 
 
 function DisplayHelp() {
+	local FULL=$1
 	echo -e "${COLOR_BROWN}Usage:${COLOR_RESET}"
 	echo    "  xbuild [options] <group>"
 	echo
 	echo -e "${COLOR_BROWN}Options:${COLOR_RESET}"
+	if [[ $FULL -eq $YES ]]; then
 	echo -e "  ${COLOR_GREEN}-r, --recursive${COLOR_RESET}           Recursively load xbuild.conf files"
 	echo -e "  ${COLOR_GREEN}-D, --dry${COLOR_RESET}                 Dry-run, no changes will be performed by actions"
 	echo -e "  ${COLOR_GREEN}-d, --debug-flags${COLOR_RESET}         Build with debug flags"
@@ -95,9 +97,11 @@ function DisplayHelp() {
 	echo -e "  ${COLOR_GREEN}--binonly${COLOR_RESET}                 Build binary projects only"
 	echo -e "  ${COLOR_GREEN}--webonly${COLOR_RESET}                 Build web projects only"
 	echo
+	fi
 	echo -e "  ${COLOR_GREEN}--pp, --pull-push${COLOR_RESET}         Run 'git pull' and 'git push'"
 	echo -e "  ${COLOR_GREEN}--gg, --git-gui${COLOR_RESET}           Open git-gui for each project"
 	echo
+	if [[ $FULL -eq $YES ]]; then
 	echo -e "  ${COLOR_GREEN}-c, --clean, --cleanup${COLOR_RESET}    Cleanup workspace; delete generated files"
 	echo -e "  ${COLOR_GREEN}-C, --config, --configure${COLOR_RESET} Configure projects, with autotools or composer"
 	echo -e "  ${COLOR_GREEN}-b, --build, --compile${COLOR_RESET}    Compile the projects"
@@ -111,6 +115,7 @@ function DisplayHelp() {
 	echo -e "  ${COLOR_GREEN}--ccbp${COLOR_RESET}                    Clean, config, build, pack"
 	echo -e "  ${COLOR_GREEN}--ccbtp${COLOR_RESET}                   Clean, config, build, test, pack"
 	echo
+	fi
 	echo -e "  ${COLOR_GREEN}--dev${COLOR_RESET}                     Sets flags commonly used for development builds"
 	echo -e                             "                              Shortcut to: -v -r --debug --cbp"
 	echo -e "  ${COLOR_GREEN}--ci <n>${COLOR_RESET}                  Sets flags commonly used for continuous integration"
@@ -120,10 +125,15 @@ function DisplayHelp() {
 	echo
 	echo -e "  ${COLOR_GREEN}-v, --verbose${COLOR_RESET}             Enable debug logs"
 	echo -e "  ${COLOR_GREEN}-q, --quiet${COLOR_RESET}               Hide extra logs"
+	if [[ $FULL -eq $YES ]]; then
 	echo -e "  ${COLOR_GREEN}--colors${COLOR_RESET}                  Enable console colors"
 	echo -e "  ${COLOR_GREEN}--no-colors${COLOR_RESET}               Disable console colors"
+	fi
 	echo -e "  ${COLOR_GREEN}-V, --version${COLOR_RESET}             Display the version"
 	echo -e "  ${COLOR_GREEN}-h, --help${COLOR_RESET}                Display this help message and exit"
+	if [[ $FULL -ne $YES ]]; then
+	echo -e " ${COLOR_GREEN}truncated.. use --help for more flags${COLOR_RESET}"
+	fi
 	echo
 	exit 1
 }
@@ -1170,7 +1180,7 @@ function ProjectCleanup() {
 # parse args
 echo
 if [[ $# -eq 0 ]]; then
-	DisplayHelp
+	DisplayHelp $YES
 	exit 1
 fi
 while [ $# -gt 0 ]; do
@@ -1183,7 +1193,7 @@ while [ $# -gt 0 ]; do
 	-n|--build-number)
 		if [[ "$2" == "-"* ]]; then
 			failure "--build-number flag requires a value"
-			failure ; DisplayHelp ; exit 1
+			failure ; DisplayHelp $NO ; exit 1
 		fi
 		\shift
 		BUILD_NUMBER="$1"
@@ -1192,13 +1202,13 @@ while [ $# -gt 0 ]; do
 		BUILD_NUMBER=${1#*=}
 		if [[ -z $BUILD_NUMBER ]]; then
 			failure "--build-number flag requires a value"
-			failure ; DisplayHelp ; exit 1
+			failure ; DisplayHelp $NO ; exit 1
 		fi
 	;;
 	--target)
 		if [[ "$2" == "-"* ]]; then
 			failure "--target flag requires a value"
-			failure ; DisplayHelp ; exit 1
+			failure ; DisplayHelp $NO ; exit 1
 		fi
 		\shift
 		TARGET_PATH="$1"
@@ -1207,7 +1217,7 @@ while [ $# -gt 0 ]; do
 		TARGET_PATH=${1#*=}
 		if [[ -z $TARGET_PATH ]]; then
 			failure "--target flag requires a value"
-			failure ; DisplayHelp ; exit 1
+			failure ; DisplayHelp $NO ; exit 1
 		fi
 	;;
 
@@ -1237,7 +1247,7 @@ while [ $# -gt 0 ]; do
 	--ci)
 		if [[ "$2" == "-"* ]]; then
 			failure "--ci flag requires a value"
-			failure ; DisplayHelp ; exit 1
+			failure ; DisplayHelp $NO ; exit 1
 		fi
 		DO_CLEAN=$YES ; DO_CONFIG=$YES ; DO_BUILD=$YES
 		DO_TESTS=$YES ; DO_PACK=$YES   ; VERBOSE=$YES
@@ -1262,13 +1272,13 @@ while [ $# -gt 0 ]; do
 	-q|--quiet)    QUIET=$YES    ;;
 	--color|--colors)       NO_COLORS=$NO  ; enable_colors  ;;
 	--no-color|--no-colors) NO_COLORS=$YES ; disable_colors ;;
-	-V|--version)  DisplayVersion ; exit 1  ;;
-	-h|--help)     DisplayHelp    ; exit 1  ;;
+	-V|--version)  DisplayVersion   ; exit 1  ;;
+	-h|--help)     DisplayHelp $YES ; exit 1  ;;
 
 	-*)
 		failure "Unknown argument: $1"
 		failure
-		DisplayHelp
+		DisplayHelp $NO
 		exit 1
 	;;
 	*)
