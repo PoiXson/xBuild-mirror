@@ -1191,7 +1191,7 @@ while [ $# -gt 0 ]; do
 	-R|--release)    BUILD_RELEASE=$YES  ;;
 	-d|--debug|--debug-flag|--debug-flags)  DEBUG_FLAGS=$YES  ;;
 	-n|--build-number)
-		if [[ "$2" == "-"* ]]; then
+		if [[ -z $2 ]] || [[ "$2" == "-"* ]]; then
 			failure "--build-number flag requires a value"
 			failure ; DisplayHelp $NO ; exit 1
 		fi
@@ -1206,7 +1206,7 @@ while [ $# -gt 0 ]; do
 		fi
 	;;
 	--target)
-		if [[ "$2" == "-"* ]]; then
+		if [[ -z $2 ]] || [[ "$2" == "-"* ]]; then
 			failure "--target flag requires a value"
 			failure ; DisplayHelp $NO ; exit 1
 		fi
@@ -1245,7 +1245,7 @@ while [ $# -gt 0 ]; do
 		DEBUG_FLAGS=$YES ; DO_RECURSIVE=$YES ; VERBOSE=$YES
 	;;
 	--ci)
-		if [[ "$2" == "-"* ]]; then
+		if [[ -z $2 ]] || [[ "$2" == "-"* ]]; then
 			failure "--ci flag requires a value"
 			failure ; DisplayHelp $NO ; exit 1
 		fi
