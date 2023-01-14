@@ -170,13 +170,25 @@ function DisplayTimeProject() {
 
 
 
+function echo_cmd() {
+	local N=""
+	if [[ "$1" == "-n" ]]; then
+		local N="-n"
+		\shift
+	fi
+	echo $N -e  " > ${COLOR_CYAN}$@${COLOR_RESET}"
+}
+
+
+
 function CopyFile() {
 	if [[ -z $1 ]] || [[ -z $2 ]]; then
 		failure "CopyFile() requires arguments"
 		failure ; exit 1
 	fi
 	if [[ -e "$1" ]]; then
-		echo -ne " > ${COLOR_CYAN}Copy: "
+		echo_cmd -n "Copy: "
+		echo -ne "${COLOR_CYAN}"
 		local RESULT=0
 		if [[ $IS_DRY -eq $NO ]]; then
 			\cp  -fv --preserve=all  "$1" "$2"
@@ -199,7 +211,8 @@ function MakeSymlink() {
 	if [[ ! -e "$1" ]]; then
 		warning "File not found for symlink: $1"
 	fi
-	echo -ne " > ${COLOR_CYAN}Symlink: "
+	echo_cmd -n "Symlink: "
+	echo -ne "${COLOR_CYAN}"
 	local RESULT=0
 	if [[ $IS_DRY -eq $NO ]]; then
 		if [[ -z $2 ]]; then
@@ -233,7 +246,7 @@ function doPullPush() {
 		\pushd "$CURRENT_PATH/" >/dev/null  || exit 1
 			local CLONE_PATH=${PROJECT_PATH##*/}
 			# git clone
-			echo -e " > ${COLOR_CYAN}git clone  $PROJECT_REPO  $CLONE_PATH${COLOR_RESET}"
+			echo_cmd "git clone  $PROJECT_REPO  $CLONE_PATH"
 			if [[ $IS_DRY -eq $NO ]]; then
 				\git clone "$PROJECT_REPO" "$CLONE_PATH"  || exit 1
 			fi
@@ -246,13 +259,13 @@ function doPullPush() {
 		title C "$PROJECT_NAME" "Pull/Push"
 	\pushd "$PROJECT_PATH/" >/dev/null  || exit 1
 		# git pull
-		echo -e " > ${COLOR_CYAN}git pull${COLOR_RESET}"
+		echo_cmd "git pull"
 		if [[ $IS_DRY -eq $NO ]]; then
 			\git pull  || exit 1
 			echo
 		fi
 		# git push
-		echo -e " > ${COLOR_CYAN}git push${COLOR_RESET}"
+		echo_cmd "git push"
 		if [[ $IS_DRY -eq $NO ]]; then
 			\git push  || exit 1
 			echo
@@ -269,7 +282,7 @@ function doGitGUI() {
 		&& return
 	# git-gui
 	\pushd "$PROJECT_PATH/" >/dev/null  || exit 1
-		echo -ne " > ${COLOR_CYAN}git-gui${COLOR_RESET}"
+		echo_cmd -n "git-gui"
 		if [[ $IS_DRY -eq $NO ]]; then
 			/usr/libexec/git-core/git-gui &
 			local GG_PID=$!
@@ -297,7 +310,7 @@ function doClean() {
 		if [[ -f "$PROJECT_PATH/Makefile.am" ]]; then
 			if [[ -f "$PROJECT_PATH/Makefile" ]]; then
 				\pushd "$PROJECT_PATH/" >/dev/null || exit 1
-					echo -ne " > ${COLOR_CYAN}make distclean${COLOR_RESET}"
+					echo_cmd -n "make distclean"
 					let rm_groups=$((rm_groups+1))
 					if [[ $IS_DRY -eq $NO ]]; then
 						local c=$( \make distclean | \wc -l )
@@ -314,7 +327,7 @@ function doClean() {
 				RESULT=$( \find "$PROJECT_PATH" -type d -name .deps )
 				for ENTRY in $RESULT; do
 					if [[ -f "$ENTRY" ]]; then
-						echo -ne " > ${COLOR_CYAN}rm ${ENTRY}..${COLOR_RESET}"
+						echo_cmd -n "rm ${ENTRY}.."
 						let rm_groups=$((rm_groups+1))
 						if [[ $IS_DRY -eq $NO ]]; then
 							local c=$( \rm -v "$ENTRY" | \wc -l )
@@ -326,7 +339,7 @@ function doClean() {
 						fi
 					fi
 					if [[ -d "$ENTRY" ]]; then
-						echo -ne " > ${COLOR_CYAN}rm -rf ${ENTRY}${COLOR_RESET}"
+						echo_cmd -n "rm -rf $ENTRY"
 						let rm_groups=$((rm_groups+1))
 						if [[ $IS_DRY -eq $NO ]]; then
 							local c=$( \rm -vrf --preserve-root "$ENTRY" | \wc -l )
@@ -345,7 +358,7 @@ function doClean() {
 					\pushd "$DIR/" >/dev/null || continue
 						for ENTRY in $CLEAN_FILES; do
 							if [[ -f "$ENTRY" ]]; then
-								echo -ne " > ${COLOR_CYAN}rm ${ENTRY}${COLOR_RESET}"
+								echo_cmd -n "rm $ENTRY"
 								if [[ $IS_DRY -eq $NO ]]; then
 									local c=$( \rm -v "$ENTRY" | \wc -l )
 									[[ 0 -ne $? ]] && exit 1
@@ -356,7 +369,7 @@ function doClean() {
 								fi
 							fi
 							if [[ -d "$ENTRY" ]]; then
-								echo -ne " > ${COLOR_CYAN}rm -rf ${ENTRY}${COLOR_RESET}"
+								echo_cmd -n "rm -rf $ENTRY"
 								if [[ $IS_DRY -eq $NO ]]; then
 									local c=$( \rm -vrf --preserve-root "$ENTRY" | \wc -l )
 									[[ 0 -ne $? ]] && exit 1
@@ -374,7 +387,7 @@ function doClean() {
 		# clean rpm project
 		if [[ -d "$PROJECT_PATH/rpmbuild" ]]; then
 			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
-				echo -ne " > ${COLOR_CYAN}rm -rf rpmbuild${COLOR_RESET}"
+				echo_cmd -n "rm -rf rpmbuild"
 				let rm_groups=$((rm_groups+1))
 				if [[ $IS_DRY -eq $NO ]]; then
 					local c=$( \rm -vrf --preserve-root rpmbuild | wc -l )
@@ -391,7 +404,7 @@ function doClean() {
 			# defer clean root target/
 			if [[ "$PROJECT_PATH/target" != "$TARGET_PATH" ]]; then
 				\pushd "$PROJECT_PATH/" >/dev/null || exit 1
-					echo -ne " > ${COLOR_CYAN}rm -rf target${COLOR_RESET}"
+					echo_cmd -n "rm -rf target"
 					let rm_groups=$((rm_groups+1))
 					if [[ $IS_DRY -eq $NO ]]; then
 						local c=$( \rm -vrf --preserve-root target | wc -l )
@@ -411,7 +424,7 @@ function doClean() {
 			# clean vendor/
 			if [[ -d "$PROJECT_PATH/vendor" ]]; then
 				\pushd "$PROJECT_PATH/" >/dev/null || exit 1
-					echo -ne " > ${COLOR_CYAN}rm -rf vendor${COLOR_RESET}"
+					echo_cmd -n "rm -rf vendor"
 					let rm_groups=$((rm_groups+1))
 					if [[ $IS_DRY -eq $NO ]]; then
 						local c=$( \rm -vrf --preserve-root vendor | wc -l )
@@ -471,7 +484,7 @@ function doConfig() {
 		local HASH_B=$( \cat "$PROJECT_PATH/.gitignore" | \md5sum )
 		if [[ "$HASH_A" != "$HASH_B" ]]; then
 			title C "Updating .gitignore.."
-			echo -e " > ${COLOR_CYAN}cat $OUT_FILE > $PROJECT_PATH/.gitignore${COLOR_RESET}"
+			echo_cmd "cat $OUT_FILE > $PROJECT_PATH/.gitignore"
 			if [[ $IS_DRY -eq $NO ]]; then
 				\cat  "$OUT_FILE"  >"$PROJECT_PATH/.gitignore"  || exit 1
 			fi
@@ -488,7 +501,7 @@ function doConfig() {
 			[[ $QUIET -eq $NO ]] && \
 				title C "$PROJECT_NAME" "Generate autotools"
 			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
-				echo -e " > ${COLOR_CYAN}genautotools${COLOR_RESET}"
+				echo_cmd "genautotools"
 				if [[ $IS_DRY -eq $NO ]]; then
 					\genautotools  || exit 1
 				fi
@@ -501,7 +514,7 @@ function doConfig() {
 			[[ $QUIET -eq $NO ]] && \
 				title C "$PROJECT_NAME" "autoreconf"
 			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
-				echo -e " > ${COLOR_CYAN}autoreconf -v --install${COLOR_RESET}"
+				echo_cmd "autoreconf -v --install"
 				if [[ $IS_DRY -eq $NO ]]; then
 					\autoreconf -v --install  || exit 1
 				fi
@@ -518,13 +531,13 @@ function doConfig() {
 			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
 				# configure for release
 				if [[ $BUILD_RELEASE -eq $YES ]]; then
-					echo -e " > ${COLOR_CYAN}genpom --release${COLOR_RESET}"
+					echo_cmd "genpom --release"
 					if [[ $IS_DRY -eq $NO ]]; then
 						\genpom  --release  || exit 1
 					fi
 				# configure for dev
 				else
-					echo -e " > ${COLOR_CYAN}genpom${COLOR_RESET}"
+					echo_cmd "genpom"
 					if [[ $IS_DRY -eq $NO ]]; then
 						\genpom  || exit 1
 					fi
@@ -538,7 +551,7 @@ function doConfig() {
 			[[ $QUIET -eq $NO ]] && \
 				title C "$PROJECT_NAME" "Generate spec"
 			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
-				echo -e " > ${COLOR_CYAN}genspec${COLOR_RESET}"
+				echo_cmd "genspec"
 				if [[ $IS_DRY -eq $NO ]]; then
 					\genspec  || exit 1
 				fi
@@ -559,7 +572,7 @@ function doConfig() {
 				&& [[ -f "$PROJECT_PATH/composer.lock" ]]; then
 					[[ $QUIET -eq $NO ]] && \
 						title C "$PROJECT_NAME" "Composer Install"
-					echo -e " > ${COLOR_CYAN}composer install -a -o --no-dev --prefer-dist${COLOR_RESET}"
+					echo_cmd "composer install -a -o --no-dev --prefer-dist"
 					if [[ $IS_DRY -eq $NO ]]; then
 						\composer install --no-dev --prefer-dist --classmap-authoritative --optimize-autoloader  || exit 1
 					fi
@@ -569,14 +582,14 @@ function doConfig() {
 					|| [[ ! -f "$PROJECT_PATH/composer.lock" ]]; then
 						[[ $QUIET -eq $NO ]] && \
 							title C "$PROJECT_NAME" "Composer Update"
-						echo -e " > ${COLOR_CYAN}composer update${COLOR_RESET}"
+						echo_cmd "composer update"
 						if [[ $IS_DRY -eq $NO ]]; then
 							\composer update  || exit 1
 						fi
 					else
 						[[ $QUIET -eq $NO ]] && \
 							title C "$PROJECT_NAME" "Composer Install"
-						echo -e " > ${COLOR_CYAN}composer install${COLOR_RESET}"
+						echo_cmd "composer install"
 						if [[ $IS_DRY -eq $NO ]]; then
 							\composer install  || exit 1
 						fi
@@ -623,7 +636,7 @@ function doBuild() {
 				if [[ $DEBUG_FLAGS -eq $YES ]]; then
 					CONFIGURE_DEBUG_FLAGS="--enable-debug"
 				fi
-				echo -e " > ${COLOR_CYAN}configure ${CONFIGURE_DEBUG_FLAGS}${COLOR_RESET}"
+				echo_cmd "configure ${CONFIGURE_DEBUG_FLAGS}"
 				if [[ $IS_DRY -eq $NO ]]; then
 					./configure $CONFIGURE_DEBUG_FLAGS  || exit 1
 				fi
@@ -635,14 +648,14 @@ function doBuild() {
 		if [[ -f "$PROJECT_PATH/Makefile" ]]; then
 			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
 				# make
-				echo -e " > ${COLOR_CYAN}make${COLOR_RESET}"
+				echo_cmd "make"
 				if [[ $IS_DRY -eq $NO ]]; then
 					\make  || exit 1
 				fi
 				# make install
 				if [[ -d "$PROJECT_PATH/.libs/" ]]; then
 					echo
-					echo -e " > ${COLOR_CYAN}make install${COLOR_RESET}"
+					echo_cmd "make install"
 					if [[ $IS_DRY -eq $NO ]]; then
 						\sudo \make install  || exit 1
 						echo
@@ -657,22 +670,22 @@ function doBuild() {
 			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
 				# generate release pom.xml
 				if [[ $BUILD_RELEASE -eq $YES ]]; then
-					echo -e " > ${COLOR_CYAN}mv  pom.xml  pom.xml.xbuild-save${COLOR_RESET}"
-					echo -e " > ${COLOR_CYAN}genpom --release${COLOR_RESET}"
+					echo_cmd "mv  pom.xml  pom.xml.xbuild-save"
+					echo_cmd "genpom --release"
 					if [[ $IS_DRY -eq $NO ]]; then
 						\mv -v  "$PROJECT_PATH/pom.xml"  "$PROJECT_PATH/pom.xml.xbuild-save"  || exit 1
 						\genpom  --release  || exit 1
 					fi
 				fi
 				# build
-				echo -e " > ${COLOR_CYAN}mvn clean install${COLOR_RESET}"
+				echo_cmd "mvn clean install"
 				if [[ $IS_DRY -eq $NO ]]; then
 					\mvn clean install  || exit 1
 				fi
 				# restore pom.xml
 				if [[ $BUILD_RELEASE -eq $YES ]]; then
-					echo -e " > ${COLOR_CYAN}rm  pom.xml${COLOR_RESET}"
-					echo -e " > ${COLOR_CYAN}mv  pom.xml.xbuild-save  pom.xml${COLOR_RESET}"
+					echo_cmd "rm  pom.xml"
+					echo_cmd "mv  pom.xml.xbuild-save  pom.xml"
 					if [[ $IS_DRY -eq $NO ]]; then
 						\rm -vf --preserve-root  "$PROJECT_PATH/pom.xml"  || exit 1
 						\mv -v  "$PROJECT_PATH/pom.xml.xbuild-save"  "$PROJECT_PATH/pom.xml"  || exit 1
@@ -686,27 +699,27 @@ function doBuild() {
 		if [[ -f "$PROJECT_PATH/Cargo.toml" ]]; then
 			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
 				if [[ $BUILD_RELEASE -eq $YES ]]; then
-					echo -e " > ${COLOR_CYAN}cargo build --release --timings${COLOR_RESET}"
+					echo_cmd "cargo build --release --timings"
 					if [[ $IS_DRY -eq $NO ]]; then
 						\cargo build --release --timings  || exit 1
 					fi
 				else
 					if [[ $DEBUG_FLAGS -eq $YES ]]; then
-						echo -e " > ${COLOR_CYAN}cargo update${COLOR_RESET}"
+						echo_cmd "cargo update"
 						if [[ $IS_DRY -eq $NO ]]; then
 							\cargo update  || exit 1
 						fi
 					fi
 #TODO
-#					echo -e " > ${COLOR_CYAN}grcov . -s . --binary-path ./target/release/ "  \
-#						"-t html --branch --ignore-not-existing -o ./coverage/${COLOR_RESET}"
+#					echo_cmd "grcov . -s . --binary-path ./target/release/ "  \
+#						"-t html --branch --ignore-not-existing -o ./coverage/"
 #					if [[ $IS_DRY -eq $NO ]]; then
 #						\grcov . -s .  \
 #							--binary-path ./target/release/         \
 #							-t html --branch --ignore-not-existing  \
 #							-o ./coverage/
 #					fi
-					echo -e " > ${COLOR_CYAN}cargo build${COLOR_RESET}"
+					echo_cmd "cargo build"
 					if [[ $IS_DRY -eq $NO ]]; then
 						\cargo build  || exit 1
 					fi
@@ -737,7 +750,7 @@ function doTests() {
 	# make check
 	if [[ -f "$PROJECT_PATH/Makefile" ]]; then
 		\pushd "$PROJECT_PATH/" >/dev/null || exit 1
-			echo -e " > ${COLOR_CYAN}make check${COLOR_RESET}"
+			echo_cmd "make check"
 			if [[ $IS_DRY -eq $NO ]]; then
 				\make check  || exit 1
 			fi
@@ -749,7 +762,7 @@ function doTests() {
 	# phpunit
 	if [[ -f "$PROJECT_PATH/phpunit.xml" ]]; then
 		\pushd "$PROJECT_PATH/" >/dev/null || exit 1
-			echo -e " > ${COLOR_CYAN}phpunit${COLOR_RESET}"
+			echo_cmd "phpunit"
 			if [[ $IS_DRY -eq $NO ]]; then
 				"$PROJECT_PATH"/vendor/bin/phpunit --coverage-html coverage/html  || exit 1
 			fi
@@ -778,7 +791,7 @@ function doPack() {
 	# make dist
 	if [[ -f "$PROJECT_PATH/Makefile" ]]; then
 		\pushd "$PROJECT_PATH/" >/dev/null || exit 1
-			echo -e " > ${COLOR_CYAN}make dist${COLOR_RESET}"
+			echo_cmd "make dist"
 			if [[ $IS_DRY -eq $NO ]]; then
 				\make dist  || exit 1
 			fi
@@ -801,7 +814,7 @@ function doPack() {
 	fi
 	# build rpm
 	if [[ -d rpmbuild ]]; then
-		echo -ne " > ${COLOR_CYAN}rm rpmbuild${COLOR_RESET}"
+		echo_cmd -n "rm rpmbuild"
 		if [[ $IS_DRY -eq $NO ]]; then
 			\pushd "$PROJECT_PATH" >/dev/null  || exit 1
 				local c=$( \rm -Rvf --preserve-root rpmbuild/ | \wc -l )
@@ -813,7 +826,7 @@ function doPack() {
 	if [[ ! -z $SPEC_FILE ]]; then
 		# rm rpmbuild/
 		if [[ -d "$PROJECT_PATH/rpmbuild" ]]; then
-			echo -ne " > ${COLOR_CYAN}rm rpmbuild${COLOR_RESET}"
+			echo_cmd -n "rm rpmbuild"
 			if [[ $IS_DRY -eq $NO ]]; then
 				\pushd "$PROJECT_PATH" >/dev/null  || exit 1
 					local c=$( \rm -Rvf --preserve-root rpmbuild/ | \wc -l )
@@ -823,11 +836,11 @@ function doPack() {
 			fi
 		fi
 		# make build root dirs
-		echo -ne " > ${COLOR_CYAN}mkdir rpmbuild${COLOR_RESET}"
+		echo_cmd -n "mkdir rpmbuild"
 		local c=$( \mkdir -pv "$PROJECT_PATH"/rpmbuild/{BUILD,BUILDROOT,SOURCES,SPECS,RPMS,SRPMS,TMP} | \wc -l )
 		[[ 0 -ne $? ]] && exit 1
 		echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
-		echo -e " > ${COLOR_CYAN}cp  "${SPEC_FILE##*/}"  rpmbuild/SPECS/${COLOR_RESET}"
+		echo_cmd "cp  "${SPEC_FILE##*/}"  rpmbuild/SPECS/"
 		if [[ $IS_DRY -eq $NO ]]; then
 			\cp -vf  "$SPEC_FILE"  "$PROJECT_PATH/rpmbuild/SPECS/"  || exit 1
 		fi
@@ -837,15 +850,13 @@ function doPack() {
 				failure "Target path not set"
 				failure ; exit 1
 			fi
-			echo -e \
-				" > ${COLOR_CYAN}rpmbuild\n"  \
+			echo_cmd "rpmbuild\n"                                              \
 				${BUILD_NUMBER:+"     --define=build_number $BUILD_NUMBER\n"}  \
 				"     --define=_topdir $PROJECT_PATH/rpmbuild\n"               \
 				"     --define=_tmppath $PROJECT_PATH/rpmbuild/TMP\n"          \
 				"     --define=_binary_payload w9.gzdio\n"                     \
 				"     --undefine=_disable_source_fetch\n"                      \
-				"     -bb SPECS/${SPEC_NAME}.spec\n"                           \
-				"${COLOR_RESET}"
+				"     -bb SPECS/${SPEC_NAME}.spec\n"
 			if [[ $IS_DRY -eq $NO ]]; then
 				if [[ ! -e "$TARGET_PATH/" ]]; then
 					\mkdir -pv "$TARGET_PATH/"  || exit 1
@@ -868,7 +879,7 @@ function doPack() {
 				fi
 				for ENTRY in $PACKAGES; do
 					PACKAGES_ALL+=("$TARGET_PATH/$ENTRY")
-					echo -e " > ${COLOR_CYAN}cp  rpmbuild/RPMS/$ENTRY  $TARGET_PATH${COLOR_RESET}"
+					echo_cmd "cp  rpmbuild/RPMS/$ENTRY  $TARGET_PATH"
 					\cp -fv  "$PROJECT_PATH/rpmbuild/RPMS/$ENTRY"  "$TARGET_PATH/"  || exit 1
 				done
 			fi
@@ -985,7 +996,7 @@ function AutoDetectGitTag() {
 	if [[ $DO_AUTO -eq $YES ]]; then
 		if [[ -d "$DIR/.git" ]]; then
 			\pushd "$DIR/" >/dev/null || exit 1
-			echo -e " > ${COLOR_CYAN}git describe --tags --exact-match${COLOR_RESET}"
+			echo_cmd "git describe --tags --exact-match"
 			if [[ $IS_DRY -eq $NO ]]; then
 				TAG=$( /usr/bin/git describe --tags --exact-match  2>/dev/null )
 				RESULT=$?
@@ -1025,17 +1036,17 @@ function doProjectTags() {
 				notice "File already exists: ${F}.xbuild_temp"
 			# restore original
 			[[ $VERBOSE -eq $YES ]] && \
-				echo -e " > ${COLOR_CYAN}rm -fv $F${COLOR_RESET}"
+				echo_cmd "rm -fv $F"
 			[[ $IS_DRY -eq $NO ]] && \
 				\rm -fv  "$PROJECT_PATH/$F"  || exit 1
 		else
 			[[ $VERBOSE -eq $YES ]] && \
-				echo -e " > ${COLOR_CYAN}mv -v $F ${F}.xbuild_temp${COLOR_RESET}"
+				echo_cmd "mv -v $F ${F}.xbuild_temp"
 			[[ $IS_DRY -eq $NO ]] && \
 				\mv -v  "$PROJECT_PATH/$F"  "$PROJECT_PATH/${F}.xbuild_temp"  || exit 1
 		fi
 		[[ $VERBOSE -eq $YES ]] && \
-			echo -e " > ${COLOR_CYAN}cp -v ${F}.xbuild_temp $F${COLOR_RESET}"
+			echo_cmd "cp -v ${F}.xbuild_temp $F"
 		[[ $IS_DRY -eq $NO ]] && \
 			\cp -v  "$PROJECT_PATH/${F}.xbuild_temp"  "$PROJECT_PATH/$F"  || exit 1
 		# tags
@@ -1045,14 +1056,14 @@ function doProjectTags() {
 				if [[ ! -z $BUILD_NUMBER ]] && [[ "$BUILD_NUMBER" != "x" ]]; then
 					local VERS_GUESS=${PROJECT_VERSION%.*}".0"
 					[[ $VERBOSE -eq $YES ]] && \
-						echo -e " > ${COLOR_CYAN}sed -i 's/$VERS_GUESS/$PROJECT_VERSION/' $F${COLOR_RESET}"
+						echo_cmd "sed -i 's/$VERS_GUESS/$PROJECT_VERSION/' $F"
 					[[ $IS_DRY -eq $NO ]] && \
 						\sed -i  "s/$VERS_GUESS/$PROJECT_VERSION/"  "$PROJECT_PATH/$F"  || exit 1
 				fi
 			# {{{VERSION}}}
 			else
 				[[ $VERBOSE -eq $YES ]] && \
-					echo -e " > ${COLOR_CYAN}sed -i 's/{{""{VERSION}}}/$PROJECT_VERSION/' $F${COLOR_RESET}"
+					echo_cmd "sed -i 's/{{""{VERSION}}}/$PROJECT_VERSION/' $F"
 				[[ $IS_DRY -eq $NO ]] && \
 					\sed -i  "s/{{""{VERSION}}}/$PROJECT_VERSION/"  "$PROJECT_PATH/$F"  || exit 1
 			fi
@@ -1068,8 +1079,10 @@ function restoreProjectTags() {
 			notice "Restoring tags in: $F"
 		if [[ -e "$PROJECT_PATH/${F}.xbuild_temp" ]]; then
 			if [[ -e "$PROJECT_PATH/$F" ]]; then
+				echo_cmd "rm -f  $PROJECT_PATH/$F"
 				\rm -f  "$PROJECT_PATH/$F"  || exit 1
 			fi
+			echo_cmd "mv  $PROJECT_PATH/$F.xbuild_temp  $PROJECT_PATH/$F"
 			\mv  "$PROJECT_PATH/${F}.xbuild_temp"  "$PROJECT_PATH/$F"  || exit 1
 		fi
 	done
@@ -1354,7 +1367,7 @@ if [[ $DO_CLEAN -eq $YES ]]; then
 	if [[ ! -z $TARGET_PATH ]] \
 	&& [[ -d "$TARGET_PATH" ]]; then
 		title C "Clean Current Path"
-		echo -ne " > ${COLOR_CYAN}rm -rf target${COLOR_RESET}"
+		echo_cmd -n "rm -rf target"
 		if [[ $IS_DRY -eq $NO ]]; then
 			c=$( \rm -vrf --preserve-root target | wc -l )
 			[[ 0 -ne $? ]] && exit 1
