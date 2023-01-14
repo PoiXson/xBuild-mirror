@@ -50,6 +50,7 @@ DO_CONFIG=$NO
 DO_BUILD=$NO
 DO_TESTS=$NO
 DO_PACK=$NO
+DO_AUTO=$NO
 
 BUILD_NUMBER=""
 BUILD_RELEASE=$NO
@@ -114,6 +115,8 @@ function DisplayHelp() {
 	echo -e                             "                              Shortcut to: -v -r --debug --cbp"
 	echo -e "  ${COLOR_GREEN}--ci <n>${COLOR_RESET}                  Sets flags commonly used for continuous integration"
 	echo -e                             "                              Shortcut to: -v -r -R -n <n> --clean --build --test --pack"
+	echo -e "  ${COLOR_GREEN}--auto <n>${COLOR_RESET}                Detect if the latest git commit is a tag,"
+	echo                                "                              enables --ci, otherwise --dev"
 	echo
 	echo -e "  ${COLOR_GREEN}-v, --verbose${COLOR_RESET}             Enable debug logs"
 	echo -e "  ${COLOR_GREEN}-q, --quiet${COLOR_RESET}               Hide extra logs"
@@ -439,7 +442,8 @@ function doConfig() {
 	did_something=$NO
 	# .gitignore
 	if [[ -f "$PROJECT_PATH/.gitignore" ]] \
-	&& [[ $BUILD_RELEASE -eq $NO ]]; then
+	&& [[ $BUILD_RELEASE -eq $NO ]] \
+	&& [[ $DO_AUTO       -eq $NO ]]; then
 		local OUT_FILE=$( mktemp )
 		local RESULT=$?
 		if [[ $RESULT -ne 0 ]] || [[ -z $OUT_FILE ]]; then
@@ -466,8 +470,9 @@ function doConfig() {
 		\rm -f "$OUT_FILE"
 	fi
 	doProjectTags
-	if [[ $DO_WEB_ONLY -eq $NO ]] \
-	&& [[ $BUILD_RELEASE -eq $NO ]]; then
+	if [[ $DO_WEB_ONLY   -eq $NO ]] \
+	&& [[ $BUILD_RELEASE -eq $NO ]] \
+	&& [[ $DO_AUTO       -eq $NO ]]; then
 		# generate automake files
 		if [[ -f "$PROJECT_PATH/autotools.conf" ]]; then
 			[[ $QUIET -eq $NO ]] && \
@@ -494,6 +499,8 @@ function doConfig() {
 			echo
 			did_something=$YES
 		fi
+	fi
+	if [[ $DO_WEB_ONLY -eq $NO ]]; then
 		# generate pom.xml file
 		if [[ -f "$PROJECT_PATH/pom.conf" ]]; then
 			[[ $QUIET -eq $NO ]] && \
@@ -534,8 +541,11 @@ function doConfig() {
 		# composer
 		if [[ -f "$PROJECT_PATH/composer.json" ]]; then
 			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
+				REL=$NO
+				[[ $BUILD_RELEASE -eq $YES ]] && REL=$YES
+				[[ $DO_AUTO       -eq $YES ]] && REL=$YES
 				# configure for release
-				if [[ $BUILD_RELEASE -eq $YES ]] \
+				if [[ $REL -eq $YES ]] \
 				&& [[ -f "$PROJECT_PATH/composer.lock" ]]; then
 					[[ $QUIET -eq $NO ]] && \
 						title C "$PROJECT_NAME" "Composer Install"
@@ -943,6 +953,7 @@ function LoadConf() {
 	fi
 	local LAST_PATH="$CURRENT_PATH"
 	CURRENT_PATH=${1%/*}
+	AutoDetectGitTag "$CURRENT_PATH"
 	\pushd "$CURRENT_PATH" >/dev/null  || exit 1
 		# load xbuild.conf
 		source "$CURRENT_PATH/xbuild.conf" || exit 1
@@ -951,6 +962,37 @@ function LoadConf() {
 		ProjectCleanup
 	\popd >/dev/null
 	CURRENT_PATH="$LAST_PATH"
+}
+
+
+
+function AutoDetectGitTag() {
+	local DIR="$1"
+	if [[ -z $DIR ]]; then
+		return
+	fi
+	# detect snapshot/release
+	if [[ $DO_AUTO -eq $YES ]]; then
+		if [[ -d "$DIR/.git" ]]; then
+			\pushd "$DIR/" >/dev/null || exit 1
+			echo -e " > ${COLOR_CYAN}git describe --tags --exact-match${COLOR_RESET}"
+			if [[ $IS_DRY -eq $NO ]]; then
+				TAG=$( /usr/bin/git describe --tags --exact-match  2>/dev/null )
+				RESULT=$?
+				if [[ $RESULT -ne 0 ]]; then
+					failure "Failed to detect latest commit tag"
+					failure ; exit 1
+				fi
+				if [[ -z $TAG ]]; then
+					BUILD_RELEASE=$NO
+				else
+					notice "Found tag: $TAG"
+					BUILD_RELEASE=$YES
+				fi
+			fi
+			\popd >/dev/null
+		fi
+	fi
 }
 
 
@@ -1203,6 +1245,18 @@ while [ $# -gt 0 ]; do
 		\shift
 		BUILD_NUMBER="$1"
 	;;
+	--auto)
+		if [[ -z $2 ]] || [[ "$2" == "-"* ]]; then
+			failure "--auto flag requires a build number"
+			failure ; DisplayHelp $NO ; exit 1
+		fi
+		DO_AUTO=$YES
+		DO_CLEAN=$YES ; DO_CONFIG=$YES ; DO_BUILD=$YES
+		DO_TESTS=$YES ; DO_PACK=$YES   ; VERBOSE=$YES
+		DO_RECURSIVE=$YES ; BUILD_RELEASE=$YES
+		\shift
+		BUILD_NUMBER="$1"
+	;;
 
 	-v|--verbose)  VERBOSE=$YES  ;;
 	-q|--quiet)    QUIET=$YES    ;;
@@ -1245,7 +1299,13 @@ if [[ $QUIET -ne $YES ]]; then
 		notice "Enable debug flags"
 		did_notice=$YES
 	fi
-	if [[ $BUILD_RELEASE -eq $YES ]]; then
+	if [[ $DO_AUTO -eq $YES ]]; then
+		notice "Auto Mode"
+		did_notice=$YES
+		if [[ $DEBUG_FLAGS -eq $YES ]]; then
+			warning "Production mode and debug mode are active at the same time"
+		fi
+	elif [[ $BUILD_RELEASE -eq $YES ]]; then
 		notice "Production Mode"
 		did_notice=$YES
 		if [[ $DEBUG_FLAGS -eq $YES ]]; then
