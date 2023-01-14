@@ -243,7 +243,7 @@ function doPullPush() {
 	if [[ ! -e "$PROJECT_PATH" ]]; then
 		[[ $QUIET -eq $NO ]] && \
 			title C "$PROJECT_NAME" "Clone"
-		\pushd "$CURRENT_PATH/" >/dev/null  || exit 1
+		\pushd  "$CURRENT_PATH/"  >/dev/null  || exit 1
 			local CLONE_PATH=${PROJECT_PATH##*/}
 			# git clone
 			echo_cmd "git clone  $PROJECT_REPO  $CLONE_PATH"
@@ -257,7 +257,7 @@ function doPullPush() {
 	fi
 	[[ $QUIET -eq $NO ]] && \
 		title C "$PROJECT_NAME" "Pull/Push"
-	\pushd "$PROJECT_PATH/" >/dev/null  || exit 1
+	\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
 		# git pull
 		echo_cmd "git pull"
 		if [[ $IS_DRY -eq $NO ]]; then
@@ -281,7 +281,7 @@ function doGitGUI() {
 	[[ ! -d "$PROJECT_PATH/.git" ]] \
 		&& return
 	# git-gui
-	\pushd "$PROJECT_PATH/" >/dev/null  || exit 1
+	\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
 		echo_cmd -n "git-gui"
 		if [[ $IS_DRY -eq $NO ]]; then
 			/usr/libexec/git-core/git-gui &
@@ -309,7 +309,7 @@ function doClean() {
 	if [[ $DO_WEB_ONLY -eq $NO ]]; then
 		if [[ -f "$PROJECT_PATH/Makefile.am" ]]; then
 			if [[ -f "$PROJECT_PATH/Makefile" ]]; then
-				\pushd "$PROJECT_PATH/" >/dev/null || exit 1
+				\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
 					echo_cmd -n "make distclean"
 					let rm_groups=$((rm_groups+1))
 					if [[ $IS_DRY -eq $NO ]]; then
@@ -322,7 +322,7 @@ function doClean() {
 					fi
 				\popd >/dev/null
 			fi
-			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
+			\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
 				# remove .deps/ dirs
 				RESULT=$( \find "$PROJECT_PATH" -type d -name .deps )
 				for ENTRY in $RESULT; do
@@ -355,7 +355,7 @@ function doClean() {
 				CLEAN_PATHS=". src"
 				CLEAN_FILES="autom4te.cache aclocal.m4 compile configure config.log config.guess config.status config.sub depcomp install-sh ltmain.sh Makefile Makefile.in missing"
 				for DIR in $CLEAN_PATHS; do
-					\pushd "$DIR/" >/dev/null || continue
+					\pushd  "$DIR/"  >/dev/null || continue
 						for ENTRY in $CLEAN_FILES; do
 							if [[ -f "$ENTRY" ]]; then
 								echo_cmd -n "rm $ENTRY"
@@ -386,7 +386,7 @@ function doClean() {
 		fi
 		# clean rpm project
 		if [[ -d "$PROJECT_PATH/rpmbuild" ]]; then
-			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
+			\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
 				echo_cmd -n "rm -rf rpmbuild"
 				let rm_groups=$((rm_groups+1))
 				if [[ $IS_DRY -eq $NO ]]; then
@@ -403,7 +403,7 @@ function doClean() {
 		if [[ -d "$PROJECT_PATH/target" ]]; then
 			# defer clean root target/
 			if [[ "$PROJECT_PATH/target" != "$TARGET_PATH" ]]; then
-				\pushd "$PROJECT_PATH/" >/dev/null || exit 1
+				\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
 					echo_cmd -n "rm -rf target"
 					let rm_groups=$((rm_groups+1))
 					if [[ $IS_DRY -eq $NO ]]; then
@@ -423,7 +423,7 @@ function doClean() {
 		if [[ -f "$PROJECT_PATH/composer.json" ]]; then
 			# clean vendor/
 			if [[ -d "$PROJECT_PATH/vendor" ]]; then
-				\pushd "$PROJECT_PATH/" >/dev/null || exit 1
+				\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
 					echo_cmd -n "rm -rf vendor"
 					let rm_groups=$((rm_groups+1))
 					if [[ $IS_DRY -eq $NO ]]; then
@@ -500,7 +500,7 @@ function doConfig() {
 		if [[ -f "$PROJECT_PATH/autotools.conf" ]]; then
 			[[ $QUIET -eq $NO ]] && \
 				title C "$PROJECT_NAME" "Generate autotools"
-			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
+			\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
 				echo_cmd "genautotools"
 				if [[ $IS_DRY -eq $NO ]]; then
 					\genautotools  || exit 1
@@ -513,7 +513,7 @@ function doConfig() {
 		if [[ -f "$PROJECT_PATH/configure.ac" ]]; then
 			[[ $QUIET -eq $NO ]] && \
 				title C "$PROJECT_NAME" "autoreconf"
-			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
+			\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
 				echo_cmd "autoreconf -v --install"
 				if [[ $IS_DRY -eq $NO ]]; then
 					\autoreconf -v --install  || exit 1
@@ -528,7 +528,7 @@ function doConfig() {
 		if [[ -f "$PROJECT_PATH/pom.conf" ]]; then
 			[[ $QUIET -eq $NO ]] && \
 				title C "$PROJECT_NAME" "Generate pom"
-			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
+			\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
 				# configure for release
 				if [[ $BUILD_RELEASE -eq $YES ]]; then
 					echo_cmd "genpom --release"
@@ -550,7 +550,7 @@ function doConfig() {
 		if [[ -f "$PROJECT_PATH/spec.conf" ]]; then
 			[[ $QUIET -eq $NO ]] && \
 				title C "$PROJECT_NAME" "Generate spec"
-			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
+			\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
 				echo_cmd "genspec"
 				if [[ $IS_DRY -eq $NO ]]; then
 					\genspec  || exit 1
@@ -563,7 +563,7 @@ function doConfig() {
 	if [[ $DO_BIN_ONLY -eq $NO ]]; then
 		# composer
 		if [[ -f "$PROJECT_PATH/composer.json" ]]; then
-			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
+			\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
 				REL=$NO
 				[[ $BUILD_RELEASE -eq $YES ]] && REL=$YES
 				[[ $DO_AUTO       -eq $YES ]] && REL=$YES
@@ -631,7 +631,7 @@ function doBuild() {
 		echo "web only; skipping.."
 	else
 		if [[ -f "$PROJECT_PATH/configure" ]]; then
-			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
+			\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
 				CONFIGURE_DEBUG_FLAGS=""
 				if [[ $DEBUG_FLAGS -eq $YES ]]; then
 					CONFIGURE_DEBUG_FLAGS="--enable-debug"
@@ -646,7 +646,7 @@ function doBuild() {
 		fi
 		# make
 		if [[ -f "$PROJECT_PATH/Makefile" ]]; then
-			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
+			\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
 				# make
 				echo_cmd "make"
 				if [[ $IS_DRY -eq $NO ]]; then
@@ -667,7 +667,7 @@ function doBuild() {
 		fi
 		# maven
 		if [[ -f "$PROJECT_PATH/pom.xml" ]]; then
-			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
+			\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
 				# generate release pom.xml
 				if [[ $BUILD_RELEASE -eq $YES ]]; then
 					echo_cmd "mv  pom.xml  pom.xml.xbuild-save"
@@ -697,7 +697,7 @@ function doBuild() {
 		fi
 		# rust/cargo
 		if [[ -f "$PROJECT_PATH/Cargo.toml" ]]; then
-			\pushd "$PROJECT_PATH/" >/dev/null || exit 1
+			\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
 				if [[ $BUILD_RELEASE -eq $YES ]]; then
 					echo_cmd "cargo build --release --timings"
 					if [[ $IS_DRY -eq $NO ]]; then
@@ -749,7 +749,7 @@ function doTests() {
 		title C "$PROJECT_NAME" "Testing"
 	# make check
 	if [[ -f "$PROJECT_PATH/Makefile" ]]; then
-		\pushd "$PROJECT_PATH/" >/dev/null || exit 1
+		\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
 			echo_cmd "make check"
 			if [[ $IS_DRY -eq $NO ]]; then
 				\make check  || exit 1
@@ -761,7 +761,7 @@ function doTests() {
 	fi
 	# phpunit
 	if [[ -f "$PROJECT_PATH/phpunit.xml" ]]; then
-		\pushd "$PROJECT_PATH/" >/dev/null || exit 1
+		\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
 			echo_cmd "phpunit"
 			if [[ $IS_DRY -eq $NO ]]; then
 				"$PROJECT_PATH"/vendor/bin/phpunit --coverage-html coverage/html  || exit 1
@@ -790,7 +790,7 @@ function doPack() {
 		title C "$PROJECT_NAME" "Package"
 	# make dist
 	if [[ -f "$PROJECT_PATH/Makefile" ]]; then
-		\pushd "$PROJECT_PATH/" >/dev/null || exit 1
+		\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
 			echo_cmd "make dist"
 			if [[ $IS_DRY -eq $NO ]]; then
 				\make dist  || exit 1
@@ -816,7 +816,7 @@ function doPack() {
 	if [[ -d rpmbuild ]]; then
 		echo_cmd -n "rm rpmbuild"
 		if [[ $IS_DRY -eq $NO ]]; then
-			\pushd "$PROJECT_PATH" >/dev/null  || exit 1
+			\pushd  "$PROJECT_PATH"  >/dev/null  || exit 1
 				local c=$( \rm -Rvf --preserve-root rpmbuild/ | \wc -l )
 				[[ 0 -ne $? ]] && exit 1
 				echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
@@ -828,7 +828,7 @@ function doPack() {
 		if [[ -d "$PROJECT_PATH/rpmbuild" ]]; then
 			echo_cmd -n "rm rpmbuild"
 			if [[ $IS_DRY -eq $NO ]]; then
-				\pushd "$PROJECT_PATH" >/dev/null  || exit 1
+				\pushd  "$PROJECT_PATH"  >/dev/null  || exit 1
 					local c=$( \rm -Rvf --preserve-root rpmbuild/ | \wc -l )
 					[[ 0 -ne $? ]] && exit 1
 					echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
@@ -845,7 +845,7 @@ function doPack() {
 			\cp -vf  "$SPEC_FILE"  "$PROJECT_PATH/rpmbuild/SPECS/"  || exit 1
 		fi
 		local PACKAGES=""
-		\pushd "$PROJECT_PATH/rpmbuild/" >/dev/null  || exit 1
+		\pushd  "$PROJECT_PATH/rpmbuild/"  >/dev/null  || exit 1
 			if [[ -z $TARGET_PATH ]]; then
 				failure "Target path not set"
 				failure ; exit 1
@@ -870,7 +870,7 @@ function doPack() {
 					-bb "SPECS/${SPEC_NAME}.spec" \
 						|| exit 1
 				echo
-				\pushd "$PROJECT_PATH/rpmbuild/RPMS/" >/dev/null  || exit 1
+				\pushd  "$PROJECT_PATH/rpmbuild/RPMS/"  >/dev/null  || exit 1
 					PACKAGES=$( \ls -1 *.rpm )
 				\popd >/dev/null
 				if [[ -z $PACKAGES ]]; then
@@ -975,7 +975,7 @@ function LoadConf() {
 	local LAST_PATH="$CURRENT_PATH"
 	CURRENT_PATH=${1%/*}
 	AutoDetectGitTag "$CURRENT_PATH"
-	\pushd "$CURRENT_PATH" >/dev/null  || exit 1
+	\pushd  "$CURRENT_PATH"  >/dev/null  || exit 1
 		# load xbuild.conf
 		source "$CURRENT_PATH/xbuild.conf" || exit 1
 		# last project in conf file
@@ -995,10 +995,10 @@ function AutoDetectGitTag() {
 	# detect snapshot/release
 	if [[ $DO_AUTO -eq $YES ]]; then
 		if [[ -d "$DIR/.git" ]]; then
-			\pushd "$DIR/" >/dev/null || exit 1
+			\pushd  "$DIR/"  >/dev/null  || exit 1
 			echo_cmd "git describe --tags --exact-match"
 			if [[ $IS_DRY -eq $NO ]]; then
-				TAG=$( /usr/bin/git describe --tags --exact-match  2>/dev/null )
+				TAG=$( \git describe --tags --exact-match  2>/dev/null )
 				RESULT=$?
 				if [[ $RESULT -ne 0 ]]; then
 					failure "Failed to detect latest commit tag"
