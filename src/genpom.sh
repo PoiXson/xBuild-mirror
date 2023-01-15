@@ -277,10 +277,15 @@ if [[ ! -z $VERSION ]]; then
 	fi
 	OUT_VERSION="$VERSION"
 fi
-if [[ ! -z $SNAPSHOT ]] \
-&& [[ "$OUT_VERSION" != *"$SNAPSHOT" ]]; then
-	OUT_VERSION="$OUT_VERSION$SNAPSHOT"
+if [[ ! -z $OUT_VERSION ]]; then
+	[[ "$OUT_VERSION" == *"SNAPSHOT"* ]] && \
+		SNAPSHOT="-SNAPSHOT"
 fi
+if [[ "$OUT_VERSION" == *"-"* ]]; then
+	OUT_VERSION=${OUT_VERSION%%-*}
+fi
+[[ ! -z $SNAPSHOT ]] && \
+	SNAPSHOT="-SNAPSHOT"
 
 
 
@@ -387,7 +392,7 @@ TIMESTAMP=$( \date )
 	<name>$NAME</name>
 	<artifactId>$ARTIFACT</artifactId>
 	<groupId>$GROUP</groupId>
-	<version>$OUT_VERSION</version>
+	<version>$OUT_VERSION$SNAPSHOT</version>
 	<packaging>jar</packaging>
 EOF
 [[ -z $URL  ]] || echo -e "\t<url>$URL</url>"                  >>"$OUT_FILE"
