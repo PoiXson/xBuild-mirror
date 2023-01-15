@@ -241,7 +241,7 @@ function doPullPush() {
 	# clone repo
 	if [[ ! -e "$PROJECT_PATH" ]]; then
 		[[ $QUIET -eq $NO ]] && \
-			title C "$PROJECT_NAME" "Clone"
+			title C "Clone"
 		\pushd  "$CURRENT_PATH/"  >/dev/null  || exit 1
 			local CLONE_PATH=${PROJECT_PATH##*/}
 			# git clone
@@ -255,7 +255,7 @@ function doPullPush() {
 		return
 	fi
 	[[ $QUIET -eq $NO ]] && \
-		title C "$PROJECT_NAME" "Pull/Push"
+		title C "Pull/Push"
 	\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
 		# git pull
 		echo_cmd "git pull"
@@ -299,7 +299,7 @@ function doGitGUI() {
 # --clean
 function doClean() {
 	[[ $QUIET -eq $NO ]] && \
-		title C "$PROJECT_NAME" "Clean"
+		title C "Clean"
 	let count=0
 	let rm_groups=0
 	restoreProjectTags
@@ -497,7 +497,7 @@ function doConfig() {
 		# generate automake files
 		if [[ -f "$PROJECT_PATH/autotools.conf" ]]; then
 			[[ $QUIET -eq $NO ]] && \
-				title C "$PROJECT_NAME" "Generate autotools"
+				title C "Generate autotools"
 			\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
 				echo_cmd -n "genautotools"
 				if [[ $IS_DRY -eq $NO ]]; then
@@ -512,7 +512,7 @@ function doConfig() {
 		# automake
 		if [[ -f "$PROJECT_PATH/configure.ac" ]]; then
 			[[ $QUIET -eq $NO ]] && \
-				title C "$PROJECT_NAME" "autoreconf"
+				title C "autoreconf"
 			\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
 				echo_cmd "autoreconf -v --install"
 				if [[ $IS_DRY -eq $NO ]]; then
@@ -527,7 +527,7 @@ function doConfig() {
 		# generate pom.xml file
 		if [[ -f "$PROJECT_PATH/pom.conf" ]]; then
 			[[ $QUIET -eq $NO ]] && \
-				title C "$PROJECT_NAME" "Generate pom"
+				title C "Generate pom"
 			\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
 				# configure for release
 				if [[ $BUILD_RELEASE -eq $YES ]]; then
@@ -556,7 +556,7 @@ function doConfig() {
 		# generate .spec file
 		if [[ -f "$PROJECT_PATH/spec.conf" ]]; then
 			[[ $QUIET -eq $NO ]] && \
-				title C "$PROJECT_NAME" "Generate spec"
+				title C "Generate spec"
 			\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
 				echo_cmd -n "genspec"
 				if [[ $IS_DRY -eq $NO ]]; then
@@ -580,7 +580,7 @@ function doConfig() {
 				if [[ $REL -eq $YES ]] \
 				&& [[ -f "$PROJECT_PATH/composer.lock" ]]; then
 					[[ $QUIET -eq $NO ]] && \
-						title C "$PROJECT_NAME" "Composer Install"
+						title C "Composer Install"
 					echo_cmd "composer install -a -o --no-dev --prefer-dist"
 					if [[ $IS_DRY -eq $NO ]]; then
 						\composer install --no-dev --prefer-dist --classmap-authoritative --optimize-autoloader  || exit 1
@@ -590,14 +590,14 @@ function doConfig() {
 					if [[ $DEBUG_FLAGS -eq $YES ]] \
 					|| [[ ! -f "$PROJECT_PATH/composer.lock" ]]; then
 						[[ $QUIET -eq $NO ]] && \
-							title C "$PROJECT_NAME" "Composer Update"
+							title C "Composer Update"
 						echo_cmd "composer update"
 						if [[ $IS_DRY -eq $NO ]]; then
 							\composer update  || exit 1
 						fi
 					else
 						[[ $QUIET -eq $NO ]] && \
-							title C "$PROJECT_NAME" "Composer Install"
+							title C "Composer Install"
 						echo_cmd "composer install"
 						if [[ $IS_DRY -eq $NO ]]; then
 							\composer install  || exit 1
@@ -761,7 +761,7 @@ function doTests() {
 	did_something=$NO
 	doProjectTags
 	[[ $QUIET -eq $NO ]] && \
-		title C "$PROJECT_NAME" "Testing"
+		title C "Testing"
 	# make check
 	if [[ -f "$PROJECT_PATH/Makefile" ]]; then
 		\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
