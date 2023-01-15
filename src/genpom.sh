@@ -61,6 +61,7 @@ function DisplayHelp() {
 	echo
 	echo -e "${COLOR_BROWN}Options:${COLOR_RESET}"
 	echo -e "  ${COLOR_GREEN}-R, --release [version]${COLOR_RESET}   Build a production release"
+	echo -e "  ${COLOR_GREEN}-S, --snapshot [version]${COLOR_RESET}  Build a snapshot"
 	echo
 	echo -e "  ${COLOR_GREEN}-V, --version${COLOR_RESET}             Display the version"
 	echo -e "  ${COLOR_GREEN}-h, --help${COLOR_RESET}                Display this help message and exit"
@@ -86,7 +87,15 @@ while [ $# -gt 0 ]; do
 			OUT_VERSION="$1"
 		fi
 	;;
+	-S|--snapshot)
+		SNAPSHOT="-SNAPSHOT"
+		if [[ ! -z $2 ]] && [[ "$2" != "-"* ]]; then
+			\shift
+			OUT_VERSION="${1}-SNAPSHOT"
+		fi
+	;;
 	--release=*)   OUT_VERSION=${1#*=}  ;;
+	--snapshot=*)  OUT_VERSION=${1#*=}  ;;
 	-V|--version)  DisplayVersion ; exit 1  ;;
 	-h|--help)     DisplayHelp    ; exit 1  ;;
 	*)
