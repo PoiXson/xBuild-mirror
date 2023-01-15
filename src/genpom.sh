@@ -211,31 +211,27 @@ function FindDepVersion() {
 	FIND_DEP_BY_GROUP="$1"
 	FIND_DEP_BY_ARTIFACT="$2"
 	FOUND_DEP_VERSION=""
-	local DID_SOMETHING=$NO
-	# current working dir
-	if [[ -e "$WDIR/$MAVEN_VERSIONS_FILE" ]]; then
-		source "$WDIR/$MAVEN_VERSIONS_FILE"  || exit 1
-		DID_SOMETHING=$YES
-	fi
-#TODO: automate with for loop
-	# up one
-	if [[ -e "$WDIR/../$MAVEN_VERSIONS_FILE" ]]; then
-		source "$WDIR/../$MAVEN_VERSIONS_FILE"  || exit 1
-		DID_SOMETHING=$YES
-	fi
-	# up two
-	if [[ -e "$WDIR/../../$MAVEN_VERSIONS_FILE" ]]; then
-		source "$WDIR/../../$MAVEN_VERSIONS_FILE"  || exit 1
-		DID_SOMETHING=$YES
-	fi
 	# home dir
 	if [[ -e "~/$MAVEN_VERSIONS_FILE" ]]; then
 		source "~/$MAVEN_VERSIONS_FILE"  || exit 1
+		[[ ! -z $FOUND_DEP_VERSION ]] && return
 		DID_SOMETHING=$YES
 	fi
+	# search current dir and parents
+	local P="$WDIR"
+	for i in {0..5}; do
+		[[ $i -gt 0 ]] && \
+			P="$P/.."
+		if [[ -e "$P/$MAVEN_VERSIONS_FILE" ]]; then
+			source  "$P/$MAVEN_VERSIONS_FILE"  || exit 1
+			[[ ! -z $FOUND_DEP_VERSION ]] && return
+			DID_SOMETHING=$YES
+		fi
+	done
 	# /etc
 	if [[ -e "/etc/$MAVEN_VERSIONS_FILE" ]]; then
 		source "/etc/$MAVEN_VERSIONS_FILE"  || exit 1
+		[[ ! -z $FOUND_DEP_VERSION ]] && return
 		DID_SOMETHING=$YES
 	fi
 	if [[ $DID_SOMETHING -ne $YES ]]; then
