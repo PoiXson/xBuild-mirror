@@ -364,16 +364,19 @@ fi
 
 
 # temp file
-OUT_FILE=$( mktemp )
+OUT_FILE=$( \mktemp )
 RESULT=$?
-if [[ $RESULT -ne 0 ]] || [[ -z $OUT_FILE ]]; then
+if [[ $RESULT -ne 0 ]] \
+|| [[ -z $OUT_FILE  ]]; then
 	failure "Failed to create a temp file"
-	failure ; exit $RESULT
+	failure ; exit 1
 fi
+
+
 
 # generate pom.xml
 echo -n >"$OUT_FILE"
-TIMESTAMP=$( date )
+TIMESTAMP=$( \date )
 \cat >>"$OUT_FILE" <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Generated: $TIMESTAMP -->
