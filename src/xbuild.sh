@@ -928,17 +928,6 @@ function doPack() {
 
 
 
-function Version() {
-	if [[ -z $1 ]]; then
-		failure "Version value is missing for project: $PROJECT_NAME"
-		failure ; exit 1
-	fi
-	if [[ -z $BUILD_NUMBER ]]; then
-		PROJECT_VERSION="$1"
-	else
-		PROJECT_VERSION=${1/x/$BUILD_NUMBER}
-	fi
-}
 function Path() {
 	if [[ -z $1 ]]; then
 		failure "Path value is missing for project: $PROJECT_NAME"
@@ -989,7 +978,9 @@ function LoadConf() {
 	fi
 	local LAST_PATH="$CURRENT_PATH"
 	CURRENT_PATH=${1%/*}
-	AutoDetectGitTag "$CURRENT_PATH"
+	local LAST_VERSION="$PROJECT_VERSION"
+	PROJECT_VERSION=""
+	DetectGitTag "$CURRENT_PATH"
 	\pushd  "$CURRENT_PATH"  >/dev/null  || exit 1
 		# load xbuild.conf
 		source "$CURRENT_PATH/xbuild.conf" || exit 1
@@ -998,36 +989,62 @@ function LoadConf() {
 		ProjectCleanup
 	\popd >/dev/null
 	CURRENT_PATH="$LAST_PATH"
+	PROJECT_VERSION="$LAST_VERSION"
 }
 
 
 
-function AutoDetectGitTag() {
+function DetectGitTag() {
 	local DIR="$1"
-	if [[ -z $DIR ]]; then
-		return
-	fi
-	# detect snapshot/release
-	if [[ $DO_AUTO -eq $YES ]]; then
-		if [[ -d "$DIR/.git" ]]; then
-			\pushd  "$DIR/"  >/dev/null  || exit 1
-			echo_cmd "git describe --tags --exact-match"
-			if [[ $IS_DRY -eq $NO ]]; then
-				TAG=$( \git describe --tags --exact-match  2>/dev/null )
-				RESULT=$?
-				if [[ $RESULT -ne 0 ]]; then
-					failure "Failed to detect latest commit tag"
-					failure ; exit 1
-				fi
-				if [[ -z $TAG ]]; then
-					BUILD_RELEASE=$NO
-				else
-					notice "Found tag: $TAG"
-					BUILD_RELEASE=$YES
-				fi
+	[[   -z  $DIR  ]] && return
+	[[ ! -d "$DIR" ]] && return
+	\pushd  "$DIR/"  >/dev/null  || exit 1
+		echo_cmd "git describe --tags --exact-match"
+		if [[ $IS_DRY -eq $NO ]]; then
+			local TAG=$( \git describe --tags --exact-match  2>/dev/null )
+			RESULT=$?
+			if [[ $RESULT -ne 0 ]]; then
+				failure "Failed to detect latest commit tag"
+				failure ; exit 1
 			fi
-			\popd >/dev/null
+			# snapshot
+			if [[ -z $TAG ]]; then
+				[[ $DO_AUTO -eq $YES ]] \
+					&& BUILD_RELEASE=$NO
+				echo_cmd "git describe --tags --abbrev=0"
+				TAG=$( \git describe --tags --abbrev=0 )
+				RESULT=$?
+				if [[ $RESULT -eq 0 ]]; then
+					PROJECT_VERSION="$TAG-SNAPSHOT"
+				else
+					warning "Project has no tags"
+					echo
+					PROJECT_VERSION="SNAPSHOT"
+				fi
+			# release
+			else
+				notice "Found tag: $TAG"
+				echo
+				[[ $DO_AUTO -eq $YES ]] \
+					&& BUILD_RELEASE=$YES
+				PROJECT_VERSION="$TAG"
+			fi
 		fi
+	\popd >/dev/null
+	# build number
+	if [[ ! -z $BUILD_NUMBER    ]] \
+	&& [[ ! -z $PROJECT_VERSION ]]; then
+		local VERS="$PROJECT_VERSION"
+		local IS_SNAP=$NO
+		if [[ "$VERS" == *"-SNAPSHOT" ]]; then
+			VERS=${VERS%-*}
+			IS_SNAP=$YES
+		fi
+		if [[ "$VERS" == *"-"* ]]; then
+			VERS=${VERS%-*}
+		fi
+		VERS=${VERS%.*}
+		PROJECT_VERSION="${VERS}.${BUILD_NUMBER}"
 	fi
 }
 
@@ -1187,7 +1204,6 @@ function doProject() {
 function ProjectCleanup() {
 	restoreProjectTags
 	PROJECT_NAME=""
-	PROJECT_VERSION=""
 	PROJECT_PATH=""
 	PROJECT_REPO=""
 	PROJECT_ALIASES=""
