@@ -980,7 +980,12 @@ function LoadConf() {
 	CURRENT_PATH=${1%/*}
 	local LAST_VERSION="$PROJECT_VERSION"
 	PROJECT_VERSION=""
-	DetectGitTag "$CURRENT_PATH"
+	if [[ $DO_CONFIG -eq $YES ]] \
+	|| [[ $DO_BUILD  -eq $YES ]] \
+	|| [[ $DO_TESTS  -eq $YES ]] \
+	|| [[ $DO_PACK   -eq $YES ]]; then
+		DetectGitTag "$CURRENT_PATH"
+	fi
 	\pushd  "$CURRENT_PATH"  >/dev/null  || exit 1
 		# load xbuild.conf
 		source "$CURRENT_PATH/xbuild.conf" || exit 1
@@ -1012,12 +1017,12 @@ function DetectGitTag() {
 				[[ $DO_AUTO -eq $YES ]] \
 					&& BUILD_RELEASE=$NO
 				echo_cmd "git describe --tags --abbrev=0"
-				TAG=$( \git describe --tags --abbrev=0 )
+				TAG=$( \git describe --tags --abbrev=0  2>/dev/null )
 				RESULT=$?
 				if [[ $RESULT -eq 0 ]]; then
 					PROJECT_VERSION="$TAG-SNAPSHOT"
 				else
-					warning "Project has no tags"
+					notice "Project has no tags"
 					echo
 					PROJECT_VERSION="SNAPSHOT"
 				fi
@@ -1161,7 +1166,12 @@ function doProject() {
 		title B "$PROJECT_NAME"
 		echo -e " ${COLOR_GREEN}>${COLOR_RESET} ${COLOR_BLUE}$PROJECT_PATH${COLOR_RESET}"
 		if [[ ! -z $PROJECT_VERSION ]]; then
-			notice "Version: ${COLOR_GREEN}$PROJECT_VERSION${COLOR_RESET}"
+			if [[ $DO_CONFIG -eq $YES ]] \
+			|| [[ $DO_BUILD  -eq $YES ]] \
+			|| [[ $DO_TESTS  -eq $YES ]] \
+			|| [[ $DO_PACK   -eq $YES ]]; then
+				notice "Version: ${COLOR_GREEN}$PROJECT_VERSION${COLOR_RESET}"
+			fi
 		fi
 		echo
 	fi
