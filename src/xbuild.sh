@@ -63,6 +63,7 @@ PROJECT_VERSION=""
 PROJECT_PATH=""
 CURRENT_PATH="$WDIR"
 PROJECT_REPO=""
+#TODO: use this (also do lcase)
 PROJECT_ALIASES=""
 PROJECT_GITIGNORE=""
 PROJECT_TAG_FILES=""
@@ -149,9 +150,8 @@ function DisplayTime() {
 	[[ $QUIET -eq $YES ]] && return
 	TIME_CURRENT=$( \date "+%s%N" )
 	ELAPSED=$( echo "scale=3;($TIME_CURRENT - $TIME_LAST) / 1000 / 1000 / 1000" | bc )
-	if [[ "$ELAPSED" == "."* ]]; then
+	[[ "$ELAPSED" == "."* ]] && \
 		ELAPSED="0$ELAPSED"
-	fi
 	echo -e " ${COLOR_CYAN}$1 in $ELAPSED seconds${COLOR_RESET}"
 	echo
 	TIME_LAST=$TIME_CURRENT
@@ -160,9 +160,8 @@ function DisplayTimeProject() {
 	[[ $QUIET -eq $YES ]] && return
 	TIME_CURRENT=$( \date "+%s%N" )
 	ELAPSED=$( echo "scale=3;($TIME_CURRENT - $TIME_START_PRJ) / 1000 / 1000 / 1000" | bc )
-	if [[ "$ELAPSED" == "."* ]]; then
+	[[ "$ELAPSED" == "."* ]] && \
 		ELAPSED="0$ELAPSED"
-	fi
 	echo -e " ${COLOR_CYAN}Finished project in $ELAPSED seconds: $PROJECT_NAME${COLOR_RESET}"
 	echo -e " ${COLOR_CYAN}--------------------------------------------------${COLOR_RESET}"
 	echo
@@ -173,7 +172,7 @@ function DisplayTimeProject() {
 function echo_cmd() {
 	local N=""
 	if [[ "$1" == "-n" ]]; then
-		local N="-n"
+		N="-n"
 		\shift
 	fi
 	echo $N -e  " > ${COLOR_CYAN}$@${COLOR_RESET}"
@@ -248,7 +247,7 @@ function doPullPush() {
 			# git clone
 			echo_cmd "git clone  $PROJECT_REPO  $CLONE_PATH"
 			if [[ $IS_DRY -eq $NO ]]; then
-				\git clone "$PROJECT_REPO" "$CLONE_PATH"  || exit 1
+				\git clone  "$PROJECT_REPO"  "$CLONE_PATH"  || exit 1
 			fi
 			echo
 		\popd >/dev/null
@@ -278,8 +277,7 @@ function doPullPush() {
 
 # --gg
 function doGitGUI() {
-	[[ ! -d "$PROJECT_PATH/.git" ]] \
-		&& return
+	[[ ! -d "$PROJECT_PATH/.git" ]] && return
 	# git-gui
 	\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
 		echo_cmd -n "git-gui"
@@ -501,9 +499,11 @@ function doConfig() {
 			[[ $QUIET -eq $NO ]] && \
 				title C "$PROJECT_NAME" "Generate autotools"
 			\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
-				echo_cmd "genautotools"
+				echo_cmd -n "genautotools"
 				if [[ $IS_DRY -eq $NO ]]; then
 					\genautotools  || exit 1
+				else
+					echo
 				fi
 			\popd >/dev/null
 			echo
@@ -531,15 +531,22 @@ function doConfig() {
 			\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
 				# configure for release
 				if [[ $BUILD_RELEASE -eq $YES ]]; then
-					echo_cmd "genpom --release"
+					echo_cmd -n "genpom --release $PROJECT_VERSION"
 					if [[ $IS_DRY -eq $NO ]]; then
-						\genpom  --release  || exit 1
+						\genpom  --release $PROJECT_VERSION  || exit 1
+					else
+						echo
 					fi
 				# configure for dev
 				else
-					echo_cmd "genpom"
+					local SNAPSHOT=""
+					[[ -z $PROJECT_VERSION ]] || \
+						SNAPSHOT="--snapshot $PROJECT_VERSION"
+					echo_cmd -n "genpom $SNAPSHOT"
 					if [[ $IS_DRY -eq $NO ]]; then
-						\genpom  || exit 1
+						\genpom  $SNAPSHOT  || exit 1
+					else
+						echo
 					fi
 				fi
 			\popd >/dev/null
@@ -551,9 +558,11 @@ function doConfig() {
 			[[ $QUIET -eq $NO ]] && \
 				title C "$PROJECT_NAME" "Generate spec"
 			\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
-				echo_cmd "genspec"
+				echo_cmd -n "genspec"
 				if [[ $IS_DRY -eq $NO ]]; then
 					\genspec  || exit 1
+				else
+					echo
 				fi
 			\popd >/dev/null
 			echo
@@ -671,10 +680,14 @@ function doBuild() {
 				# generate release pom.xml
 				if [[ $BUILD_RELEASE -eq $YES ]]; then
 					echo_cmd "mv  pom.xml  pom.xml.xbuild-save"
-					echo_cmd "genpom --release"
 					if [[ $IS_DRY -eq $NO ]]; then
 						\mv -v  "$PROJECT_PATH/pom.xml"  "$PROJECT_PATH/pom.xml.xbuild-save"  || exit 1
-						\genpom  --release  || exit 1
+					fi
+					echo_cmd -n "genpom --release $PROJECT_VERSION"
+					if [[ $IS_DRY -eq $NO ]]; then
+						\genpom  --release  $PROJECT_VERSION  || exit 1
+					else
+						echo
 					fi
 				fi
 				# build
@@ -685,9 +698,11 @@ function doBuild() {
 				# restore pom.xml
 				if [[ $BUILD_RELEASE -eq $YES ]]; then
 					echo_cmd "rm  pom.xml"
-					echo_cmd "mv  pom.xml.xbuild-save  pom.xml"
 					if [[ $IS_DRY -eq $NO ]]; then
 						\rm -vf --preserve-root  "$PROJECT_PATH/pom.xml"  || exit 1
+					fi
+					echo_cmd "mv  pom.xml.xbuild-save  pom.xml"
+					if [[ $IS_DRY -eq $NO ]]; then
 						\mv -v  "$PROJECT_PATH/pom.xml.xbuild-save"  "$PROJECT_PATH/pom.xml"  || exit 1
 					fi
 				fi
@@ -808,9 +823,9 @@ function doPack() {
 	local SPEC_FILE=""
 	local SPEC_NAME=""
 	if [[ $SPEC_FILE_COUNT -eq 1 ]]; then
-		local SPEC_FILE=$( \ls -1 "$PROJECT_PATH/"*.spec )
-		local SPEC_NAME=${SPEC_FILE%.*}
-		local SPEC_NAME=${SPEC_NAME##*/}
+		SPEC_FILE=$( \ls -1 "$PROJECT_PATH/"*.spec )
+		SPEC_NAME=${SPEC_FILE%.*}
+		SPEC_NAME=${SPEC_NAME##*/}
 	fi
 	# build rpm
 	if [[ -d rpmbuild ]]; then
@@ -1060,7 +1075,7 @@ function doProjectTags() {
 					[[ $IS_DRY -eq $NO ]] && \
 						\sed -i  "s/$VERS_GUESS/$PROJECT_VERSION/"  "$PROJECT_PATH/$F"  || exit 1
 				fi
-			# {{{VERSION}}}
+			# {VERSION} tag
 			else
 				[[ $VERBOSE -eq $YES ]] && \
 					echo_cmd "sed -i 's/{{""{VERSION}}}/$PROJECT_VERSION/' $F"
@@ -1128,11 +1143,10 @@ function doProject() {
 	if [[ $QUIET -eq $NO ]] && [[ "$PROJECT_PATH" != "$CURRENT_PATH" ]]; then
 		title B "$PROJECT_NAME"
 		echo -e " ${COLOR_GREEN}>${COLOR_RESET} ${COLOR_BLUE}$PROJECT_PATH${COLOR_RESET}"
+		if [[ ! -z $PROJECT_VERSION ]]; then
+			notice "Version: ${COLOR_GREEN}$PROJECT_VERSION${COLOR_RESET}"
+		fi
 		echo
-	fi
-#TODO: improve this
-	if [[ ! -z $PROJECT_VERSION ]]; then
-		echo -e "Version: $COLOR_GREEN$PROJECT_VERSION$COLOR_RESET"
 	fi
 	# --pp
 	[[ $DO_PP -eq $YES ]] && doPullPush
@@ -1273,9 +1287,8 @@ while [ $# -gt 0 ]; do
 			failure "--auto flag requires a build number"
 			failure ; DisplayHelp $NO ; exit 1
 		fi
-		DO_AUTO=$YES
-		DO_CLEAN=$YES ; DO_CONFIG=$YES ; DO_BUILD=$YES
-		DO_TESTS=$YES ; DO_PACK=$YES   ; VERBOSE=$YES
+		DO_AUTO=$YES  ; DO_TESTS=$YES ; VERBOSE=$YES
+		DO_CLEAN=$YES ; DO_BUILD=$YES ; DO_PACK=$YES
 		DO_RECURSIVE=$YES ; BUILD_RELEASE=$YES
 		\shift
 		BUILD_NUMBER="$1"
