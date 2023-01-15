@@ -119,6 +119,18 @@ function doProject() {
 		ProjectCleanup
 		return
 	fi
+	# filter
+	if [[ $DO_ALL -ne $YES ]]; then
+		if [[ " $PROJECT_FILTERS " == *" $PROJECT_NAME "*   ]]  \
+		|| [[ " $PROJECT_FILTERS " == *" $PROJECT_DOMAIN "* ]]; then
+			[[ $VERBOSE -eq $YES ]] && \
+				notice "Matched: $PROJECT_NAME - $PROJECT_DOMAIN"
+		else
+			[[ $VERBOSE -eq $YES ]] && \
+				notice "Skipping: $PROJECT_NAME - $PROJECT_DOMAIN"
+			return;
+		fi
+	fi
 	# check values
 	if [[ -z $PROJECT_USER ]]; then
 		failure "User not set for project: $PROJECT_NAME"
@@ -322,15 +334,6 @@ if [[ $QUIET -ne $YES ]]; then
 		did_notice=$YES
 	fi
 	[[ $did_notice -eq $YES ]] && echo
-fi
-
-
-
-#TODO
-if [[ $DO_ALL -ne $YES ]]; then
-	failure "Sorry, filtered deployment is unfinished."
-	failure "Only -a is currently available."
-	failure ; exit 1
 fi
 
 
