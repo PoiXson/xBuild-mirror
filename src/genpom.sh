@@ -42,7 +42,6 @@ fi
 
 MAVEN_VERSIONS_FILE="maven-versions.conf"
 SHADE=$NO
-APPEND_VERS="-version"
 SNAPSHOT="-SNAPSHOT"
 
 OUT_PROPS=""
@@ -143,7 +142,7 @@ function AddDep() {
 		failure "Unknown version for: $GROUP $ARTIFACT"
 		failure ; exit 1
 	fi
-	AddPropDep  "$ARTIFACT$APPEND_VERS"  "$VERSION"
+	AddPropDep  "$ARTIFACT-version"  "$VERSION"
 	if [[ -z $SCOPE ]]; then
 		if [[ $SHADE -ne $YES ]]; then
 			SCOPE="provided"
@@ -152,7 +151,7 @@ function AddDep() {
 	OUT_DEPS="$OUT_DEPS\t\t<dependency>\n"
 	OUT_DEPS="$OUT_DEPS\t\t\t<artifactId>$ARTIFACT</artifactId>\n"
 	OUT_DEPS="$OUT_DEPS\t\t\t<groupId>$GROUP</groupId>\n"
-	OUT_DEPS="$OUT_DEPS\t\t\t<version>\${$ARTIFACT$APPEND_VERS}</version>\n"
+	OUT_DEPS="$OUT_DEPS\t\t\t<version>\${$ARTIFACT-version}</version>\n"
 	[[ -z $SCOPE ]] || \
 	OUT_DEPS="$OUT_DEPS\t\t\t<scope>$SCOPE</scope>\n"
 	OUT_DEPS="$OUT_DEPS\t\t</dependency>\n"
@@ -280,56 +279,56 @@ fi
 if [[ -e "$WDIR/resources/" ]] \
 || [[ -e "$WDIR/testresources/" ]]; then
 	FindDepVersion  "org.apache.maven.plugins"  "maven-resources-plugin"
-	AddPropPlugin  "maven-resources-plugin$APPEND_VERS"  "$FOUND_DEP_VERSION"
+	AddPropPlugin  "maven-resources-plugin-version"  "$FOUND_DEP_VERSION"
 fi
 
 # java compiler plugin
 FindDepVersion  "org.apache.maven.plugins"  "maven-compiler-plugin"
-AddPropPlugin  "maven-compiler-plugin$APPEND_VERS"  "$FOUND_DEP_VERSION"
+AddPropPlugin  "maven-compiler-plugin-version"  "$FOUND_DEP_VERSION"
 
 # jar plugin
 FindDepVersion  "org.apache.maven.plugins"  "maven-jar-plugin"
-AddPropPlugin  "maven-jar-plugin$APPEND_VERS"  "$FOUND_DEP_VERSION"
+AddPropPlugin  "maven-jar-plugin-version"  "$FOUND_DEP_VERSION"
 
 # source plugin
 FindDepVersion  "org.apache.maven.plugins"  "maven-source-plugin"
-AddPropPlugin  "maven-source-plugin$APPEND_VERS"  "$FOUND_DEP_VERSION"
+AddPropPlugin  "maven-source-plugin-version"  "$FOUND_DEP_VERSION"
 
 # eclipse plugin
 FindDepVersion  "org.apache.maven.plugins"  "maven-eclipse-plugin"
-AddPropPlugin  "maven-eclipse-plugin$APPEND_VERS"  "$FOUND_DEP_VERSION"
+AddPropPlugin  "maven-eclipse-plugin-version"  "$FOUND_DEP_VERSION"
 
 # git commit id plugin
 FindDepVersion  "pl.project13.maven"  "git-commit-id-plugin"
-AddPropPlugin  "git-commit-id$APPEND_VERS"  "$FOUND_DEP_VERSION"
+AddPropPlugin  "git-commit-id-version"  "$FOUND_DEP_VERSION"
 
 # shade jar
 if [[ $SHADE -eq $YES ]]; then
 	FindDepVersion  "org.apache.maven.plugins"  "maven-shade-plugin"
-	AddPropPlugin  "maven-shade-plugin$APPEND_VERS"  "$FOUND_DEP_VERSION"
+	AddPropPlugin  "maven-shade-plugin-version"  "$FOUND_DEP_VERSION"
 fi
 
 if [[ -e "$WDIR/tests/" ]]; then
 
 	# junit
 	FindDepVersion  "junit"  "junit"
-	AddPropPlugin  "junit$APPEND_VERS"  "$FOUND_DEP_VERSION"
+	AddPropPlugin  "junit-version"  "$FOUND_DEP_VERSION"
 
 	# surefire
 	FindDepVersion  "org.apache.maven.plugins"  "maven-surefire-plugin"
-	AddPropPlugin  "surefire$APPEND_VERS"  "$FOUND_DEP_VERSION"
+	AddPropPlugin  "surefire-version"  "$FOUND_DEP_VERSION"
 
 	# cobertura
 	FindDepVersion  "org.codehaus.mojo"  "cobertura-maven-plugin"
-	AddPropPlugin  "cobertura$APPEND_VERS"  "$FOUND_DEP_VERSION"
+	AddPropPlugin  "cobertura-version"  "$FOUND_DEP_VERSION"
 
 	# jxr - cross reference
 	FindDepVersion  "org.apache.maven.jxr"  "jxr"
-	AddPropPlugin  "jxr$APPEND_VERS"  "$FOUND_DEP_VERSION"
+	AddPropPlugin  "jxr-version"  "$FOUND_DEP_VERSION"
 
 	# reports
 	FindDepVersion  "org.apache.maven.plugins"  "maven-project-info-reports-plugin"
-	AddPropPlugin  "project-info-reports$APPEND_VERS"  "$FOUND_DEP_VERSION"
+	AddPropPlugin  "project-info-reports-version"  "$FOUND_DEP_VERSION"
 
 fi
 
