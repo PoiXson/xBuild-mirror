@@ -744,13 +744,17 @@ echo "</project>" >>"$OUT_FILE"
 
 
 # diff
-HASH_NEW=$( \grep -v "<\!-- Generated: " "$OUT_FILE"     | \md5sum )
-HASH_OLD=$( \grep -v "<\!-- Generated: " "$WDIR/pom.xml" | \md5sum )
-HASH_NEW="${HASH_NEW%%\ *}"
-HASH_OLD="${HASH_OLD%%\ *}"
-if [[ -z $HASH_NEW ]] || [[ -z $HASH_OLD ]]; then
-	failure "Failed to diff temp file with existing file"
-	failure ; exit $RESULT
+HASH_NEW=""
+HASH_OLD=""
+DATA_NEW=$( \grep -v "<\!-- Generated: " "$OUT_FILE" 2>/dev/null )
+if [[ ! -z $DATA_NEW ]]; then HASH_NEW=$( echo "$DATA_NEW" | \md5sum ) ; HASH_NEW="${HASH_NEW%%\ *}" ; fi
+if [[ -f "$WDIR/pom.xml" ]]; then
+	DATA_OLD=$( \grep -v "<\!-- Generated: " "$WDIR/pom.xml" 2>/dev/null )
+	if [[ ! -z $DATA_OLD ]]; then HASH_OLD=$( echo "$DATA_OLD" | \md5sum ) ; HASH_OLD="${HASH_OLD%%\ *}" ; fi
+fi
+if [[ -z $HASH_NEW ]]; then
+	failure "Failed to hash new file"
+	failure ; exit 1
 fi
 
 
