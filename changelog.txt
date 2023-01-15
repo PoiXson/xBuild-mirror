@@ -1,6 +1,19 @@
 xBuild - A tool to simplify building and managing projects in your workspace
 
 
+2023-01-15 - 2.1.63
+===================
+* added xbuild --auto flag to detect git tags
+* setting a version in a conf file is now only used for overrides
+* build version is now detected by git tags
+* xbuild script generates a temporary pom.xml for releases
+* xbuild help can now be truncated
+* improved handling of flag arguments in xbuild script
+* added genpom --snapshot and --release flags with optional version parameter
+* added project filters to xdeploy script
+* other fixes and cleanup
+
+
 2023-01-04 - 2.1.57
 ===================
 * fixed scripts - allow no flags
