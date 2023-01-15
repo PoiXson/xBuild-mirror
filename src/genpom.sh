@@ -44,6 +44,7 @@ MAVEN_VERSIONS_FILE="maven-versions.conf"
 SHADE=$NO
 SNAPSHOT="-SNAPSHOT"
 
+OUT_VERSION=""
 OUT_PROPS=""
 OUT_PROPS_DEPS=""
 OUT_PROPS_PLUGINS=""
@@ -59,7 +60,7 @@ function DisplayHelp() {
 	echo    "  genpom [options] <group>"
 	echo
 	echo -e "${COLOR_BROWN}Options:${COLOR_RESET}"
-	echo -e "  ${COLOR_GREEN}-R, --release${COLOR_RESET}             Build a production release"
+	echo -e "  ${COLOR_GREEN}-R, --release [version]${COLOR_RESET}   Build a production release"
 	echo
 	echo -e "  ${COLOR_GREEN}-V, --version${COLOR_RESET}             Display the version"
 	echo -e "  ${COLOR_GREEN}-h, --help${COLOR_RESET}                Display this help message and exit"
@@ -78,7 +79,14 @@ function DisplayVersion() {
 echo
 while [ $# -gt 0 ]; do
 	case "$1" in
-	-R|--release) SNAPSHOT="" ;;
+	-R|--release)
+		SNAPSHOT=""
+		if [[ ! -z $2 ]] && [[ "$2" != "-"* ]]; then
+			\shift
+			OUT_VERSION="$1"
+		fi
+	;;
+	--release=*)   OUT_VERSION=${1#*=}  ;;
 	-V|--version)  DisplayVersion ; exit 1  ;;
 	-h|--help)     DisplayHelp    ; exit 1  ;;
 	*)
@@ -255,6 +263,18 @@ source "$WDIR/pom.conf"  || exit 1
 
 
 
+# override version with conf
+if [[ ! -z $VERSION ]]; then
+	if [[ -z $OUT_VERSION ]]; then
+		notice "Using version from conf"
+	else
+		failure "Overriding version with conf"
+	fi
+	OUT_VERSION="$VERSION"
+fi
+
+
+
 # check values
 if [[ -z $NAME ]]; then
 	failure "Name not set"
@@ -268,7 +288,7 @@ if [[ -z $GROUP ]]; then
 	failure "Group not set"
 	failure ; exit 1
 fi
-if [[ -z $VERSION ]]; then
+if [[ -z $OUT_VERSION ]]; then
 	failure "Version not set"
 	failure ; exit 1
 fi
@@ -355,7 +375,7 @@ TIMESTAMP=$( date )
 	<name>$NAME</name>
 	<artifactId>$ARTIFACT</artifactId>
 	<groupId>$GROUP</groupId>
-	<version>$VERSION$SNAPSHOT</version>
+	<version>$OUT_VERSION$SNAPSHOT</version>
 	<packaging>jar</packaging>
 EOF
 [[ -z $URL  ]] || echo -e "\t<url>$URL</url>"                  >>"$OUT_FILE"
