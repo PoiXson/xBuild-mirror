@@ -277,9 +277,13 @@ if [[ ! -z $VERSION ]]; then
 	if [[ -z $OUT_VERSION ]]; then
 		notice "Using version from conf"
 	else
-		failure "Overriding version with conf"
+		warning "Overriding version with conf"
 	fi
 	OUT_VERSION="$VERSION"
+fi
+if [[ ! -z $SNAPSHOT ]] \
+&& [[ "$OUT_VERSION" != *"$SNAPSHOT" ]]; then
+	OUT_VERSION="$OUT_VERSION$SNAPSHOT"
 fi
 
 
@@ -387,7 +391,7 @@ TIMESTAMP=$( \date )
 	<name>$NAME</name>
 	<artifactId>$ARTIFACT</artifactId>
 	<groupId>$GROUP</groupId>
-	<version>$OUT_VERSION$SNAPSHOT</version>
+	<version>$OUT_VERSION</version>
 	<packaging>jar</packaging>
 EOF
 [[ -z $URL  ]] || echo -e "\t<url>$URL</url>"                  >>"$OUT_FILE"
