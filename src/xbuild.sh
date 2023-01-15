@@ -632,9 +632,9 @@ function doConfig() {
 # --build
 function doBuild() {
 	did_something=$NO
-	doProjectTags
 	[[ $QUIET -eq $NO ]] && \
 		title C "$PROJECT_NAME" "Build"
+	doProjectTags
 	# automake
 	if [[ $DO_WEB_ONLY -eq $YES ]]; then
 		echo "web only; skipping.."
