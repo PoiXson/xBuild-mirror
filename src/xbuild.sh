@@ -1251,6 +1251,7 @@ while [ $# -gt 0 ]; do
 		\shift
 		BUILD_NUMBER="$1"
 	;;
+	-n*)  BUILD_NUMBER=${1#-n}  ;;
 	--build-number=*)
 		BUILD_NUMBER=${1#*=}
 		if [[ -z $BUILD_NUMBER ]]; then
