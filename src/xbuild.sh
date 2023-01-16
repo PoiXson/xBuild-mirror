@@ -677,15 +677,22 @@ function doBuild() {
 		# maven
 		if [[ -f "$PROJECT_PATH/pom.xml" ]]; then
 			\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
-				# generate release pom.xml
-				if [[ $BUILD_RELEASE -eq $YES ]]; then
+				# generate temp release pom.xml
+				if [[ $BUILD_RELEASE -eq $YES ]] \
+				|| [[ $DO_AUTO       -eq $YES ]]; then
 					echo_cmd "mv  pom.xml  pom.xml.xbuild-save"
 					if [[ $IS_DRY -eq $NO ]]; then
 						\mv -v  "$PROJECT_PATH/pom.xml"  "$PROJECT_PATH/pom.xml.xbuild-save"  || exit 1
 					fi
-					echo_cmd -n "genpom --release $PROJECT_VERSION"
+					local SNAP_RELEASE=""
+					if [[ $BUILD_RELEASE -eq $YES ]]; then
+						SNAP_RELEASE="--release"
+					else
+						SNAP_RELEASE="--snapshot"
+					fi
+					echo_cmd -n "genpom $SNAP_RELEASE $PROJECT_VERSION"
 					if [[ $IS_DRY -eq $NO ]]; then
-						\genpom  --release  $PROJECT_VERSION  || exit 1
+						\genpom  $SNAP_RELEASE  $PROJECT_VERSION  || exit 1
 					else
 						echo
 					fi
@@ -696,7 +703,8 @@ function doBuild() {
 					\mvn clean install  || exit 1
 				fi
 				# restore pom.xml
-				if [[ $BUILD_RELEASE -eq $YES ]]; then
+				if [[ $BUILD_RELEASE -eq $YES ]] \
+				|| [[ $DO_AUTO       -eq $YES ]]; then
 					echo_cmd "rm  pom.xml"
 					if [[ $IS_DRY -eq $NO ]]; then
 						\rm -vf --preserve-root  "$PROJECT_PATH/pom.xml"  || exit 1
