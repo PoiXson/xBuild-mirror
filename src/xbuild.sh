@@ -1048,17 +1048,19 @@ function DetectGitTag() {
 	# build number
 	if [[ ! -z $BUILD_NUMBER    ]] \
 	&& [[ ! -z $PROJECT_VERSION ]]; then
-		local VERS="$PROJECT_VERSION"
-		local IS_SNAP=$NO
-		if [[ "$VERS" == *"-SNAPSHOT" ]]; then
-			VERS=${VERS%-*}
-			IS_SNAP=$YES
+		if [[ "$PROJECT_VERSION" != "SNAPSHOT" ]]; then
+			local VERS="$PROJECT_VERSION"
+			local IS_SNAP=$NO
+			if [[ "$VERS" == *"-SNAPSHOT" ]]; then
+				VERS=${VERS%-*}
+				IS_SNAP=$YES
+			fi
+			if [[ "$VERS" == *"-"* ]]; then
+				VERS=${VERS%-*}
+			fi
+			VERS=${VERS%.*}
+			PROJECT_VERSION="${VERS}.${BUILD_NUMBER}"
 		fi
-		if [[ "$VERS" == *"-"* ]]; then
-			VERS=${VERS%-*}
-		fi
-		VERS=${VERS%.*}
-		PROJECT_VERSION="${VERS}.${BUILD_NUMBER}"
 	fi
 }
 
