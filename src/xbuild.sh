@@ -615,7 +615,7 @@ function doConfig() {
 		COUNT_OPS=$((COUNT_OPS+1))
 	else
 		[[ $QUIET -eq $NO ]] && \
-			title C "$PROJECT_NAME" "Configure"
+			title C "Configure"
 		if [[ $DO_WEB_ONLY -eq $YES ]]; then
 			echo "web only; skipping.."
 		elif [[ $DO_BIN_ONLY -eq $YES ]]; then
@@ -633,7 +633,7 @@ function doConfig() {
 function doBuild() {
 	did_something=$NO
 	[[ $QUIET -eq $NO ]] && \
-		title C "$PROJECT_NAME" "Build"
+		title C "Build"
 	doProjectTags
 	# automake
 	if [[ $DO_WEB_ONLY -eq $YES ]]; then
@@ -810,7 +810,7 @@ function doPack() {
 	local did_something=$NO
 	doProjectTags
 	[[ $QUIET -eq $NO ]] && \
-		title C "$PROJECT_NAME" "Package"
+		title C "Package"
 	# make dist
 	if [[ -f "$PROJECT_PATH/Makefile" ]]; then
 		\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
