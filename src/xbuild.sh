@@ -1030,9 +1030,10 @@ function DetectGitTag() {
 				if [[ $RESULT -eq 0 ]]; then
 					PROJECT_VERSION="$TAG-SNAPSHOT"
 				else
+					PROJECT_VERSION="0.1.1"
 					notice "Project has no tags"
+					notice "Defaulting to $PROJECT_VERSION"
 					echo
-					PROJECT_VERSION="SNAPSHOT"
 				fi
 			# release
 			else
