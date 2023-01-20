@@ -42,7 +42,7 @@ fi
 
 MAVEN_VERSIONS_FILE="maven-versions.conf"
 SHADE=$NO
-SNAPSHOT="-SNAPSHOT"
+SNAPSHOT=$YES
 
 OUT_VERSION=""
 OUT_PROPS=""
@@ -81,17 +81,17 @@ echo
 while [ $# -gt 0 ]; do
 	case "$1" in
 	-R|--release)
-		SNAPSHOT=""
+		SNAPSHOT=$NO
 		if [[ ! -z $2 ]] && [[ "$2" != "-"* ]]; then
 			\shift
 			OUT_VERSION="$1"
 		fi
 	;;
 	-S|--snapshot)
-		SNAPSHOT="-SNAPSHOT"
+		SNAPSHOT=$YES
 		if [[ ! -z $2 ]] && [[ "$2" != "-"* ]]; then
 			\shift
-			OUT_VERSION="${1}-SNAPSHOT"
+			OUT_VERSION="$1"
 		fi
 	;;
 	--release=*)   OUT_VERSION=${1#*=}  ;;
@@ -268,24 +268,20 @@ source "$WDIR/pom.conf"  || exit 1
 
 
 
-# override version with conf
 if [[ ! -z $VERSION ]]; then
-	if [[ -z $OUT_VERSION ]]; then
-		notice "Using version from conf"
-	else
-		warning "Overriding version with conf"
-	fi
-	OUT_VERSION="$VERSION"
+	failure "Version in conf not supported"
+	failure ; exit 1
 fi
 if [[ ! -z $OUT_VERSION ]]; then
 	[[ "$OUT_VERSION" == *"SNAPSHOT"* ]] && \
-		SNAPSHOT="-SNAPSHOT"
+		SNAPSHOT=$YES
 fi
 if [[ "$OUT_VERSION" == *"-"* ]]; then
 	OUT_VERSION=${OUT_VERSION%%-*}
 fi
-[[ ! -z $SNAPSHOT ]] && \
-	SNAPSHOT="-SNAPSHOT"
+if [[ $SNAPSHOT -eq $YES ]]; then
+	OUT_VERSION="$OUT_VERSION-SNAPSHOT"
+fi
 
 
 
@@ -392,7 +388,7 @@ TIMESTAMP=$( \date )
 	<name>$NAME</name>
 	<artifactId>$ARTIFACT</artifactId>
 	<groupId>$GROUP</groupId>
-	<version>$OUT_VERSION$SNAPSHOT</version>
+	<version>$OUT_VERSION</version>
 	<packaging>jar</packaging>
 EOF
 [[ -z $URL  ]] || echo -e "\t<url>$URL</url>"                  >>"$OUT_FILE"
