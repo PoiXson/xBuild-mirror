@@ -52,6 +52,7 @@ OUT_PLUGINS=""
 OUT_DEPS=""
 OUT_REPOS=""
 OUT_RES=""
+OUT_BIN=""
 
 
 
@@ -200,6 +201,13 @@ function AddRes() {
 		failure ; exit 1
 	fi
 	OUT_RES="$OUT_RES\t\t\t\t\t<include>$1</include>\n"
+}
+function AddBin() {
+	if [[ -z $1 ]]; then
+		failure "AddBin requires a file argument to include"
+		failure ; exit 1
+	fi
+	OUT_BIN="$OUT_BIN\t\t\t\t\t<include>$1</include>\n"
 }
 
 
@@ -464,24 +472,38 @@ if [[ -e "$WDIR/tests/" ]]; then
 fi
 
 # resources
-if [[ -e "$WDIR/resources/" ]] \
-&& [[ ! -z $OUT_RES         ]]; then
-#TODO: includes/excludes arrays
+if [[ -e "$WDIR/resources/" ]]; then
+	if [[ ! -z $OUT_RES ]] \
+	|| [[ ! -z $OUT_BIN ]]; then
+		echo -e "\t\t<resources>" >> "$OUT_FILE"
+		if [[ ! -z $OUT_RES ]]; then
 \cat >>"$OUT_FILE" <<EOF
-		<resources>
 			<resource>
 				<directory>resources/</directory>
 				<filtering>true</filtering>
 				<includes>
 EOF
-if [[ ! -z $OUT_RES ]]; then
-	echo -ne $OUT_RES >> "$OUT_FILE"
-fi
+echo -ne "$OUT_RES" >> "$OUT_FILE"
 \cat >>"$OUT_FILE" <<EOF
 				</includes>
 			</resource>
-		</resources>
 EOF
+		fi
+		if [[ ! -z $OUT_BIN ]]; then
+\cat >>"$OUT_FILE" <<EOF
+			<resource>
+				<directory>resources/</directory>
+				<filtering>false</filtering>
+				<includes>
+EOF
+echo -ne "$OUT_BIN" >> "$OUT_FILE"
+\cat >>"$OUT_FILE" <<EOF
+				</includes>
+			</resource>
+EOF
+		fi
+		echo -e "\t\t</resources>" >> "$OUT_FILE"
+	fi
 fi
 if [[ -e "$WDIR/testresources/" ]]; then
 \cat >>"$OUT_FILE" <<EOF
