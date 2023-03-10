@@ -700,7 +700,7 @@ function doBuild() {
 				# build
 				echo_cmd "mvn clean install"
 				if [[ $IS_DRY -eq $NO ]]; then
-					\mvn clean install  || exit 1
+					\mvn  --no-transfer-progress  clean install  || exit 1
 				fi
 				# restore pom.xml
 				if [[ $BUILD_RELEASE -eq $YES ]] \
