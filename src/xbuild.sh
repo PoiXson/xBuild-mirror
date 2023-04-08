@@ -1325,9 +1325,9 @@ while [ $# -gt 0 ]; do
 			failure "--auto flag requires a build number"
 			failure ; DisplayHelp $NO ; exit 1
 		fi
-		DO_AUTO=$YES  ; DO_TESTS=$YES ; VERBOSE=$YES
-		DO_CLEAN=$YES ; DO_BUILD=$YES ; DO_PACK=$YES
-		DO_RECURSIVE=$YES ; BUILD_RELEASE=$YES
+		DO_AUTO=$YES  ; DO_TESTS=$YES  ; VERBOSE=$YES
+		DO_CLEAN=$YES ; DO_CONFIG=$YES ; DO_BUILD=$YES
+		DO_PACK=$YES ; DO_RECURSIVE=$YES ; BUILD_RELEASE=$YES
 		\shift
 		BUILD_NUMBER="$1"
 	;;
