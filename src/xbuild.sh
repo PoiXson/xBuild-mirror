@@ -51,6 +51,7 @@ DO_BUILD=$NO
 DO_TESTS=$NO
 DO_PACK=$NO
 DO_AUTO=$NO
+DO_IDE=$NO
 
 BUILD_NUMBER=""
 BUILD_RELEASE=$NO
@@ -108,6 +109,7 @@ function DisplayHelp() {
 	echo -e "  ${COLOR_GREEN}-b, --build, --compile${COLOR_RESET}    Compile the projects"
 	echo -e "  ${COLOR_GREEN}--tests${COLOR_RESET}                   Compile and run tests for the project"
 	echo -e "  ${COLOR_GREEN}-p, --pack, --package${COLOR_RESET}     Build distributable packages"
+	echo -e "  ${COLOR_GREEN}-i, --ide${COLOR_RESET}                 Create IDE project imports (while building)"
 	echo
 	echo -e "  ${COLOR_GREEN}--cb${COLOR_RESET}                      Config, build"
 	echo -e "  ${COLOR_GREEN}--cbp${COLOR_RESET}                     Config, build, pack"
@@ -701,6 +703,11 @@ function doBuild() {
 				echo_cmd "mvn clean install"
 				if [[ $IS_DRY -eq $NO ]]; then
 					\mvn  --no-transfer-progress  clean install  || exit 1
+				fi
+				# ide projects
+				echo_cmd "mvn eclipse:eclipse"
+				if [[ $IS_DRY -eq $NO ]]; then
+					\mvn  --no-transfer-progress  eclipse:eclipse  || exit 1
 				fi
 				# restore pom.xml
 				if [[ $BUILD_RELEASE -eq $YES ]] \
@@ -1297,6 +1304,7 @@ while [ $# -gt 0 ]; do
 	-b|--build|--compile)          DO_BUILD=$YES   ;;
 	--test|--tests|--testing)      DO_TESTS=$YES   ;;
 	-p|--pack|--package)           DO_PACK=$YES    ;;
+	-i|--ide)                      DO_IDE=$YES     ;;
 
 	--cb)     DO_CONFIG=$YES ; DO_BUILD=$YES  ;;
 	--cbp)    DO_CONFIG=$YES ; DO_BUILD=$YES  ; DO_PACK=$YES  ;;
