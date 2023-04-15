@@ -95,6 +95,7 @@ function DisplayHelp() {
 	echo                                "                              default: x"
 	echo -e "  ${COLOR_GREEN}--target <path>${COLOR_RESET}           Sets the destination path for finished binaries"
 	echo                                "                              default: target/"
+	echo -e "  ${COLOR_GREEN}-f, --filter <project>${COLOR_RESET}    Skip all projects except these"
 	echo
 	echo -e "  ${COLOR_GREEN}--binonly${COLOR_RESET}                 Build binary projects only"
 	echo -e "  ${COLOR_GREEN}--webonly${COLOR_RESET}                 Build web projects only"
@@ -1163,6 +1164,12 @@ function doProject() {
 		ProjectCleanup
 		return
 	fi
+	if [[ ! -z $PROJECT_FILTERS ]]; then
+		if [[ " $PROJECT_FILTERS " != *" $PROJECT_NAME "* ]]; then
+			notice "Skipping filtered: $PROJECT_NAME"
+			return
+		fi
+	fi
 	if [[ -z $PROJECT_PATH ]]; then
 		# project in named path
 		if [[ -f "$CURRENT_PATH/$PROJECT_NAME/xbuild.conf" ]]; then
@@ -1293,6 +1300,23 @@ while [ $# -gt 0 ]; do
 		fi
 	;;
 
+	-f|--filter)
+		if [[ -z $2 ]] || [[ "$2" == "-"* ]]; then
+			failure "--filter flag requires a value"
+			failure ; DisplayHelp $NO ; exit 1
+		fi
+		\shift
+		PROJECT_FILTERS="$PROJECT_FILTERS $1"
+	;;
+	--filter=*)
+		FILTER="${1#*=}"
+		if [[ -z $FILTER ]]; then
+			failure "--filter flag requires a value"
+			failure ; DisplayHelp $NO ; exit 1
+		fi
+		PROJECT_FILTERS="$PROJECT_FILTERS $FILTER"
+	;;
+
 	--binonly)  DO_BIN_ONLY=$YES  ;;
 	--webonly)  DO_WEB_ONLY=$YES  ;;
 
@@ -1347,14 +1371,11 @@ while [ $# -gt 0 ]; do
 	-V|--version)  DisplayVersion   ; exit 1  ;;
 	-h|--help)     DisplayHelp $YES ; exit 1  ;;
 
-	-*)
+	*)
 		failure "Unknown argument: $1"
 		failure
 		DisplayHelp $NO
 		exit 1
-	;;
-	*)
-		PROJECT_FILTERS="$PROJECT_FILTERS $1"
 	;;
 
 	esac
@@ -1413,8 +1434,6 @@ if [[ $QUIET -ne $YES ]]; then
 		for FILTER in $PROJECT_FILTERS; do
 			echo -e "  ${COLOR_BLUE}"${FILTER##*/}"${COLOR_RESET}"
 		done
-#TODO
-warning "Filters are unfinished and unsupported"
 		echo
 	fi
 fi
