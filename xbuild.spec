@@ -47,9 +47,10 @@ echo "Install.."
 
 # create dirs
 %{__install} -d -m 0755  \
-	"%{buildroot}%{prefix}/"                 \
-	"%{buildroot}%{_sysconfdir}/profile.d/"  \
-	"%{buildroot}%{_sysconfdir}/xbuild/"     \
+	"%{buildroot}%{prefix}/"                     \
+	"%{buildroot}%{_sysconfdir}/profile.d/"      \
+	"%{buildroot}%{_sysconfdir}/xbuild/"         \
+	"%{buildroot}%{_sysconfdir}/xbuild/stages/"  \
 		|| exit 1
 
 \pushd  "%{_topdir}/../src/"  >/dev/null  || exit 1
@@ -64,6 +65,15 @@ echo "Install.."
 	%{__install} -m 0644  "etc-profile.d-xbuild.sh"      "%{buildroot}%{_sysconfdir}/profile.d/xbuild.sh"      || exit 1
 	%{__install} -m 0644  "etc-profile.d-xdeploy.sh"     "%{buildroot}%{_sysconfdir}/profile.d/xdeploy.sh"     || exit 1
 	%{__install} -m 0644  "etc-profile.d-buildrepos.sh"  "%{buildroot}%{_sysconfdir}/profile.d/buildrepos.sh"  || exit 1
+\popd  >/dev/null
+\pushd  "%{_topdir}/../src/xbuild-stages/"  >/dev/null  || exit 1
+	%{__install} -m 0644  "10-pull-push.sh"  "%{buildroot}%{_sysconfdir}/xbuild/stages/"  || exit 1
+	%{__install} -m 0644  "30-clean.sh"      "%{buildroot}%{_sysconfdir}/xbuild/stages/"  || exit 1
+	%{__install} -m 0644  "40-config.sh"     "%{buildroot}%{_sysconfdir}/xbuild/stages/"  || exit 1
+	%{__install} -m 0644  "50-build.sh"      "%{buildroot}%{_sysconfdir}/xbuild/stages/"  || exit 1
+	%{__install} -m 0644  "70-test.sh"       "%{buildroot}%{_sysconfdir}/xbuild/stages/"  || exit 1
+	%{__install} -m 0644  "80-pack.sh"       "%{buildroot}%{_sysconfdir}/xbuild/stages/"  || exit 1
+	%{__install} -m 0644  "90-git-gui.sh"    "%{buildroot}%{_sysconfdir}/xbuild/stages/"  || exit 1
 \popd  >/dev/null
 \pushd  "%{_topdir}/../"  >/dev/null  || exit 1
 	%{__install} -m 0644  "xdeploy-example.conf"  "%{buildroot}/xdeploy.conf"  || exit 1
@@ -84,7 +94,15 @@ echo "Install.."
 %{_sysconfdir}/profile.d/xbuild.sh
 %{_sysconfdir}/maven-versions.conf.example
 %dir %{_sysconfdir}/xbuild/
+%dir %{_sysconfdir}/xbuild/stages/
 %attr(0644,-,-) %config(noreplace) %{_sysconfdir}/xbuild/gitignore
+%attr(0644,-,-) %{_sysconfdir}/xbuild/stages/10-pull-push.sh
+%attr(0644,-,-) %{_sysconfdir}/xbuild/stages/30-clean.sh
+%attr(0644,-,-) %{_sysconfdir}/xbuild/stages/40-config.sh
+%attr(0644,-,-) %{_sysconfdir}/xbuild/stages/50-build.sh
+%attr(0644,-,-) %{_sysconfdir}/xbuild/stages/70-test.sh
+%attr(0644,-,-) %{_sysconfdir}/xbuild/stages/80-pack.sh
+%attr(0644,-,-) %{_sysconfdir}/xbuild/stages/90-git-gui.sh
 
 %files -n xdeploy
 %defattr(0555, root, root, 0755)
