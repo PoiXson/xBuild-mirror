@@ -41,8 +41,6 @@ NO_COLORS=$NO
 DO_RECURSIVE=$NO
 IS_DRY=$NO
 DEBUG_FLAGS=$NO
-DO_BIN_ONLY=$NO
-DO_WEB_ONLY=$NO
 DO_PP=$NO
 DO_GG=$NO
 DO_CLEAN=$NO
@@ -97,9 +95,6 @@ function DisplayHelp() {
 	echo -e "  ${COLOR_GREEN}--target <path>${COLOR_RESET}           Sets the destination path for finished binaries"
 	echo                                "                              default: target/"
 	echo -e "  ${COLOR_GREEN}-f, --filter <project>${COLOR_RESET}    Skip all projects except these"
-	echo
-	echo -e "  ${COLOR_GREEN}--binonly${COLOR_RESET}                 Build binary projects only"
-	echo -e "  ${COLOR_GREEN}--webonly${COLOR_RESET}                 Build web projects only"
 	echo
 	fi
 	echo -e "  ${COLOR_GREEN}--pp, --pull-push${COLOR_RESET}         Run 'git pull' and 'git push'"
@@ -308,91 +303,13 @@ function doClean() {
 	let rm_groups=0
 	restoreProjectTags
 	# make clean
-	if [[ $DO_WEB_ONLY -eq $NO ]]; then
-		if [[ -f "$PROJECT_PATH/Makefile.am" ]]; then
-			if [[ -f "$PROJECT_PATH/Makefile" ]]; then
-				\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
-					echo_cmd -n "make distclean"
-					let rm_groups=$((rm_groups+1))
-					if [[ $IS_DRY -eq $NO ]]; then
-						local c=$( \make distclean | \wc -l )
-						[[ 0 -ne $? ]] && exit 1
-						[[ $c -gt 0 ]] && count=$((count+c))
-						echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
-					else
-						echo
-					fi
-				\popd >/dev/null
-			fi
+	if [[ -f "$PROJECT_PATH/Makefile.am" ]]; then
+		if [[ -f "$PROJECT_PATH/Makefile" ]]; then
 			\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
-				# remove .deps/ dirs
-				RESULT=$( \find "$PROJECT_PATH" -type d -name .deps )
-				for ENTRY in $RESULT; do
-					if [[ -f "$ENTRY" ]]; then
-						echo_cmd -n "rm ${ENTRY}.."
-						let rm_groups=$((rm_groups+1))
-						if [[ $IS_DRY -eq $NO ]]; then
-							local c=$( \rm -v "$ENTRY" | \wc -l )
-							[[ 0 -ne $? ]] && exit 1
-							[[ $c -gt 0 ]] && count=$((count+c))
-							echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
-						else
-							echo
-						fi
-					fi
-					if [[ -d "$ENTRY" ]]; then
-						echo_cmd -n "rm -rf $ENTRY"
-						let rm_groups=$((rm_groups+1))
-						if [[ $IS_DRY -eq $NO ]]; then
-							local c=$( \rm -vrf --preserve-root "$ENTRY" | \wc -l )
-							[[ 0 -ne $? ]] && exit 1
-							[[ $c -gt 0 ]] && count=$((count+c))
-							echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
-						else
-							echo
-						fi
-					fi
-				done
-				# remove more files
-				CLEAN_PATHS=". src"
-				CLEAN_FILES="autom4te.cache aclocal.m4 compile configure config.log config.guess config.status config.sub depcomp install-sh ltmain.sh Makefile Makefile.in missing"
-				for DIR in $CLEAN_PATHS; do
-					\pushd  "$DIR/"  >/dev/null || continue
-						for ENTRY in $CLEAN_FILES; do
-							if [[ -f "$ENTRY" ]]; then
-								echo_cmd -n "rm $ENTRY"
-								if [[ $IS_DRY -eq $NO ]]; then
-									local c=$( \rm -v "$ENTRY" | \wc -l )
-									[[ 0 -ne $? ]] && exit 1
-									[[ $c -gt 0 ]] && count=$((count+c))
-									echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
-								else
-									echo
-								fi
-							fi
-							if [[ -d "$ENTRY" ]]; then
-								echo_cmd -n "rm -rf $ENTRY"
-								if [[ $IS_DRY -eq $NO ]]; then
-									local c=$( \rm -vrf --preserve-root "$ENTRY" | \wc -l )
-									[[ 0 -ne $? ]] && exit 1
-									[[ $c -gt 0 ]] && count=$((count+c))
-									echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
-								else
-									echo
-								fi
-							fi
-						done
-					\popd >/dev/null
-				done
-			\popd >/dev/null
-		fi
-		# clean rpm project
-		if [[ -d "$PROJECT_PATH/rpmbuild" ]]; then
-			\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
-				echo_cmd -n "rm -rf rpmbuild"
+				echo_cmd -n "make distclean"
 				let rm_groups=$((rm_groups+1))
 				if [[ $IS_DRY -eq $NO ]]; then
-					local c=$( \rm -vrf --preserve-root rpmbuild | wc -l )
+					local c=$( \make distclean | \wc -l )
 					[[ 0 -ne $? ]] && exit 1
 					[[ $c -gt 0 ]] && count=$((count+c))
 					echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
@@ -401,43 +318,117 @@ function doClean() {
 				fi
 			\popd >/dev/null
 		fi
-		# clean target/
-		if [[ -d "$PROJECT_PATH/target" ]]; then
-			# defer clean root target/
-			if [[ "$PROJECT_PATH/target" != "$TARGET_PATH" ]]; then
-				\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
-					echo_cmd -n "rm -rf target"
+		\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
+			# remove .deps/ dirs
+			RESULT=$( \find "$PROJECT_PATH" -type d -name .deps )
+			for ENTRY in $RESULT; do
+				if [[ -f "$ENTRY" ]]; then
+					echo_cmd -n "rm ${ENTRY}.."
 					let rm_groups=$((rm_groups+1))
 					if [[ $IS_DRY -eq $NO ]]; then
-						local c=$( \rm -vrf --preserve-root target | wc -l )
+						local c=$( \rm -v "$ENTRY" | \wc -l )
 						[[ 0 -ne $? ]] && exit 1
 						[[ $c -gt 0 ]] && count=$((count+c))
 						echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
 					else
 						echo
 					fi
+				fi
+				if [[ -d "$ENTRY" ]]; then
+					echo_cmd -n "rm -rf $ENTRY"
+					let rm_groups=$((rm_groups+1))
+					if [[ $IS_DRY -eq $NO ]]; then
+						local c=$( \rm -vrf --preserve-root "$ENTRY" | \wc -l )
+						[[ 0 -ne $? ]] && exit 1
+						[[ $c -gt 0 ]] && count=$((count+c))
+						echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
+					else
+						echo
+					fi
+				fi
+			done
+			# remove more files
+			CLEAN_PATHS=". src"
+			CLEAN_FILES="autom4te.cache aclocal.m4 compile configure config.log config.guess config.status config.sub depcomp install-sh ltmain.sh Makefile Makefile.in missing"
+			for DIR in $CLEAN_PATHS; do
+				\pushd  "$DIR/"  >/dev/null || continue
+					for ENTRY in $CLEAN_FILES; do
+						if [[ -f "$ENTRY" ]]; then
+							echo_cmd -n "rm $ENTRY"
+							if [[ $IS_DRY -eq $NO ]]; then
+								local c=$( \rm -v "$ENTRY" | \wc -l )
+								[[ 0 -ne $? ]] && exit 1
+								[[ $c -gt 0 ]] && count=$((count+c))
+								echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
+							else
+								echo
+							fi
+						fi
+						if [[ -d "$ENTRY" ]]; then
+							echo_cmd -n "rm -rf $ENTRY"
+							if [[ $IS_DRY -eq $NO ]]; then
+								local c=$( \rm -vrf --preserve-root "$ENTRY" | \wc -l )
+								[[ 0 -ne $? ]] && exit 1
+								[[ $c -gt 0 ]] && count=$((count+c))
+								echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
+							else
+								echo
+							fi
+						fi
+					done
 				\popd >/dev/null
+			done
+		\popd >/dev/null
+	fi
+	# clean rpm project
+	if [[ -d "$PROJECT_PATH/rpmbuild" ]]; then
+		\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
+			echo_cmd -n "rm -rf rpmbuild"
+			let rm_groups=$((rm_groups+1))
+			if [[ $IS_DRY -eq $NO ]]; then
+				local c=$( \rm -vrf --preserve-root rpmbuild | wc -l )
+				[[ 0 -ne $? ]] && exit 1
+				[[ $c -gt 0 ]] && count=$((count+c))
+				echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
+			else
+				echo
 			fi
+		\popd >/dev/null
+	fi
+	# clean target/
+	if [[ -d "$PROJECT_PATH/target" ]]; then
+		# defer clean root target/
+		if [[ "$PROJECT_PATH/target" != "$TARGET_PATH" ]]; then
+			\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
+				echo_cmd -n "rm -rf target"
+				let rm_groups=$((rm_groups+1))
+				if [[ $IS_DRY -eq $NO ]]; then
+					local c=$( \rm -vrf --preserve-root target | wc -l )
+					[[ 0 -ne $? ]] && exit 1
+					[[ $c -gt 0 ]] && count=$((count+c))
+					echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
+				else
+					echo
+				fi
+			\popd >/dev/null
 		fi
 	fi
 	# clean php project
-	if [[ $DO_BIN_ONLY -eq $NO ]]; then
-		if [[ -f "$PROJECT_PATH/composer.json" ]]; then
-			# clean vendor/
-			if [[ -d "$PROJECT_PATH/vendor" ]]; then
-				\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
-					echo_cmd -n "rm -rf vendor"
-					let rm_groups=$((rm_groups+1))
-					if [[ $IS_DRY -eq $NO ]]; then
-						local c=$( \rm -vrf --preserve-root vendor | wc -l )
-						[[ 0 -ne $? ]] && exit 1
-						[[ $c -gt 0 ]] && count=$((count+c))
-						echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
-					else
-						echo
-					fi
-				\popd >/dev/null
-			fi
+	if [[ -f "$PROJECT_PATH/composer.json" ]]; then
+		# clean vendor/
+		if [[ -d "$PROJECT_PATH/vendor" ]]; then
+			\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
+				echo_cmd -n "rm -rf vendor"
+				let rm_groups=$((rm_groups+1))
+				if [[ $IS_DRY -eq $NO ]]; then
+					local c=$( \rm -vrf --preserve-root vendor | wc -l )
+					[[ 0 -ne $? ]] && exit 1
+					[[ $c -gt 0 ]] && count=$((count+c))
+					echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
+				else
+					echo
+				fi
+			\popd >/dev/null
 		fi
 	fi
 	# nothing to do
@@ -448,13 +439,7 @@ function doClean() {
 		fi
 		DisplayTime "Cleaned"
 	elif [[ $rm_groups -le 0 ]]; then
-		if [[ $DO_WEB_ONLY -eq $YES ]]; then
-			echo "web only; skipping.."
-		elif [[ $DO_BIN_ONLY -eq $YES ]]; then
-			echo "bin only; skipping.."
-		else
-			notice "Nothing to clean.."
-		fi
+		notice "Nothing to clean.."
 		echo
 	fi
 	COUNT_OPS=$((COUNT_OPS+1))
@@ -495,8 +480,7 @@ function doConfig() {
 		\rm -f "$OUT_FILE"
 	fi
 	doProjectTags
-	if [[ $DO_WEB_ONLY   -eq $NO ]] \
-	&& [[ $BUILD_RELEASE -eq $NO ]] \
+	if [[ $BUILD_RELEASE -eq $NO ]] \
 	&& [[ $DO_AUTO       -eq $NO ]]; then
 		# generate automake files
 		if [[ -f "$PROJECT_PATH/autotools.conf" ]]; then
@@ -527,91 +511,87 @@ function doConfig() {
 			did_something=$YES
 		fi
 	fi
-	if [[ $DO_WEB_ONLY -eq $NO ]]; then
-		# generate pom.xml file
-		if [[ -f "$PROJECT_PATH/pom.conf" ]]; then
-			[[ $QUIET -eq $NO ]] && \
-				title C "Generate pom"
-			\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
-				# configure for release
-				if [[ $BUILD_RELEASE -eq $YES ]]; then
-					echo_cmd -n "genpom --release $PROJECT_VERSION"
-					if [[ $IS_DRY -eq $NO ]]; then
-						\genpom  --release $PROJECT_VERSION  || exit 1
-					else
-						echo
-					fi
-				# configure for dev
-				else
-					local SNAPSHOT=""
-					[[ -z $PROJECT_VERSION ]] || \
-						SNAPSHOT="--snapshot $PROJECT_VERSION"
-					echo_cmd -n "genpom $SNAPSHOT"
-					if [[ $IS_DRY -eq $NO ]]; then
-						\genpom  $SNAPSHOT  || exit 1
-					else
-						echo
-					fi
-				fi
-			\popd >/dev/null
-			echo
-			did_something=$YES
-		fi
-		# generate .spec file
-		if [[ -f "$PROJECT_PATH/spec.conf" ]]; then
-			[[ $QUIET -eq $NO ]] && \
-				title C "Generate spec"
-			\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
-				echo_cmd -n "genspec"
+	# generate pom.xml file
+	if [[ -f "$PROJECT_PATH/pom.conf" ]]; then
+		[[ $QUIET -eq $NO ]] && \
+			title C "Generate pom"
+		\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
+			# configure for release
+			if [[ $BUILD_RELEASE -eq $YES ]]; then
+				echo_cmd -n "genpom --release $PROJECT_VERSION"
 				if [[ $IS_DRY -eq $NO ]]; then
-					\genspec  || exit 1
+					\genpom  --release $PROJECT_VERSION  || exit 1
 				else
 					echo
 				fi
-			\popd >/dev/null
-			echo
-			did_something=$YES
-		fi
+			# configure for dev
+			else
+				local SNAPSHOT=""
+				[[ -z $PROJECT_VERSION ]] || \
+					SNAPSHOT="--snapshot $PROJECT_VERSION"
+				echo_cmd -n "genpom $SNAPSHOT"
+				if [[ $IS_DRY -eq $NO ]]; then
+					\genpom  $SNAPSHOT  || exit 1
+				else
+					echo
+				fi
+			fi
+		\popd >/dev/null
+		echo
+		did_something=$YES
 	fi
-	if [[ $DO_BIN_ONLY -eq $NO ]]; then
-		# composer
-		if [[ -f "$PROJECT_PATH/composer.json" ]]; then
-			\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
-				REL=$NO
-				[[ $BUILD_RELEASE -eq $YES ]] && REL=$YES
-				[[ $DO_AUTO       -eq $YES ]] && REL=$YES
-				# configure for release
-				if [[ $REL -eq $YES ]] \
-				&& [[ -f "$PROJECT_PATH/composer.lock" ]]; then
+	# generate .spec file
+	if [[ -f "$PROJECT_PATH/spec.conf" ]]; then
+		[[ $QUIET -eq $NO ]] && \
+			title C "Generate spec"
+		\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
+			echo_cmd -n "genspec"
+			if [[ $IS_DRY -eq $NO ]]; then
+				\genspec  || exit 1
+			else
+				echo
+			fi
+		\popd >/dev/null
+		echo
+		did_something=$YES
+	fi
+	# composer
+	if [[ -f "$PROJECT_PATH/composer.json" ]]; then
+		\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
+			REL=$NO
+			[[ $BUILD_RELEASE -eq $YES ]] && REL=$YES
+			[[ $DO_AUTO       -eq $YES ]] && REL=$YES
+			# configure for release
+			if [[ $REL -eq $YES ]] \
+			&& [[ -f "$PROJECT_PATH/composer.lock" ]]; then
+				[[ $QUIET -eq $NO ]] && \
+					title C "Composer Install"
+				echo_cmd "composer install -a -o --no-dev --prefer-dist"
+				if [[ $IS_DRY -eq $NO ]]; then
+					\composer install --no-dev --prefer-dist --classmap-authoritative --optimize-autoloader  || exit 1
+				fi
+			# configure for dev
+			else
+				if [[ $DEBUG_FLAGS -eq $YES ]] \
+				|| [[ ! -f "$PROJECT_PATH/composer.lock" ]]; then
+					[[ $QUIET -eq $NO ]] && \
+						title C "Composer Update"
+					echo_cmd "composer update"
+					if [[ $IS_DRY -eq $NO ]]; then
+						\composer update  || exit 1
+					fi
+				else
 					[[ $QUIET -eq $NO ]] && \
 						title C "Composer Install"
-					echo_cmd "composer install -a -o --no-dev --prefer-dist"
+					echo_cmd "composer install"
 					if [[ $IS_DRY -eq $NO ]]; then
-						\composer install --no-dev --prefer-dist --classmap-authoritative --optimize-autoloader  || exit 1
-					fi
-				# configure for dev
-				else
-					if [[ $DEBUG_FLAGS -eq $YES ]] \
-					|| [[ ! -f "$PROJECT_PATH/composer.lock" ]]; then
-						[[ $QUIET -eq $NO ]] && \
-							title C "Composer Update"
-						echo_cmd "composer update"
-						if [[ $IS_DRY -eq $NO ]]; then
-							\composer update  || exit 1
-						fi
-					else
-						[[ $QUIET -eq $NO ]] && \
-							title C "Composer Install"
-						echo_cmd "composer install"
-						if [[ $IS_DRY -eq $NO ]]; then
-							\composer install  || exit 1
-						fi
+						\composer install  || exit 1
 					fi
 				fi
-			\popd >/dev/null
-			echo
-			did_something=$YES
-		fi
+			fi
+		\popd >/dev/null
+		echo
+		did_something=$YES
 	fi
 	# nothing to do
 	if [[ $did_something -eq $YES ]]; then
@@ -620,13 +600,7 @@ function doConfig() {
 	else
 		[[ $QUIET -eq $NO ]] && \
 			title C "Configure"
-		if [[ $DO_WEB_ONLY -eq $YES ]]; then
-			echo "web only; skipping.."
-		elif [[ $DO_BIN_ONLY -eq $YES ]]; then
-			echo "bin only; skipping.."
-		else
-			notice "Nothing found to configure.."
-		fi
+		notice "Nothing found to configure.."
 		echo
 	fi
 }
@@ -640,126 +614,122 @@ function doBuild() {
 		title C "Build"
 	doProjectTags
 	# automake
-	if [[ $DO_WEB_ONLY -eq $YES ]]; then
-		echo "web only; skipping.."
-	else
-		if [[ -f "$PROJECT_PATH/configure" ]]; then
-			\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
-				CONFIGURE_DEBUG_FLAGS=""
-				if [[ $DEBUG_FLAGS -eq $YES ]]; then
-					CONFIGURE_DEBUG_FLAGS="--enable-debug"
-				fi
-				echo_cmd "configure ${CONFIGURE_DEBUG_FLAGS}"
+	if [[ -f "$PROJECT_PATH/configure" ]]; then
+		\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
+			CONFIGURE_DEBUG_FLAGS=""
+			if [[ $DEBUG_FLAGS -eq $YES ]]; then
+				CONFIGURE_DEBUG_FLAGS="--enable-debug"
+			fi
+			echo_cmd "configure ${CONFIGURE_DEBUG_FLAGS}"
+			if [[ $IS_DRY -eq $NO ]]; then
+				./configure $CONFIGURE_DEBUG_FLAGS  || exit 1
+			fi
+		\popd >/dev/null
+		echo
+		did_something=$YES
+	fi
+	# make
+	if [[ -f "$PROJECT_PATH/Makefile" ]]; then
+		\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
+			# make
+			echo_cmd "make"
+			if [[ $IS_DRY -eq $NO ]]; then
+				\make  || exit 1
+			fi
+			# make install
+			if [[ -d "$PROJECT_PATH/.libs/" ]]; then
+				echo
+				echo_cmd "make install"
 				if [[ $IS_DRY -eq $NO ]]; then
-					./configure $CONFIGURE_DEBUG_FLAGS  || exit 1
-				fi
-			\popd >/dev/null
-			echo
-			did_something=$YES
-		fi
-		# make
-		if [[ -f "$PROJECT_PATH/Makefile" ]]; then
-			\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
-				# make
-				echo_cmd "make"
-				if [[ $IS_DRY -eq $NO ]]; then
-					\make  || exit 1
-				fi
-				# make install
-				if [[ -d "$PROJECT_PATH/.libs/" ]]; then
+					\sudo \make install  || exit 1
 					echo
-					echo_cmd "make install"
-					if [[ $IS_DRY -eq $NO ]]; then
-						\sudo \make install  || exit 1
-						echo
-					fi
 				fi
-			\popd >/dev/null
-			echo
-			did_something=$YES
-		fi
-		# maven
-		if [[ -f "$PROJECT_PATH/pom.xml" ]]; then
-			\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
-				# generate temp release pom.xml
-				if [[ $BUILD_RELEASE -eq $YES ]] \
-				|| [[ $DO_AUTO       -eq $YES ]]; then
-					echo_cmd "mv  pom.xml  pom.xml.xbuild-save"
-					if [[ $IS_DRY -eq $NO ]]; then
-						\mv -v  "$PROJECT_PATH/pom.xml"  "$PROJECT_PATH/pom.xml.xbuild-save"  || exit 1
-					fi
-					local SNAP_RELEASE=""
-					if [[ $BUILD_RELEASE -eq $YES ]]; then
-						SNAP_RELEASE="--release"
-					else
-						SNAP_RELEASE="--snapshot"
-					fi
-					echo_cmd -n "genpom $SNAP_RELEASE $PROJECT_VERSION"
-					if [[ $IS_DRY -eq $NO ]]; then
-						\genpom  $SNAP_RELEASE  $PROJECT_VERSION  || exit 1
-					else
-						echo
-					fi
-				fi
-				# build
-				echo_cmd "mvn clean install"
+			fi
+		\popd >/dev/null
+		echo
+		did_something=$YES
+	fi
+	# maven
+	if [[ -f "$PROJECT_PATH/pom.xml" ]]; then
+		\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
+			# generate temp release pom.xml
+			if [[ $BUILD_RELEASE -eq $YES ]] \
+			|| [[ $DO_AUTO       -eq $YES ]]; then
+				echo_cmd "mv  pom.xml  pom.xml.xbuild-save"
 				if [[ $IS_DRY -eq $NO ]]; then
-					\mvn  --no-transfer-progress  clean install  || exit 1
+					\mv -v  "$PROJECT_PATH/pom.xml"  "$PROJECT_PATH/pom.xml.xbuild-save"  || exit 1
 				fi
-				# ide projects
-				echo_cmd "mvn eclipse:eclipse"
-				if [[ $IS_DRY -eq $NO ]]; then
-					\mvn  --no-transfer-progress  eclipse:eclipse  || exit 1
-				fi
-				# restore pom.xml
-				if [[ $BUILD_RELEASE -eq $YES ]] \
-				|| [[ $DO_AUTO       -eq $YES ]]; then
-					echo_cmd "rm  pom.xml"
-					if [[ $IS_DRY -eq $NO ]]; then
-						\rm -vf --preserve-root  "$PROJECT_PATH/pom.xml"  || exit 1
-					fi
-					echo_cmd "mv  pom.xml.xbuild-save  pom.xml"
-					if [[ $IS_DRY -eq $NO ]]; then
-						\mv -v  "$PROJECT_PATH/pom.xml.xbuild-save"  "$PROJECT_PATH/pom.xml"  || exit 1
-					fi
-				fi
-			\popd >/dev/null
-			echo
-			did_something=$YES
-		fi
-		# rust/cargo
-		if [[ -f "$PROJECT_PATH/Cargo.toml" ]]; then
-			\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
+				local SNAP_RELEASE=""
 				if [[ $BUILD_RELEASE -eq $YES ]]; then
-					echo_cmd "cargo build --release --timings"
-					if [[ $IS_DRY -eq $NO ]]; then
-						\cargo build --release --timings  || exit 1
-					fi
+					SNAP_RELEASE="--release"
 				else
-					if [[ $DEBUG_FLAGS -eq $YES ]]; then
-						echo_cmd "cargo update"
-						if [[ $IS_DRY -eq $NO ]]; then
-							\cargo update  || exit 1
-						fi
-					fi
-#TODO
-#					echo_cmd "grcov . -s . --binary-path ./target/release/ "  \
-#						"-t html --branch --ignore-not-existing -o ./coverage/"
-#					if [[ $IS_DRY -eq $NO ]]; then
-#						\grcov . -s .  \
-#							--binary-path ./target/release/         \
-#							-t html --branch --ignore-not-existing  \
-#							-o ./coverage/
-#					fi
-					echo_cmd "cargo build"
+					SNAP_RELEASE="--snapshot"
+				fi
+				echo_cmd -n "genpom $SNAP_RELEASE $PROJECT_VERSION"
+				if [[ $IS_DRY -eq $NO ]]; then
+					\genpom  $SNAP_RELEASE  $PROJECT_VERSION  || exit 1
+				else
+					echo
+				fi
+			fi
+			# build
+			echo_cmd "mvn clean install"
+			if [[ $IS_DRY -eq $NO ]]; then
+				\mvn  --no-transfer-progress  clean install  || exit 1
+			fi
+			# ide projects
+			echo_cmd "mvn eclipse:eclipse"
+			if [[ $IS_DRY -eq $NO ]]; then
+				\mvn  --no-transfer-progress  eclipse:eclipse  || exit 1
+			fi
+			# restore pom.xml
+			if [[ $BUILD_RELEASE -eq $YES ]] \
+			|| [[ $DO_AUTO       -eq $YES ]]; then
+				echo_cmd "rm  pom.xml"
+				if [[ $IS_DRY -eq $NO ]]; then
+					\rm -vf --preserve-root  "$PROJECT_PATH/pom.xml"  || exit 1
+				fi
+				echo_cmd "mv  pom.xml.xbuild-save  pom.xml"
+				if [[ $IS_DRY -eq $NO ]]; then
+					\mv -v  "$PROJECT_PATH/pom.xml.xbuild-save"  "$PROJECT_PATH/pom.xml"  || exit 1
+				fi
+			fi
+		\popd >/dev/null
+		echo
+		did_something=$YES
+	fi
+	# rust/cargo
+	if [[ -f "$PROJECT_PATH/Cargo.toml" ]]; then
+		\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
+			if [[ $BUILD_RELEASE -eq $YES ]]; then
+				echo_cmd "cargo build --release --timings"
+				if [[ $IS_DRY -eq $NO ]]; then
+					\cargo build --release --timings  || exit 1
+				fi
+			else
+				if [[ $DEBUG_FLAGS -eq $YES ]]; then
+					echo_cmd "cargo update"
 					if [[ $IS_DRY -eq $NO ]]; then
-						\cargo build  || exit 1
+						\cargo update  || exit 1
 					fi
 				fi
-			\popd >/dev/null
-			echo
-			did_something=$YES
-		fi
+#TODO
+#				echo_cmd "grcov . -s . --binary-path ./target/release/ "  \
+#					"-t html --branch --ignore-not-existing -o ./coverage/"
+#				if [[ $IS_DRY -eq $NO ]]; then
+#					\grcov . -s .  \
+#						--binary-path ./target/release/         \
+#						-t html --branch --ignore-not-existing  \
+#						-o ./coverage/
+#				fi
+				echo_cmd "cargo build"
+				if [[ $IS_DRY -eq $NO ]]; then
+					\cargo build  || exit 1
+				fi
+			fi
+		\popd >/dev/null
+		echo
+		did_something=$YES
 	fi
 	# nothing to do
 	if [[ $did_something -eq $YES ]]; then
@@ -1320,9 +1290,6 @@ while [ $# -gt 0 ]; do
 		PROJECT_FILTERS="$PROJECT_FILTERS $FILTER"
 	;;
 
-	--binonly)  DO_BIN_ONLY=$YES  ;;
-	--webonly)  DO_WEB_ONLY=$YES  ;;
-
 	--pp|--pull-push|--push-pull)  DO_PP=$YES  ;;
 	--gg|--git-gui)                DO_GG=$YES  ;;
 
@@ -1420,14 +1387,6 @@ if [[ $QUIET -ne $YES ]]; then
 	fi
 	if [[ $DO_PACK -eq $YES ]]; then
 		notice "Deploy to: $TARGET_PATH"
-		did_notice=$YES
-	fi
-	if [[ $DO_BIN_ONLY -eq $YES ]]; then
-		notice "Bin Only"
-		did_notice=$YES
-	fi
-	if [[ $DO_WEB_ONLY -eq $YES ]]; then
-		notice "Web Only"
 		did_notice=$YES
 	fi
 	[[ $did_notice -eq $YES ]] && echo
