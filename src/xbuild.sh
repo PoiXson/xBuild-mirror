@@ -50,6 +50,7 @@ DO_CONFIG=$NO
 DO_BUILD=$NO
 DO_TESTS=$NO
 DO_PACK=$NO
+DO_ALIEN=$YES
 DO_AUTO=$NO
 DO_IDE=$NO
 
@@ -903,6 +904,18 @@ function doPack() {
 					echo_cmd "cp  rpmbuild/RPMS/$ENTRY  $TARGET_PATH"
 					\cp -fv  "$PROJECT_PATH/rpmbuild/RPMS/$ENTRY"  "$TARGET_PATH/"  || exit 1
 				done
+				if [[ -e /usr/bin/alien  ]] \
+				&& [[ $DO_ALIEN -eq $YES ]]; then
+					\pushd  "$TARGET_PATH/"  >/dev/null  || exit 1
+						for ENTRY in $PACKAGES; do
+							echo
+							echo_cmd "alien --to-deb $ENTRY"
+							if [[ $IS_DRY -eq $NO ]]; then
+								\fakeroot \alien  -v --to-deb  "$ENTRY"  || exit 1
+							fi
+						done
+					\popd >/dev/null
+				fi
 			fi
 		\popd >/dev/null
 		echo
