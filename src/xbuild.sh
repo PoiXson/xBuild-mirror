@@ -300,19 +300,29 @@ function doProject() {
 		fi
 		echo
 	fi
-	# recursive
-
-
-
-#TODO
-
-
-
-
-
+	# recursive - xbuild.conf file in sub dir
+	if [[ -f "$PROJECT_PATH/xbuild.conf" ]]; then
+		if [[ "$PROJECT_PATH" != "$CURRENT_PATH" ]]; then
+			if [[ $DO_RECURSIVE -eq $YES ]]; then
+				[[ $VERBOSE -eq $YES ]] && \
+					notice "Recursive: $PROJECT_PATH"
+				LoadConf "$PROJECT_PATH/xbuild.conf"
+			else
+				[[ $VERBOSE -eq $YES ]] && \
+					notice "Skipping recursive"
+			fi
+			CleanupProjectVars
+			return
+		fi
+	fi
+	# run build stages
 	for ENTRY in $( \ls -1 -v "/zcode/apr/xBuild/src/xbuild-stages/" ); do
 		source "/zcode/apr/xBuild/src/xbuild-stages/$ENTRY"
 	done
+	# project done
+	COUNT_PRJ=$((COUNT_PRJ+1))
+	DisplayTimeProject
+	CleanupProjectVars
 }
 
 function CleanupProjectVars() {
