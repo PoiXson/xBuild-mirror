@@ -844,16 +844,6 @@ function doPack() {
 		SPEC_NAME=${SPEC_NAME##*/}
 	fi
 	# build rpm
-	if [[ -d rpmbuild ]]; then
-		echo_cmd -n "rm rpmbuild"
-		if [[ $IS_DRY -eq $NO ]]; then
-			\pushd  "$PROJECT_PATH"  >/dev/null  || exit 1
-				local c=$( \rm -Rvf --preserve-root rpmbuild/ | \wc -l )
-				[[ 0 -ne $? ]] && exit 1
-				echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
-			\popd >/dev/null
-		fi
-	fi
 	if [[ ! -z $SPEC_FILE ]]; then
 		# rm rpmbuild/
 		if [[ -d "$PROJECT_PATH/rpmbuild" ]]; then
