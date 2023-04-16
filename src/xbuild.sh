@@ -96,6 +96,9 @@ function DisplayHelp() {
 	echo                                "                              default: target/"
 	echo -e "  ${COLOR_GREEN}-f, --filter <project>${COLOR_RESET}    Skip all projects except these"
 	echo
+	echo -e "  ${COLOR_GREEN}--deb${COLOR_RESET}                     Build .deb packages with alien"
+	echo -e "  ${COLOR_GREEN}--no-deb${COLOR_RESET}                  Skip building .deb packages"
+	echo
 	fi
 	echo -e "  ${COLOR_GREEN}--pp, --pull-push${COLOR_RESET}         Run 'git pull' and 'git push'"
 	echo -e "  ${COLOR_GREEN}--gg, --git-gui${COLOR_RESET}           Open git-gui for each project"
@@ -1289,6 +1292,9 @@ while [ $# -gt 0 ]; do
 		fi
 		PROJECT_FILTERS="$PROJECT_FILTERS $FILTER"
 	;;
+
+	--deb)     DO_ALIEN=$YES  ;;
+	--no-deb)  DO_ALIEN=$NO   ;;
 
 	--pp|--pull-push|--push-pull)  DO_PP=$YES  ;;
 	--gg|--git-gui)                DO_GG=$YES  ;;
