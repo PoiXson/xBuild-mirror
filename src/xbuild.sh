@@ -34,51 +34,6 @@ fi
 
 
 
-# actions
-VERBOSE=$NO
-QUIET=$NO
-NO_COLORS=$NO
-DO_RECURSIVE=$NO
-IS_DRY=$NO
-DEBUG_FLAGS=$NO
-DO_PP=$NO
-DO_GG=$NO
-DO_CLEAN=$NO
-DO_CONFIG=$NO
-DO_BUILD=$NO
-DO_TESTS=$NO
-DO_PACK=$NO
-DO_ALIEN=$YES
-DO_AUTO=$NO
-DO_IDE=$NO
-
-BUILD_NUMBER=""
-BUILD_RELEASE=$NO
-TARGET_PATH=""
-PROJECT_FILTERS=""
-
-# project vars
-PROJECT_NAME=""
-PROJECT_VERSION=""
-PROJECT_PATH=""
-CURRENT_PATH="$WDIR"
-PROJECT_REPO=""
-#TODO: use this (also do lcase)
-PROJECT_ALIASES=""
-PROJECT_GITIGNORE=""
-PROJECT_TAG_FILES=""
-PROJECT_TAGS_DONE=$NO
-
-PACKAGES_ALL=()
-let COUNT_PRJ=0
-let COUNT_OPS=0
-
-TIME_START=$( \date "+%s%N" )
-let TIME_START_PRJ=0
-let TIME_LAST=0
-
-
-
 function DisplayHelp() {
 	local FULL=$1
 	echo -e "${COLOR_BROWN}Usage:${COLOR_RESET}"
@@ -94,7 +49,7 @@ function DisplayHelp() {
 	echo                                "                              default: x"
 	echo -e "  ${COLOR_GREEN}--target <path>${COLOR_RESET}           Sets the destination path for finished binaries"
 	echo                                "                              default: target/"
-	echo -e "  ${COLOR_GREEN}-f, --filter <project>${COLOR_RESET}    Skip all projects except these"
+	echo -e "  ${COLOR_GREEN}-F, --filter <project>${COLOR_RESET}    Skip all projects except these"
 	echo
 	echo -e "  ${COLOR_GREEN}--deb${COLOR_RESET}                     Build .deb packages with alien"
 	echo -e "  ${COLOR_GREEN}--no-deb${COLOR_RESET}                  Skip building .deb packages"
@@ -119,13 +74,6 @@ function DisplayHelp() {
 	echo -e "  ${COLOR_GREEN}--ccbtp${COLOR_RESET}                   Clean, config, build, test, pack"
 	echo
 	fi
-	echo -e "  ${COLOR_GREEN}--dev${COLOR_RESET}                     Sets flags commonly used for development builds"
-	echo                                "                              Shortcut to: -v -r --debug --cbp"
-	echo -e "  ${COLOR_GREEN}--ci <n>${COLOR_RESET}                  Sets flags commonly used for continuous integration"
-	echo                                "                              Shortcut to: -v -r -R -n <n> --clean --build --test --pack"
-	echo -e "  ${COLOR_GREEN}--auto <n>${COLOR_RESET}                Detect if the latest git commit is a tag,"
-	echo                                "                              enables --ci, otherwise --dev"
-	echo
 	echo -e "  ${COLOR_GREEN}-v, --verbose${COLOR_RESET}             Enable debug logs"
 	echo -e "  ${COLOR_GREEN}-q, --quiet${COLOR_RESET}               Hide extra logs"
 	if [[ $FULL -eq $YES ]]; then
@@ -145,6 +93,46 @@ function DisplayVersion() {
 	echo -e "${COLOR_BROWN}xBuild${COLOR_RESET} ${COLOR_GREEN}$XBUILD_VERSION${COLOR_RESET}"
 	echo
 }
+
+
+
+# ----------------------------------------
+
+
+
+ACTIONS=""
+ACTIONS_DONE=""
+VERBOSE=$NO
+QUIET=$NO
+NO_COLORS=$NO
+DO_RECURSIVE=$NO
+DO_ALIEN=$YES
+IS_DRY=$NO
+DEBUG_FLAGS=$NO
+
+BUILD_NUMBER=""
+BUILD_RELEASE=$NO
+TARGET_PATH=""
+PROJECT_FILTERS=""
+PROJECT_FILTERS_FOUND=""
+PACKAGES_ALL=()
+
+# project vars
+PROJECT_NAME=""
+PROJECT_PATH=""
+PROJECT_REPO=""
+PROJECT_VERSION=""
+PROJECT_SNAPSHOT=""
+PROJECT_GITIGNORE=""
+PROJECT_TAG_FILES=""
+PROJECT_TAGS_DONE=$NO
+CURRENT_PATH="$WDIR"
+
+TIME_START=$( \date "+%s%N" )
+let TIME_START_PRJ=0
+let TIME_LAST=0
+let COUNT_PRJ=0
+let COUNT_ACT=0
 
 
 
@@ -177,7 +165,38 @@ function echo_cmd() {
 		N="-n"
 		\shift
 	fi
-	echo $N -e  " > ${COLOR_CYAN}$@${COLOR_RESET}"
+	echo $N -e  " ${COLOR_GREEN}>${COLOR_RESET} ${COLOR_CYAN}$@${COLOR_RESET}"
+}
+
+
+
+function Path() {
+	if [[ -z $1 ]]; then
+		failure "Path value is missing for project: $PROJECT_NAME"
+		failure ; exit 1
+	fi
+	PROJECT_PATH="$1"
+}
+function Repo() {
+	if [[ -z $1 ]]; then
+		failure "Repo value is missing for project: $PROJECT_NAME"
+		failure ; exit 1
+	fi
+	PROJECT_REPO="$1"
+}
+function TagFile() {
+	if [[ -z $1 ]]; then
+		failure "TagFile value is missing for project: $PROJECT_NAME"
+		failure ; exit 1
+	fi
+	PROJECT_TAG_FILES="$PROJECT_TAG_FILES $1"
+}
+function AddIgnore() {
+	if [[ -z $1 ]]; then
+		failure "AddIgnore value is missing for project: $PROJECT_NAME"
+		failure ; exit 1
+	fi
+	PROJECT_GITIGNORE="$PROJECT_GITIGNORE $1"
 }
 
 
@@ -231,735 +250,87 @@ function MakeSymlink() {
 
 
 
-# ----------------------------------------
-
-
-
-# --pp
-function doPullPush() {
-	[[ -z $PROJECT_REPO ]] && \
-	[[ ! -d "$PROJECT_PATH/.git" ]] && \
-		return
-	# clone repo
-	if [[ ! -e "$PROJECT_PATH" ]]; then
-		[[ $QUIET -eq $NO ]] && \
-			title C "Clone"
-		\pushd  "$CURRENT_PATH/"  >/dev/null  || exit 1
-			local CLONE_PATH=${PROJECT_PATH##*/}
-			# git clone
-			echo_cmd "git clone  $PROJECT_REPO  $CLONE_PATH"
-			if [[ $IS_DRY -eq $NO ]]; then
-				\git clone  "$PROJECT_REPO"  "$CLONE_PATH"  || exit 1
-			fi
-			echo
-		\popd >/dev/null
-		COUNT_OPS=$((COUNT_OPS+1))
-		return
+function Project() {
+	# perform previous project
+	if [[ ! -z $PROJECT_NAME ]]; then
+		doProject
+		CleanupProjectVars
 	fi
-	[[ $QUIET -eq $NO ]] && \
-		title C "Pull/Push"
-	\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
-		# git pull
-		echo_cmd "git pull"
-		if [[ $IS_DRY -eq $NO ]]; then
-			\git pull  || exit 1
-			echo
-		fi
-		# git push
-		echo_cmd "git push"
-		if [[ $IS_DRY -eq $NO ]]; then
-			\git push  || exit 1
-			echo
-		fi
-	\popd >/dev/null
-	COUNT_OPS=$((COUNT_OPS+1))
+	if [[ ! -z $1 ]]; then
+		PROJECT_NAME="$1"
+	fi
 }
 
-
-
-# --gg
-function doGitGUI() {
-	[[ ! -d "$PROJECT_PATH/.git" ]] && return
-	# git-gui
-	\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
-		echo_cmd -n "git-gui"
-		if [[ $IS_DRY -eq $NO ]]; then
-			/usr/libexec/git-core/git-gui &
-			local GG_PID=$!
-			echo -e " ${COLOR_BLUE}$GG_PID${COLOR_RESET}"
-			\sleep 0.2
+function doProject() {
+	if [[ -z $PROJECT_NAME ]]; then
+		CleanupProjectVars
+		return
+	fi
+	PROJECT_FILTERS_FOUND="$PROJECT_FILTERS_FOUND $PROJECT_NAME"
+	if [[ ! -z $PROJECT_FILTERS ]]; then
+		if [[ " $PROJECT_FILTERS " != *" $PROJECT_NAME "* ]]; then
+			notice "Skipping filtered: $PROJECT_NAME"
+			return
+		fi
+	fi
+	if [[ -z $PROJECT_PATH ]]; then
+		# project in named path
+		if [[ -f "$CURRENT_PATH/$PROJECT_NAME/xbuild.conf" ]]; then
+			PROJECT_PATH="$CURRENT_PATH/$PROJECT_NAME"
+		# current path
 		else
-			echo
+			PROJECT_PATH="$CURRENT_PATH"
 		fi
-		echo
-	\popd >/dev/null
-	COUNT_OPS=$((COUNT_OPS+1))
-}
-
-
-
-# --clean
-function doClean() {
-	[[ $QUIET -eq $NO ]] && \
-		title C "Clean"
-	let count=0
-	let rm_groups=0
-	restoreProjectTags
-	# make clean
-	if [[ -f "$PROJECT_PATH/Makefile.am" ]]; then
-		if [[ -f "$PROJECT_PATH/Makefile" ]]; then
-			\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
-				echo_cmd -n "make distclean"
-				let rm_groups=$((rm_groups+1))
-				if [[ $IS_DRY -eq $NO ]]; then
-					local c=$( \make distclean | \wc -l )
-					[[ 0 -ne $? ]] && exit 1
-					[[ $c -gt 0 ]] && count=$((count+c))
-					echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
-				else
-					echo
-				fi
-			\popd >/dev/null
-		fi
-		\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
-			# remove .deps/ dirs
-			RESULT=$( \find "$PROJECT_PATH" -type d -name .deps )
-			for ENTRY in $RESULT; do
-				if [[ -f "$ENTRY" ]]; then
-					echo_cmd -n "rm ${ENTRY}.."
-					let rm_groups=$((rm_groups+1))
-					if [[ $IS_DRY -eq $NO ]]; then
-						local c=$( \rm -v "$ENTRY" | \wc -l )
-						[[ 0 -ne $? ]] && exit 1
-						[[ $c -gt 0 ]] && count=$((count+c))
-						echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
-					else
-						echo
-					fi
-				fi
-				if [[ -d "$ENTRY" ]]; then
-					echo_cmd -n "rm -rf $ENTRY"
-					let rm_groups=$((rm_groups+1))
-					if [[ $IS_DRY -eq $NO ]]; then
-						local c=$( \rm -vrf --preserve-root "$ENTRY" | \wc -l )
-						[[ 0 -ne $? ]] && exit 1
-						[[ $c -gt 0 ]] && count=$((count+c))
-						echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
-					else
-						echo
-					fi
-				fi
-			done
-			# remove more files
-			CLEAN_PATHS=". src"
-			CLEAN_FILES="autom4te.cache aclocal.m4 compile configure config.log config.guess config.status config.sub depcomp install-sh ltmain.sh Makefile Makefile.in missing"
-			for DIR in $CLEAN_PATHS; do
-				\pushd  "$DIR/"  >/dev/null || continue
-					for ENTRY in $CLEAN_FILES; do
-						if [[ -f "$ENTRY" ]]; then
-							echo_cmd -n "rm $ENTRY"
-							if [[ $IS_DRY -eq $NO ]]; then
-								local c=$( \rm -v "$ENTRY" | \wc -l )
-								[[ 0 -ne $? ]] && exit 1
-								[[ $c -gt 0 ]] && count=$((count+c))
-								echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
-							else
-								echo
-							fi
-						fi
-						if [[ -d "$ENTRY" ]]; then
-							echo_cmd -n "rm -rf $ENTRY"
-							if [[ $IS_DRY -eq $NO ]]; then
-								local c=$( \rm -vrf --preserve-root "$ENTRY" | \wc -l )
-								[[ 0 -ne $? ]] && exit 1
-								[[ $c -gt 0 ]] && count=$((count+c))
-								echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
-							else
-								echo
-							fi
-						fi
-					done
-				\popd >/dev/null
-			done
-		\popd >/dev/null
-	fi
-	# clean rpm project
-	if [[ -d "$PROJECT_PATH/rpmbuild" ]]; then
-		\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
-			echo_cmd -n "rm -rf rpmbuild"
-			let rm_groups=$((rm_groups+1))
-			if [[ $IS_DRY -eq $NO ]]; then
-				local c=$( \rm -vrf --preserve-root rpmbuild | wc -l )
-				[[ 0 -ne $? ]] && exit 1
-				[[ $c -gt 0 ]] && count=$((count+c))
-				echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
-			else
-				echo
-			fi
-		\popd >/dev/null
-	fi
-	# clean target/
-	if [[ -d "$PROJECT_PATH/target" ]]; then
-		# defer clean root target/
-		if [[ "$PROJECT_PATH/target" != "$TARGET_PATH" ]]; then
-			\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
-				echo_cmd -n "rm -rf target"
-				let rm_groups=$((rm_groups+1))
-				if [[ $IS_DRY -eq $NO ]]; then
-					local c=$( \rm -vrf --preserve-root target | wc -l )
-					[[ 0 -ne $? ]] && exit 1
-					[[ $c -gt 0 ]] && count=$((count+c))
-					echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
-				else
-					echo
-				fi
-			\popd >/dev/null
-		fi
-	fi
-	# clean php project
-	if [[ -f "$PROJECT_PATH/composer.json" ]]; then
-		# clean vendor/
-		if [[ -d "$PROJECT_PATH/vendor" ]]; then
-			\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
-				echo_cmd -n "rm -rf vendor"
-				let rm_groups=$((rm_groups+1))
-				if [[ $IS_DRY -eq $NO ]]; then
-					local c=$( \rm -vrf --preserve-root vendor | wc -l )
-					[[ 0 -ne $? ]] && exit 1
-					[[ $c -gt 0 ]] && count=$((count+c))
-					echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
-				else
-					echo
-				fi
-			\popd >/dev/null
-		fi
-	fi
-	# nothing to do
-	if [[ $count -gt 0 ]]; then
-		echo
-		if [[ $rm_groups -gt 1 ]]; then
-			echo "Removed $count files"
-		fi
-		DisplayTime "Cleaned"
-	elif [[ $rm_groups -le 0 ]]; then
-		notice "Nothing to clean.."
-		echo
-	fi
-	COUNT_OPS=$((COUNT_OPS+1))
-}
-
-
-
-# --config
-function doConfig() {
-	did_something=$NO
-	# .gitignore
-	if [[ -f "$PROJECT_PATH/.gitignore" ]] \
-	&& [[ $BUILD_RELEASE -eq $NO ]] \
-	&& [[ $DO_AUTO       -eq $NO ]]; then
-		local OUT_FILE=$( mktemp )
-		local RESULT=$?
-		if [[ $RESULT -ne 0 ]] || [[ -z $OUT_FILE ]]; then
-			failure "Failed to create a temp file for .gitignore"
-			failure ; exit $RESULT
-		fi
-		if [[ ! -z $PROJECT_GITIGNORE ]]; then
-			for ENTRY in $PROJECT_GITIGNORE; do
-				echo "$ENTRY" >>"$OUT_FILE"
-			done
-			echo >>"$OUT_FILE"
-		fi
-		\cat /etc/xbuild/gitignore >>"$OUT_FILE" || exit 1
-		local HASH_A=$( \cat "$OUT_FILE"                | \md5sum )
-		local HASH_B=$( \cat "$PROJECT_PATH/.gitignore" | \md5sum )
-		if [[ "$HASH_A" != "$HASH_B" ]]; then
-			title C "Updating .gitignore.."
-			echo_cmd "cat $OUT_FILE > $PROJECT_PATH/.gitignore"
-			if [[ $IS_DRY -eq $NO ]]; then
-				\cat  "$OUT_FILE"  >"$PROJECT_PATH/.gitignore"  || exit 1
-			fi
-			did_something=$YES
-		fi
-		\rm -f "$OUT_FILE"
-	fi
-	doProjectTags
-	if [[ $BUILD_RELEASE -eq $NO ]] \
-	&& [[ $DO_AUTO       -eq $NO ]]; then
-		# generate automake files
-		if [[ -f "$PROJECT_PATH/autotools.conf" ]]; then
-			[[ $QUIET -eq $NO ]] && \
-				title C "Generate autotools"
-			\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
-				echo_cmd -n "genautotools"
-				if [[ $IS_DRY -eq $NO ]]; then
-					\genautotools  || exit 1
-				else
-					echo
-				fi
-			\popd >/dev/null
-			echo
-			did_something=$YES
-		fi
-		# automake
-		if [[ -f "$PROJECT_PATH/configure.ac" ]]; then
-			[[ $QUIET -eq $NO ]] && \
-				title C "autoreconf"
-			\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
-				echo_cmd "autoreconf -v --install"
-				if [[ $IS_DRY -eq $NO ]]; then
-					\autoreconf -v --install  || exit 1
-				fi
-			\popd >/dev/null
-			echo
-			did_something=$YES
-		fi
-	fi
-	# generate pom.xml file
-	if [[ -f "$PROJECT_PATH/pom.conf" ]]; then
-		[[ $QUIET -eq $NO ]] && \
-			title C "Generate pom"
-		\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
-			# configure for release
-			if [[ $BUILD_RELEASE -eq $YES ]]; then
-				echo_cmd -n "genpom --release $PROJECT_VERSION"
-				if [[ $IS_DRY -eq $NO ]]; then
-					\genpom  --release $PROJECT_VERSION  || exit 1
-				else
-					echo
-				fi
-			# configure for dev
-			else
-				local SNAPSHOT=""
-				[[ -z $PROJECT_VERSION ]] || \
-					SNAPSHOT="--snapshot $PROJECT_VERSION"
-				echo_cmd -n "genpom $SNAPSHOT"
-				if [[ $IS_DRY -eq $NO ]]; then
-					\genpom  $SNAPSHOT  || exit 1
-				else
-					echo
-				fi
-			fi
-		\popd >/dev/null
-		echo
-		did_something=$YES
-	fi
-	# generate .spec file
-	if [[ -f "$PROJECT_PATH/spec.conf" ]]; then
-		[[ $QUIET -eq $NO ]] && \
-			title C "Generate spec"
-		\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
-			echo_cmd -n "genspec"
-			if [[ $IS_DRY -eq $NO ]]; then
-				\genspec  || exit 1
-			else
-				echo
-			fi
-		\popd >/dev/null
-		echo
-		did_something=$YES
-	fi
-	# composer
-	if [[ -f "$PROJECT_PATH/composer.json" ]]; then
-		\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
-			REL=$NO
-			[[ $BUILD_RELEASE -eq $YES ]] && REL=$YES
-			[[ $DO_AUTO       -eq $YES ]] && REL=$YES
-			# configure for release
-			if [[ $REL -eq $YES ]] \
-			&& [[ -f "$PROJECT_PATH/composer.lock" ]]; then
-				[[ $QUIET -eq $NO ]] && \
-					title C "Composer Install"
-				echo_cmd "composer install -a -o --no-dev --prefer-dist"
-				if [[ $IS_DRY -eq $NO ]]; then
-					\composer install --no-dev --prefer-dist --classmap-authoritative --optimize-autoloader  || exit 1
-				fi
-			# configure for dev
-			else
-				if [[ $DEBUG_FLAGS -eq $YES ]] \
-				|| [[ ! -f "$PROJECT_PATH/composer.lock" ]]; then
-					[[ $QUIET -eq $NO ]] && \
-						title C "Composer Update"
-					echo_cmd "composer update"
-					if [[ $IS_DRY -eq $NO ]]; then
-						\composer update  || exit 1
-					fi
-				else
-					[[ $QUIET -eq $NO ]] && \
-						title C "Composer Install"
-					echo_cmd "composer install"
-					if [[ $IS_DRY -eq $NO ]]; then
-						\composer install  || exit 1
-					fi
-				fi
-			fi
-		\popd >/dev/null
-		echo
-		did_something=$YES
-	fi
-	# nothing to do
-	if [[ $did_something -eq $YES ]]; then
-		DisplayTime "Configured"
-		COUNT_OPS=$((COUNT_OPS+1))
 	else
-		[[ $QUIET -eq $NO ]] && \
-			title C "Configure"
-		notice "Nothing found to configure.."
+		# current path
+		if [[ $PROJECT_PATH == "." ]]; then
+			PROJECT_PATH="$CURRENT_PATH"
+		# defined path
+		else
+			PROJECT_PATH="$CURRENT_PATH/$PROJECT_PATH"
+		fi
+	fi
+#	if [[ $QUIET -eq $NO ]] && [[ "$PROJECT_PATH" != "$CURRENT_PATH" ]]; then
+	if [[ $QUIET -eq $NO ]]; then
+		title B "$PROJECT_NAME"
+		echo -e " ${COLOR_GREEN}>${COLOR_RESET} ${COLOR_BLUE}${PROJECT_PATH}${COLOR_RESET}"
+		if [[ ! -z $PROJECT_VERSION ]]; then
+			notice "Version: ${COLOR_GREEN}$PROJECT_VERSION${COLOR_RESET}"
+# $PROJECT_SNAPSHOT
+		fi
 		echo
 	fi
-}
+	# recursive
 
 
 
-# --build
-function doBuild() {
-	did_something=$NO
-	[[ $QUIET -eq $NO ]] && \
-		title C "Build"
-	doProjectTags
-	# automake
-	if [[ -f "$PROJECT_PATH/configure" ]]; then
-		\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
-			CONFIGURE_DEBUG_FLAGS=""
-			if [[ $DEBUG_FLAGS -eq $YES ]]; then
-				CONFIGURE_DEBUG_FLAGS="--enable-debug"
-			fi
-			echo_cmd "configure ${CONFIGURE_DEBUG_FLAGS}"
-			if [[ $IS_DRY -eq $NO ]]; then
-				./configure $CONFIGURE_DEBUG_FLAGS  || exit 1
-			fi
-		\popd >/dev/null
-		echo
-		did_something=$YES
-	fi
-	# make
-	if [[ -f "$PROJECT_PATH/Makefile" ]]; then
-		\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
-			# make
-			echo_cmd "make"
-			if [[ $IS_DRY -eq $NO ]]; then
-				\make  || exit 1
-			fi
-			# make install
-			if [[ -d "$PROJECT_PATH/.libs/" ]]; then
-				echo
-				echo_cmd "make install"
-				if [[ $IS_DRY -eq $NO ]]; then
-					\sudo \make install  || exit 1
-					echo
-				fi
-			fi
-		\popd >/dev/null
-		echo
-		did_something=$YES
-	fi
-	# maven
-	if [[ -f "$PROJECT_PATH/pom.xml" ]]; then
-		\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
-			# generate temp release pom.xml
-			if [[ $BUILD_RELEASE -eq $YES ]] \
-			|| [[ $DO_AUTO       -eq $YES ]]; then
-				echo_cmd "mv  pom.xml  pom.xml.xbuild-save"
-				if [[ $IS_DRY -eq $NO ]]; then
-					\mv -v  "$PROJECT_PATH/pom.xml"  "$PROJECT_PATH/pom.xml.xbuild-save"  || exit 1
-				fi
-				local SNAP_RELEASE=""
-				if [[ $BUILD_RELEASE -eq $YES ]]; then
-					SNAP_RELEASE="--release"
-				else
-					SNAP_RELEASE="--snapshot"
-				fi
-				echo_cmd -n "genpom $SNAP_RELEASE $PROJECT_VERSION"
-				if [[ $IS_DRY -eq $NO ]]; then
-					\genpom  $SNAP_RELEASE  $PROJECT_VERSION  || exit 1
-				else
-					echo
-				fi
-			fi
-			# build
-			echo_cmd "mvn clean install"
-			if [[ $IS_DRY -eq $NO ]]; then
-				\mvn  --no-transfer-progress  clean install  || exit 1
-			fi
-			# ide projects
-			echo_cmd "mvn eclipse:eclipse"
-			if [[ $IS_DRY -eq $NO ]]; then
-				\mvn  --no-transfer-progress  eclipse:eclipse  || exit 1
-			fi
-			# restore pom.xml
-			if [[ $BUILD_RELEASE -eq $YES ]] \
-			|| [[ $DO_AUTO       -eq $YES ]]; then
-				echo_cmd "rm  pom.xml"
-				if [[ $IS_DRY -eq $NO ]]; then
-					\rm -vf --preserve-root  "$PROJECT_PATH/pom.xml"  || exit 1
-				fi
-				echo_cmd "mv  pom.xml.xbuild-save  pom.xml"
-				if [[ $IS_DRY -eq $NO ]]; then
-					\mv -v  "$PROJECT_PATH/pom.xml.xbuild-save"  "$PROJECT_PATH/pom.xml"  || exit 1
-				fi
-			fi
-		\popd >/dev/null
-		echo
-		did_something=$YES
-	fi
-	# rust/cargo
-	if [[ -f "$PROJECT_PATH/Cargo.toml" ]]; then
-		\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
-			if [[ $BUILD_RELEASE -eq $YES ]]; then
-				echo_cmd "cargo build --release --timings"
-				if [[ $IS_DRY -eq $NO ]]; then
-					\cargo build --release --timings  || exit 1
-				fi
-			else
-				if [[ $DEBUG_FLAGS -eq $YES ]]; then
-					echo_cmd "cargo update"
-					if [[ $IS_DRY -eq $NO ]]; then
-						\cargo update  || exit 1
-					fi
-				fi
 #TODO
-#				echo_cmd "grcov . -s . --binary-path ./target/release/ "  \
-#					"-t html --branch --ignore-not-existing -o ./coverage/"
-#				if [[ $IS_DRY -eq $NO ]]; then
-#					\grcov . -s .  \
-#						--binary-path ./target/release/         \
-#						-t html --branch --ignore-not-existing  \
-#						-o ./coverage/
-#				fi
-				echo_cmd "cargo build"
-				if [[ $IS_DRY -eq $NO ]]; then
-					\cargo build  || exit 1
-				fi
-			fi
-		\popd >/dev/null
-		echo
-		did_something=$YES
-	fi
-	# nothing to do
-	if [[ $did_something -eq $YES ]]; then
-		DisplayTime "Built"
-		COUNT_OPS=$((COUNT_OPS+1))
-	else
-		notice "Nothing found to build.."
-		echo
-	fi
+
+
+
+
+
+	for ENTRY in $( \ls -1 -v "/zcode/apr/xBuild/src/xbuild-stages/" ); do
+		source "/zcode/apr/xBuild/src/xbuild-stages/$ENTRY"
+	done
 }
 
-
-
-# --test
-function doTests() {
-	did_something=$NO
-	doProjectTags
-	[[ $QUIET -eq $NO ]] && \
-		title C "Testing"
-	# make check
-	if [[ -f "$PROJECT_PATH/Makefile" ]]; then
-		\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
-			echo_cmd "make check"
-			if [[ $IS_DRY -eq $NO ]]; then
-				\make check  || exit 1
-			fi
-		\popd >/dev/null
-		echo
-#TODO: exec test program
-		did_something=$YES
-	fi
-	# phpunit
-	if [[ -f "$PROJECT_PATH/phpunit.xml" ]]; then
-		\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
-			echo_cmd "phpunit"
-			if [[ $IS_DRY -eq $NO ]]; then
-				"$PROJECT_PATH"/vendor/bin/phpunit --coverage-html coverage/html  || exit 1
-			fi
-		\popd >/dev/null
-		echo
-		did_something=$YES
-	fi
-	# nothing to do
-	if [[ $did_something -eq $YES ]]; then
-		DisplayTime "Tested"
-		COUNT_OPS=$((COUNT_OPS+1))
-	else
-		notice "Nothing found to test.."
-		echo
-	fi
-}
-
-
-
-# --pack
-function doPack() {
-	local did_something=$NO
-	doProjectTags
-	[[ $QUIET -eq $NO ]] && \
-		title C "Package"
-	# make dist
-	if [[ -f "$PROJECT_PATH/Makefile" ]]; then
-		\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
-			echo_cmd "make dist"
-			if [[ $IS_DRY -eq $NO ]]; then
-				\make dist  || exit 1
-			fi
-		\popd >/dev/null
-		echo
-		local did_something=$YES
-	fi
-	# find .spec file
-	local SPEC_FILE_COUNT=$( \ls -1 "$PROJECT_PATH/"*.spec 2>/dev/null | \wc -l )
-	if [[ $SPEC_FILE_COUNT -gt 1 ]]; then
-		failure "$SPEC_FILE_COUNT .spec files were found here"
-		failure ; exit 1
-	fi
-	local SPEC_FILE=""
-	local SPEC_NAME=""
-	if [[ $SPEC_FILE_COUNT -eq 1 ]]; then
-		SPEC_FILE=$( \ls -1 "$PROJECT_PATH/"*.spec )
-		SPEC_NAME=${SPEC_FILE%.*}
-		SPEC_NAME=${SPEC_NAME##*/}
-	fi
-	# build rpm
-	if [[ ! -z $SPEC_FILE ]]; then
-		# rm rpmbuild/
-		if [[ -d "$PROJECT_PATH/rpmbuild" ]]; then
-			echo_cmd -n "rm rpmbuild"
-			if [[ $IS_DRY -eq $NO ]]; then
-				\pushd  "$PROJECT_PATH"  >/dev/null  || exit 1
-					local c=$( \rm -Rvf --preserve-root rpmbuild/ | \wc -l )
-					[[ 0 -ne $? ]] && exit 1
-					echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
-				\popd >/dev/null
-			fi
-		fi
-		# make build root dirs
-		echo_cmd -n "mkdir rpmbuild"
-		local c=$( \mkdir -pv "$PROJECT_PATH"/rpmbuild/{BUILD,BUILDROOT,SOURCES,SPECS,RPMS,SRPMS,TMP} | \wc -l )
-		[[ 0 -ne $? ]] && exit 1
-		echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
-		echo_cmd "cp  "${SPEC_FILE##*/}"  rpmbuild/SPECS/"
-		if [[ $IS_DRY -eq $NO ]]; then
-			\cp -vf  "$SPEC_FILE"  "$PROJECT_PATH/rpmbuild/SPECS/"  || exit 1
-		fi
-		local PACKAGES=""
-		\pushd  "$PROJECT_PATH/rpmbuild/"  >/dev/null  || exit 1
-			if [[ -z $TARGET_PATH ]]; then
-				failure "Target path not set"
-				failure ; exit 1
-			fi
-			echo_cmd "rpmbuild\n"                                              \
-				${BUILD_NUMBER:+"     --define=build_number $BUILD_NUMBER\n"}  \
-				"     --define=_topdir $PROJECT_PATH/rpmbuild\n"               \
-				"     --define=_tmppath $PROJECT_PATH/rpmbuild/TMP\n"          \
-				"     --define=_binary_payload w9.gzdio\n"                     \
-				"     --undefine=_disable_source_fetch\n"                      \
-				"     -bb SPECS/${SPEC_NAME}.spec\n"
-			if [[ $IS_DRY -eq $NO ]]; then
-				if [[ ! -e "$TARGET_PATH/" ]]; then
-					\mkdir -pv "$TARGET_PATH/"  || exit 1
-				fi
-				\rpmbuild \
-					${BUILD_NUMBER:+ --define="build_number $BUILD_NUMBER"} \
-					--define="_topdir $PROJECT_PATH/rpmbuild" \
-					--define="_tmppath $PROJECT_PATH/rpmbuild/TMP" \
-					--define="_binary_payload w9.gzdio" \
-					--undefine=_disable_source_fetch \
-					-bb "SPECS/${SPEC_NAME}.spec" \
-						|| exit 1
-				echo
-				\pushd  "$PROJECT_PATH/rpmbuild/RPMS/"  >/dev/null  || exit 1
-					PACKAGES=$( \ls -1 *.rpm )
-				\popd >/dev/null
-				if [[ -z $PACKAGES ]]; then
-					failure "Failed to find finished rpm packages: $PROJECT_PATH/rpmbuild/RPMS/"
-					failure ; exit 1
-				fi
-				for ENTRY in $PACKAGES; do
-					PACKAGES_ALL+=("$TARGET_PATH/$ENTRY")
-					echo_cmd "cp  rpmbuild/RPMS/$ENTRY  $TARGET_PATH"
-					\cp -fv  "$PROJECT_PATH/rpmbuild/RPMS/$ENTRY"  "$TARGET_PATH/"  || exit 1
-				done
-				if [[ -e /usr/bin/alien  ]] \
-				&& [[ $DO_ALIEN -eq $YES ]]; then
-					\pushd  "$TARGET_PATH/"  >/dev/null  || exit 1
-						for ENTRY in $PACKAGES; do
-							echo
-							echo_cmd "alien --to-deb $ENTRY"
-							if [[ $IS_DRY -eq $NO ]]; then
-								\fakeroot \alien  -v --to-deb  "$ENTRY"  || exit 1
-							fi
-						done
-					\popd >/dev/null
-				fi
-			fi
-		\popd >/dev/null
-		echo
-		echo -e " ${COLOR_CYAN}-----------------------------------------------${COLOR_RESET}"
-		echo -e " ${COLOR_CYAN}Packages finished:${COLOR_RESET}"
-		if [[ $IS_DRY -eq $NO ]]; then
-			for ENTRY in $PACKAGES; do
-				echo -e "   ${COLOR_CYAN}$ENTRY${COLOR_RESET}"
-			done
-		else
-			echo -e "   ${COLOR_CYAN}DRY${COLOR_RESET}"
-		fi
-		echo -e " ${COLOR_CYAN}-----------------------------------------------${COLOR_RESET}"
-		local did_something=$YES
-	fi
-	# nothing to do
-	if [[ $did_something -eq $YES ]]; then
-		DisplayTime "Package"
-		COUNT_OPS=$((COUNT_OPS+1))
-	else
-		notice "Nothing found to package.."
-		echo
-	fi
-}
-
-
-
-# ----------------------------------------
-
-
-
-function Path() {
-	if [[ -z $1 ]]; then
-		failure "Path value is missing for project: $PROJECT_NAME"
-		failure ; exit 1
-	fi
-	PROJECT_PATH="$1"
-}
-function Repo() {
-	if [[ -z $1 ]]; then
-		failure "Repo value is missing for project: $PROJECT_NAME"
-		failure ; exit 1
-	fi
-	PROJECT_REPO="$1"
-}
-function Alias() {
-	if [[ -z $1 ]]; then
-		failure "Alias value is missing for project: $PROJECT_NAME"
-		failure ; exit 1
-	fi
-	PROJECT_ALIASES="$PROJECT_ALIASES $1"
-}
-function TagFile() {
-	if [[ -z $1 ]]; then
-		failure "TagFile value is missing for project: $PROJECT_NAME"
-		failure ; exit 1
-	fi
-	PROJECT_TAG_FILES="$PROJECT_TAG_FILES $1"
-}
-function AddIgnore() {
-	if [[ -z $1 ]]; then
-		failure "AddIgnore value is missing for project: $PROJECT_NAME"
-		failure ; exit 1
-	fi
-	PROJECT_GITIGNORE="$PROJECT_GITIGNORE $1"
+function CleanupProjectVars() {
+	restoreProjectTags
+	PROJECT_NAME=""
+	PROJECT_PATH=""
+	PROJECT_REPO=""
+	PROJECT_GITIGNORE=""
+	PROJECT_TAG_FILES=""
+	PROJECT_TAGS_DONE=$NO
+	TIME_START_PRJ=$( \date "+%s%N" )
+	TIME_LAST=$TIME_START_PRJ
 }
 
 
 
 function LoadConf() {
-	ProjectCleanup
+	CleanupProjectVars
 	if [[ -z $1 ]]; then
 		failure "LoadConf() requires file argument"
 		failure ; exit 1
@@ -969,24 +340,22 @@ function LoadConf() {
 		failure ; exit 1
 	fi
 	local LAST_PATH="$CURRENT_PATH"
-	CURRENT_PATH=${1%/*}
 	local LAST_VERSION="$PROJECT_VERSION"
+	local LAST_SNAPSHOT="$PROJECT_SNAPSHOT"
+	CURRENT_PATH="${1%/*}"
 	PROJECT_VERSION=""
-	if [[ $DO_CONFIG -eq $YES ]] \
-	|| [[ $DO_BUILD  -eq $YES ]] \
-	|| [[ $DO_TESTS  -eq $YES ]] \
-	|| [[ $DO_PACK   -eq $YES ]]; then
-		DetectGitTag "$CURRENT_PATH"
-	fi
+	PROJECT_SNAPSHOT=""
+	DetectGitTag "$CURRENT_PATH"
 	\pushd  "$CURRENT_PATH"  >/dev/null  || exit 1
 		# load xbuild.conf
 		source "$CURRENT_PATH/xbuild.conf" || exit 1
 		# last project in conf file
 		doProject
-		ProjectCleanup
+		CleanupProjectVars
 	\popd >/dev/null
 	CURRENT_PATH="$LAST_PATH"
 	PROJECT_VERSION="$LAST_VERSION"
+	PROJECT_SNAPSHOT="$LAST_SNAPSHOT"
 }
 
 
@@ -1031,20 +400,19 @@ function DetectGitTag() {
 	\popd >/dev/null
 	# build number
 	if [[ ! -z $BUILD_NUMBER    ]] \
-	&& [[ ! -z $PROJECT_VERSION ]]; then
-		if [[ "$PROJECT_VERSION" != "SNAPSHOT" ]]; then
-			local VERS="$PROJECT_VERSION"
-			local IS_SNAP=$NO
-			if [[ "$VERS" == *"-SNAPSHOT" ]]; then
-				VERS=${VERS%-*}
-				IS_SNAP=$YES
-			fi
-			if [[ "$VERS" == *"-"* ]]; then
-				VERS=${VERS%-*}
-			fi
-			VERS=${VERS%.*}
-			PROJECT_VERSION="${VERS}.${BUILD_NUMBER}"
+	&& [[ ! -z $PROJECT_VERSION ]] \
+	&& [[ "$PROJECT_VERSION" != "SNAPSHOT" ]]; then
+		local VERS="$PROJECT_VERSION"
+		local IS_SNAP=$NO
+		if [[ "$VERS" == *"-SNAPSHOT" ]]; then
+			VERS=${VERS%-*}
+			IS_SNAP=$YES
 		fi
+		if [[ "$VERS" == *"-"* ]]; then
+			VERS=${VERS%-*}
+		fi
+		VERS=${VERS%.*}
+		PROJECT_VERSION="${VERS}.${BUILD_NUMBER}"
 	fi
 }
 
@@ -1124,114 +492,11 @@ function restoreProjectTags() {
 
 
 
-function Project() {
-	# perform previous project
-	if [[ ! -z $PROJECT_NAME ]]; then
-		doProject
-		ProjectCleanup
-	fi
-	if [[ ! -z $1 ]]; then
-		PROJECT_NAME="$1"
-	fi
-}
-
-function doProject() {
-	if [[ -z $PROJECT_NAME ]]; then
-		ProjectCleanup
-		return
-	fi
-	if [[ ! -z $PROJECT_FILTERS ]]; then
-		if [[ " $PROJECT_FILTERS " != *" $PROJECT_NAME "* ]]; then
-			notice "Skipping filtered: $PROJECT_NAME"
-			return
-		fi
-	fi
-	if [[ -z $PROJECT_PATH ]]; then
-		# project in named path
-		if [[ -f "$CURRENT_PATH/$PROJECT_NAME/xbuild.conf" ]]; then
-			PROJECT_PATH="$CURRENT_PATH/$PROJECT_NAME"
-		# current path
-		else
-			PROJECT_PATH="$CURRENT_PATH"
-		fi
-	else
-		# current path
-		if [[ $PROJECT_PATH == "." ]]; then
-			PROJECT_PATH="$CURRENT_PATH"
-		# defined path
-		else
-			PROJECT_PATH="$CURRENT_PATH/$PROJECT_PATH"
-		fi
-	fi
-	if [[ $QUIET -eq $NO ]] && [[ "$PROJECT_PATH" != "$CURRENT_PATH" ]]; then
-		title B "$PROJECT_NAME"
-		echo -e " ${COLOR_GREEN}>${COLOR_RESET} ${COLOR_BLUE}$PROJECT_PATH${COLOR_RESET}"
-		if [[ ! -z $PROJECT_VERSION ]]; then
-			if [[ $DO_CONFIG -eq $YES ]] \
-			|| [[ $DO_BUILD  -eq $YES ]] \
-			|| [[ $DO_TESTS  -eq $YES ]] \
-			|| [[ $DO_PACK   -eq $YES ]]; then
-				notice "Version: ${COLOR_GREEN}$PROJECT_VERSION${COLOR_RESET}"
-			fi
-		fi
-		echo
-	fi
-	# --pp
-	[[ $DO_PP -eq $YES ]] && doPullPush
-	# --gg
-	[[ $DO_GG -eq $YES ]] && doGitGUI
-	# recursive - xbuild.conf file in sub dir
-	if [[ -f "$PROJECT_PATH/xbuild.conf" ]]; then
-		if [[ "$PROJECT_PATH" != "$CURRENT_PATH" ]]; then
-			if [[ $DO_RECURSIVE -eq $YES ]]; then
-				[[ $VERBOSE -eq $YES ]] && \
-					notice "Recursive: $PROJECT_PATH"
-				LoadConf "$PROJECT_PATH/xbuild.conf"
-			else
-				[[ $VERBOSE -eq $YES ]] && \
-					notice "Skipping recursive"
-			fi
-			ProjectCleanup
-			return
-		fi
-	fi
-	# project in current path
-	# --clean
-	[[ $DO_CLEAN  -eq $YES ]] && doClean
-	# --config
-	[[ $DO_CONFIG -eq $YES ]] && doConfig
-	# --build
-	[[ $DO_BUILD  -eq $YES ]] && doBuild
-	# --tests
-	[[ $DO_TESTS  -eq $YES ]] && doTests
-	# --pack
-	[[ $DO_PACK   -eq $YES ]] && doPack
-	# project done
-	COUNT_PRJ=$((COUNT_PRJ+1))
-	DisplayTimeProject
-	ProjectCleanup
-}
-
-function ProjectCleanup() {
-	restoreProjectTags
-	PROJECT_NAME=""
-	PROJECT_PATH=""
-	PROJECT_REPO=""
-	PROJECT_ALIASES=""
-	PROJECT_GITIGNORE=""
-	PROJECT_TAG_FILES=""
-	PROJECT_TAGS_DONE=$NO
-	TIME_START_PRJ=$( \date "+%s%N" )
-	TIME_LAST=$TIME_START_PRJ
-}
-
-
-
 # ----------------------------------------
-
-
-
 # parse args
+
+
+
 echo
 if [[ $# -eq 0 ]]; then
 	DisplayHelp $YES
@@ -1244,6 +509,7 @@ while [ $# -gt 0 ]; do
 	-D|--dry)        IS_DRY=$YES         ;;
 	-R|--release)    BUILD_RELEASE=$YES  ;;
 	-d|--debug|--debug-flag|--debug-flags)  DEBUG_FLAGS=$YES  ;;
+
 	-n|--build-number)
 		if [[ -z $2 ]] || [[ "$2" == "-"* ]]; then
 			failure "--build-number flag requires a value"
@@ -1252,14 +518,15 @@ while [ $# -gt 0 ]; do
 		\shift
 		BUILD_NUMBER="$1"
 	;;
-	-n*)  BUILD_NUMBER=${1#-n}  ;;
+	-n*)  BUILD_NUMBER="${1#-n}"  ;;
 	--build-number=*)
-		BUILD_NUMBER=${1#*=}
+		BUILD_NUMBER="${1#*=}"
 		if [[ -z $BUILD_NUMBER ]]; then
 			failure "--build-number flag requires a value"
 			failure ; DisplayHelp $NO ; exit 1
 		fi
 	;;
+
 	--target)
 		if [[ -z $2 ]] || [[ "$2" == "-"* ]]; then
 			failure "--target flag requires a value"
@@ -1269,14 +536,14 @@ while [ $# -gt 0 ]; do
 		TARGET_PATH="$1"
 	;;
 	--target=*)
-		TARGET_PATH=${1#*=}
+		TARGET_PATH="${1#*=}"
 		if [[ -z $TARGET_PATH ]]; then
 			failure "--target flag requires a value"
 			failure ; DisplayHelp $NO ; exit 1
 		fi
 	;;
 
-	-f|--filter)
+	-F|--filter)
 		if [[ -z $2 ]] || [[ "$2" == "-"* ]]; then
 			failure "--filter flag requires a value"
 			failure ; DisplayHelp $NO ; exit 1
@@ -1296,49 +563,22 @@ while [ $# -gt 0 ]; do
 	--deb)     DO_ALIEN=$YES  ;;
 	--no-deb)  DO_ALIEN=$NO   ;;
 
-	--pp|--pull-push|--push-pull)  DO_PP=$YES  ;;
-	--gg|--git-gui)                DO_GG=$YES  ;;
+	--pp|--pull-push|--push-pull|pp|pull-push)  ACTIONS="$ACTIONS pull-push"  ;;
+	--gg|--git-gui|gg|git-gui)                  ACTIONS="$ACTIONS git-gui"    ;;
 
-	-c|--clean|--clear|--cleanup)  DO_CLEAN=$YES   ;;
-	-C|--config|--configure)       DO_CONFIG=$YES  ;;
-	-b|--build|--compile)          DO_BUILD=$YES   ;;
-	--test|--tests|--testing)      DO_TESTS=$YES   ;;
-	-p|--pack|--package)           DO_PACK=$YES    ;;
-	-i|--ide)                      DO_IDE=$YES     ;;
+	-c|--clean|--clear|--cleanup|clean|cleanup)  ACTIONS="$ACTIONS clean"   ;;
+	-C|--config|--configure|config|configure)    ACTIONS="$ACTIONS config"  ;;
+	-b|--build|--compile|build|compile)          ACTIONS="$ACTIONS build"   ;;
+	--test|--tests|--testing|test|tests|testing) ACTIONS="$ACTIONS test"    ;;
+	-p|--pack|--package|pack|package)            ACTIONS="$ACTIONS pack"    ;;
+	-i|--ide|ide)                                ACTIONS="$ACTIONS ide"     ;;
 
-	--cb)     DO_CONFIG=$YES ; DO_BUILD=$YES  ;;
-	--cbp)    DO_CONFIG=$YES ; DO_BUILD=$YES  ; DO_PACK=$YES  ;;
-	--ccb)    DO_CLEAN=$YES  ; DO_CONFIG=$YES ; DO_BUILD=$YES ;;
-	--cbtp)   DO_CONFIG=$YES ; DO_BUILD=$YES  ; DO_TESTS=$YES ; DO_PACK=$YES  ;;
-	--ccbp)   DO_CLEAN=$YES  ; DO_CONFIG=$YES ; DO_BUILD=$YES ; DO_PACK=$YES  ;;
-	--ccbtp)  DO_CLEAN=$YES  ; DO_CONFIG=$YES ; DO_BUILD=$YES ; DO_TESTS=$YES ; DO_PACK=$YES  ;;
-
-	--dev)
-		DO_CONFIG=$YES ; DO_BUILD=$YES ; DO_PACK=$YES
-		DEBUG_FLAGS=$YES ; DO_RECURSIVE=$YES ; VERBOSE=$YES
-	;;
-	--ci)
-		if [[ -z $2 ]] || [[ "$2" == "-"* ]]; then
-			failure "--ci flag requires a build number"
-			failure ; DisplayHelp $NO ; exit 1
-		fi
-		DO_CLEAN=$YES ; DO_CONFIG=$YES ; DO_BUILD=$YES
-		DO_TESTS=$YES ; DO_PACK=$YES   ; VERBOSE=$YES
-		DO_RECURSIVE=$YES ; BUILD_RELEASE=$YES
-		\shift
-		BUILD_NUMBER="$1"
-	;;
-	--auto)
-		if [[ -z $2 ]] || [[ "$2" == "-"* ]]; then
-			failure "--auto flag requires a build number"
-			failure ; DisplayHelp $NO ; exit 1
-		fi
-		DO_AUTO=$YES  ; DO_TESTS=$YES  ; VERBOSE=$YES
-		DO_CLEAN=$YES ; DO_CONFIG=$YES ; DO_BUILD=$YES
-		DO_PACK=$YES ; DO_RECURSIVE=$YES ; BUILD_RELEASE=$YES
-		\shift
-		BUILD_NUMBER="$1"
-	;;
+	--cb)    ACTIONS="$ACTIONS config build"                  ;;
+	--cbp)   ACTIONS="$ACTIONS config build pack"             ;;
+	--ccb)   ACTIONS="$ACTIONS clean config build"            ;;
+	--cbtp)  ACTIONS="$ACTIONS config build test pack"        ;;
+	--ccbp)  ACTIONS="$ACTIONS clean config build pack"       ;;
+	--ccbtp) ACTIONS="$ACTIONS clean config build test pack"  ;;
 
 	-v|--verbose)  VERBOSE=$YES  ;;
 	-q|--quiet)    QUIET=$YES    ;;
@@ -1347,10 +587,14 @@ while [ $# -gt 0 ]; do
 	-V|--version)  DisplayVersion   ; exit 1  ;;
 	-h|--help)     DisplayHelp $YES ; exit 1  ;;
 
+	-*)
+		failure "Unknown flag: $1"
+		failure ; DisplayHelp $NO
+		exit 1
+	;;
 	*)
 		failure "Unknown argument: $1"
-		failure
-		DisplayHelp $NO
+		failure ; DisplayHelp $NO
 		exit 1
 	;;
 
@@ -1358,10 +602,7 @@ while [ $# -gt 0 ]; do
 	\shift
 done
 
-if [[ ! -f "$WDIR/xbuild.conf" ]]; then
-	failure "xbuild.conf not found here"
-	failure ; exit 1
-fi
+
 
 # default target path
 if [[ -z $TARGET_PATH ]]; then
@@ -1378,68 +619,84 @@ if [[ $QUIET -ne $YES ]]; then
 		notice "Enable debug flags"
 		did_notice=$YES
 	fi
-	if [[ $DO_AUTO -eq $YES ]]; then
-		notice "Auto Mode"
-		did_notice=$YES
-		if [[ $DEBUG_FLAGS -eq $YES ]]; then
-			warning "Production mode and debug mode are active at the same time"
-		fi
-	elif [[ $BUILD_RELEASE -eq $YES ]]; then
-		notice "Production Mode"
-		did_notice=$YES
-		if [[ $DEBUG_FLAGS -eq $YES ]]; then
-			warning "Production mode and debug mode are active at the same time"
-		fi
-	fi
+#	if [[ $DO_AUTO -eq $YES ]]; then
+#		notice "Auto Mode"
+#		did_notice=$YES
+#		if [[ $DEBUG_FLAGS -eq $YES ]]; then
+#			warning "Production mode and debug mode are active at the same time"
+#		fi
+#	elif [[ $BUILD_RELEASE -eq $YES ]]; then
+#		notice "Production Mode"
+#		did_notice=$YES
+#		if [[ $DEBUG_FLAGS -eq $YES ]]; then
+#			warning "Production mode and debug mode are active at the same time"
+#		fi
+#	fi
 	if [[ $DO_PACK -eq $YES ]]; then
 		notice "Deploy to: $TARGET_PATH"
 		did_notice=$YES
 	fi
-	[[ $did_notice -eq $YES ]] && echo
-
 	if [[ ! -z $PROJECT_FILTERS ]]; then
-		echo "Filters:"
-		for FILTER in $PROJECT_FILTERS; do
-			echo -e "  ${COLOR_BLUE}"${FILTER##*/}"${COLOR_RESET}"
-		done
-		echo
-	fi
-fi
-
-
-
-# clean root target/
-if [[ $DO_CLEAN -eq $YES ]]; then
-	if [[ ! -z $TARGET_PATH ]] \
-	&& [[ -d "$TARGET_PATH" ]]; then
-		title C "Clean Current Path"
-		echo_cmd -n "rm -rf target"
-		if [[ $IS_DRY -eq $NO ]]; then
-			c=$( \rm -vrf --preserve-root target | wc -l )
-			[[ 0 -ne $? ]] && exit 1
-			echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
-			echo
+		did_notice=$YES
+		if [[ "$PROJECT_FILTERS" == " "*" "* ]]; then
+			notice "Filters:"
+			for FILTER in $PROJECT_FILTERS; do
+				notice "  ${COLOR_BLUE}${FILTER##*/}${COLOR_RESET}"
+			done
+		else
+			notice "Filter:${COLOR_BLUE}${PROJECT_FILTERS}${COLOR_RESET}"
 		fi
 	fi
+	[[ $did_notice -eq $YES ]] && echo
 fi
 
 
 
-# start loading
+if [[ ! -f "$WDIR/xbuild.conf" ]]; then
+	failure "xbuild.conf not found here"
+	failure ; exit 1
+fi
 LoadConf "$WDIR/xbuild.conf"
 
 
 
 if [[ $QUIET -eq $NO ]]; then
 	echo -e " ${COLOR_GREEN}===============================================${COLOR_RESET}"
-	if [[ $COUNT_OPS -le 0 ]]; then
+fi
+XBUILD_FAILED=$NO
+# unknown filter
+FILTERED_NOT_FOUND=$NO
+for FILTER in $PROJECT_FILTERS; do
+	if [[ " $PROJECT_FILTERS_FOUND " != *" $FILTER "* ]]; then
+		FILTERED_NOT_FOUND=$YES
+		XBUILD_FAILED=$YES
+		warning "Project not found: $FILTER"
+	fi
+done
+# unknown action
+ACTION_NOT_FOUND=$NO
+for ACT in $ACTIONS; do
+	if [[ " $ACTIONS_DONE " != *" $ACT "* ]]; then
+		ACTION_NOT_FOUND=$YES
+		XBUILD_FAILED=$YES
+		warning "Unknown action: $ACT"
+	fi
+done
+# did nothing
+if [[ $QUIET -eq $NO ]]; then
+	if [[ $COUNT_ACT -le 0 ]]; then
+		XBUILD_FAILED=$YES
 		warning "No actions performed"
-		warning ; exit 1
 	fi
 fi
+if [[ $XBUILD_FAILED -eq $YES ]]; then
+	warning
+fi
 
-echo -ne " ${COLOR_GREEN}Performed $COUNT_OPS operation"
-[[ $COUNT_OPS -gt 1 ]] && echo -n "s"
+
+
+echo -ne " ${COLOR_GREEN}Performed $COUNT_ACT operation"
+[[ $COUNT_ACT -gt 1 ]] && echo -n "s"
 [[ $COUNT_PRJ -gt 1 ]] && echo -ne " on $COUNT_PRJ projects"
 echo -e "${COLOR_RESET}"
 
@@ -1457,4 +714,7 @@ if [[ ! -z $PACKAGES_ALL ]]; then
 	echo
 fi
 
+if [[ $XBUILD_FAILED -eq $YES ]]; then
+	exit 1
+fi
 exit 0
