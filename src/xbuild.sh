@@ -101,7 +101,7 @@ function DisplayVersion() {
 
 
 ACTIONS=""
-ACTIONS_DONE=""
+ACTIONS_FOUND=""
 VERBOSE=$NO
 QUIET=$NO
 NO_COLORS=$NO
@@ -686,7 +686,7 @@ done
 # unknown action
 ACTION_NOT_FOUND=$NO
 for ACT in $ACTIONS; do
-	if [[ " $ACTIONS_DONE " != *" $ACT "* ]]; then
+	if [[ " $ACTIONS_FOUND " != *" $ACT "* ]]; then
 		ACTION_NOT_FOUND=$YES
 		XBUILD_FAILED=$YES
 		warning "Unknown action: $ACT"

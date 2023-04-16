@@ -3,6 +3,7 @@
 
 
 if [[ " $ACTIONS " == *" pull-push "* ]]; then
+	ACTIONS_FOUND="$ACTIONS_FOUND pull-push"
 	if [[ ! -z $PROJECT_REPO ]] \
 	|| [[ -d "$PROJECT_PATH/.git" ]]; then
 		# clone repo
@@ -38,6 +39,5 @@ if [[ " $ACTIONS " == *" pull-push "* ]]; then
 			fi
 		\popd >/dev/null
 		COUNT_ACT=$((COUNT_ACT+1))
-		ACTIONS_DONE="$ACTIONS_DONE pull-push"
 	fi
 fi

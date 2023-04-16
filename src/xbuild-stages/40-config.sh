@@ -3,6 +3,7 @@
 
 
 if [[ " $ACTIONS " == *" config "* ]]; then
+	ACTIONS_FOUND="$ACTIONS_FOUND config"
 	did_something=$NO
 	# .gitignore
 	if [[ -f "$PROJECT_PATH/.gitignore" ]] \
@@ -157,5 +158,4 @@ if [[ " $ACTIONS " == *" config "* ]]; then
 		notice "Nothing found to configure.."
 		echo
 	fi
-	ACTIONS_DONE="$ACTIONS_DONE config"
 fi

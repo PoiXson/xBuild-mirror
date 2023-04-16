@@ -3,6 +3,7 @@
 
 
 if [[ " $ACTIONS " == *" clean "* ]]; then
+	ACTIONS_FOUND="$ACTIONS_FOUND clean"
 	[[ $QUIET -eq $NO ]] && \
 		title C "Clean"
 	let count=0
@@ -146,5 +147,4 @@ if [[ " $ACTIONS " == *" clean "* ]]; then
 		echo
 	fi
 	COUNT_ACT=$((COUNT_ACT+1))
-	ACTIONS_DONE="$ACTIONS_DONE clean"
 fi

@@ -3,6 +3,7 @@
 
 
 if [[ " $ACTIONS " == *" test "* ]]; then
+	ACTIONS_FOUND="$ACTIONS_FOUND test"
 	did_something=$NO
 	doProjectTags
 	[[ $QUIET -eq $NO ]] && \
@@ -38,5 +39,4 @@ if [[ " $ACTIONS " == *" test "* ]]; then
 		notice "Nothing found to test.."
 		echo
 	fi
-	ACTIONS_DONE="$ACTIONS_DONE test"
 fi

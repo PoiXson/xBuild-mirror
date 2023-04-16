@@ -3,6 +3,7 @@
 
 
 if [[ " $ACTIONS " == *" pack "* ]]; then
+	ACTIONS_FOUND="$ACTIONS_FOUND pack"
 	local did_something=$NO
 	doProjectTags
 	[[ $QUIET -eq $NO ]] && \
@@ -133,5 +134,4 @@ if [[ " $ACTIONS " == *" pack "* ]]; then
 		notice "Nothing found to package.."
 		echo
 	fi
-	ACTIONS_DONE="$ACTIONS_DONE pack"
 fi

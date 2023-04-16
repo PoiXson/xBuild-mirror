@@ -3,6 +3,7 @@
 
 
 if [[ " $ACTIONS " == *" build "* ]]; then
+	ACTIONS_FOUND="$ACTIONS_FOUND build"
 	did_something=$NO
 	[[ $QUIET -eq $NO ]] && \
 		title C "Build"
@@ -133,5 +134,4 @@ if [[ " $ACTIONS " == *" build "* ]]; then
 		notice "Nothing found to build.."
 		echo
 	fi
-	ACTIONS_DONE="$ACTIONS_DONE build"
 fi

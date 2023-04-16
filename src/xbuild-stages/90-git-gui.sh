@@ -3,6 +3,7 @@
 
 
 if [[ " $ACTIONS " == *" git-gui "* ]]; then
+	ACTIONS_FOUND="$ACTIONS_FOUND git-gui"
 	if [[ -d "$PROJECT_PATH/.git" ]]; then
 		\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
 			echo_cmd -n "git-gui"
@@ -16,7 +17,6 @@ if [[ " $ACTIONS " == *" git-gui "* ]]; then
 			fi
 			echo
 			COUNT_ACT=$((COUNT_ACT+1))
-			ACTIONS_DONE="$ACTIONS_DONE git-gui"
 		\popd >/dev/null
 	fi
 fi
