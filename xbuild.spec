@@ -12,11 +12,7 @@ URL      : https://poixson.com/
 
 Requires : pxnscripts >= 2.1.0
 Requires : bash, bc, zip, unzip, grep
-#Requires : autogen autoconf libtool
-#Requires : /usr/bin/rpmbuild
-#Requires : /usr/bin/automake
-#Requires : composer
-#Obsoletes: project-tools
+Requires : fakeroot, alien
 
 %package -n xdeploy
 Summary  : Auto deploy a project or website

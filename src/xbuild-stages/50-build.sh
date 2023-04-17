@@ -51,7 +51,10 @@ if [[ " $ACTIONS " == *" build "* ]]; then
 			if [[ $DO_CI -eq $YES ]]; then
 				echo_cmd "mv  pom.xml  pom.xml.xbuild-save"
 				if [[ $IS_DRY -eq $NO ]]; then
-					\mv -v  "$PROJECT_PATH/pom.xml"  "$PROJECT_PATH/pom.xml.xbuild-save"  || exit 1
+					\mv -v \
+						"$PROJECT_PATH/pom.xml"             \
+						"$PROJECT_PATH/pom.xml.xbuild-save" \
+							|| exit 1
 				fi
 				local SNAPSHOT_RELEASE=""
 				if [[ $PROJECT_RELEASE -eq $YES ]]; then

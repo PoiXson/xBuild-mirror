@@ -25,9 +25,9 @@ XBUILD_VERSION="{{{VERSION}}}"
 
 
 source /usr/bin/pxn/scripts/common.sh  || exit 1
+echo
 
 if [[ -z $WDIR ]]; then
-	echo
 	failure "Failed to find current working directory"
 	failure ; exit 1
 fi
@@ -292,7 +292,6 @@ function doProject() {
 			PROJECT_PATH="$CURRENT_PATH/$PROJECT_PATH"
 		fi
 	fi
-#	if [[ $QUIET -eq $NO ]] && [[ "$PROJECT_PATH" != "$CURRENT_PATH" ]]; then
 	if [[ $QUIET -eq $NO ]]; then
 		title B "$PROJECT_NAME"
 		echo -e " ${COLOR_GREEN}>${COLOR_RESET} ${COLOR_BLUE}${PROJECT_PATH}${COLOR_RESET}"
@@ -518,7 +517,6 @@ function restoreProjectTags() {
 
 
 
-echo
 if [[ $# -eq 0 ]]; then
 	DisplayHelp $NO
 	exit 1
@@ -526,9 +524,9 @@ fi
 while [ $# -gt 0 ]; do
 	case "$1" in
 
-	-r|--recursive)  DO_RECURSIVE=$YES   ;;
-	-D|--dry)        IS_DRY=$YES         ;;
-	-d|--debug|--debug-flag|--debug-flags)  DEBUG_FLAGS=$YES  ;;
+	-r|--recursive) DO_RECURSIVE=$YES ;;
+	-D|--dry)       IS_DRY=$YES       ;;
+	-d|--debug|--debug-flag|--debug-flags) DEBUG_FLAGS=$YES ;;
 
 	-n|--build-number)
 		if [[ -z $2 ]] || [[ "$2" == "-"* ]]; then
@@ -538,7 +536,7 @@ while [ $# -gt 0 ]; do
 		\shift
 		BUILD_NUMBER="$1"
 	;;
-	-n*)  BUILD_NUMBER="${1#-n}"  ;;
+	-n*) BUILD_NUMBER="${1#-n}" ;;
 	--build-number=*)
 		BUILD_NUMBER="${1#*=}"
 		if [[ -z $BUILD_NUMBER ]]; then
@@ -580,25 +578,25 @@ while [ $# -gt 0 ]; do
 		PROJECT_FILTERS="$PROJECT_FILTERS $FILTER"
 	;;
 
-	--deb)     DO_ALIEN=$YES  ;;
-	--no-deb)  DO_ALIEN=$NO   ;;
+	--deb)    DO_ALIEN=$YES ;;
+	--no-deb) DO_ALIEN=$NO  ;;
 
-	--pp|--pull-push|--push-pull|pp|pull-push)  ACTIONS="$ACTIONS pull-push"  ;;
-	--gg|--git-gui|gg|git-gui)                  ACTIONS="$ACTIONS git-gui"    ;;
+	--pp|--pull-push|--push-pull|pp|pull-push) ACTIONS="$ACTIONS pull-push" ;;
+	--gg|--git-gui|gg|git-gui)                 ACTIONS="$ACTIONS git-gui"   ;;
 
-	-c|--clean|--clear|--cleanup|clean|cleanup)  ACTIONS="$ACTIONS clean"   ;;
-	-C|--config|--configure|config|configure)    ACTIONS="$ACTIONS config"  ;;
-	-b|--build|--compile|build|compile)          ACTIONS="$ACTIONS build"   ;;
-	--test|--tests|--testing|test|tests|testing) ACTIONS="$ACTIONS test"    ;;
-	-p|--pack|--package|pack|package)            ACTIONS="$ACTIONS pack"    ;;
-	-i|--ide|ide)                                ACTIONS="$ACTIONS ide"     ;;
+	-c|--clean|--clear|--cleanup|clean|cleanup)  ACTIONS="$ACTIONS clean"  ;;
+	-C|--config|--configure|config|configure)    ACTIONS="$ACTIONS config" ;;
+	-b|--build|--compile|build|compile)          ACTIONS="$ACTIONS build"  ;;
+	--test|--tests|--testing|test|tests|testing) ACTIONS="$ACTIONS test"   ;;
+	-p|--pack|--package|pack|package)            ACTIONS="$ACTIONS pack"   ;;
+	-i|--ide|ide)                                ACTIONS="$ACTIONS ide"    ;;
 
-	--cb)    ACTIONS="$ACTIONS config build"                  ;;
-	--cbp)   ACTIONS="$ACTIONS config build pack"             ;;
-	--ccb)   ACTIONS="$ACTIONS clean config build"            ;;
-	--cbtp)  ACTIONS="$ACTIONS config build test pack"        ;;
-	--ccbp)  ACTIONS="$ACTIONS clean config build pack"       ;;
-	--ccbtp) ACTIONS="$ACTIONS clean config build test pack"  ;;
+	--cb)    ACTIONS="$ACTIONS config build"                 ;;
+	--cbp)   ACTIONS="$ACTIONS config build pack"            ;;
+	--ccb)   ACTIONS="$ACTIONS clean config build"           ;;
+	--cbtp)  ACTIONS="$ACTIONS config build test pack"       ;;
+	--ccbp)  ACTIONS="$ACTIONS clean config build pack"      ;;
+	--ccbtp) ACTIONS="$ACTIONS clean config build test pack" ;;
 
 	--ci)
 		if [[ -z $2 ]] || [[ "$2" == "-"* ]]; then
@@ -620,12 +618,12 @@ while [ $# -gt 0 ]; do
 		VERBOSE=$YES ; DO_RECURSIVE=$YES ; DO_ALIEN=$YES
 	;;
 
-	-v|--verbose)  VERBOSE=$YES  ;;
-	-q|--quiet)    QUIET=$YES    ;;
+	-v|--verbose) VERBOSE=$YES ;;
+	-q|--quiet)   QUIET=$YES   ;;
 	--color|--colors)       NO_COLORS=$NO  ; enable_colors  ;;
 	--no-color|--no-colors) NO_COLORS=$YES ; disable_colors ;;
-	-V|--version)  DisplayVersion   ; exit 1  ;;
-	-h|--help)     DisplayHelp $YES ; exit 1  ;;
+	-V|--version) DisplayVersion   ; exit 1 ;;
+	-h|--help)    DisplayHelp $YES ; exit 1 ;;
 
 	-*)
 		failure "Unknown flag: $1"
@@ -649,26 +647,26 @@ if [[ -z $TARGET_PATH ]]; then
 	TARGET_PATH="$WDIR/target"
 fi
 
+did_notice=$NO
 if [[ $QUIET -ne $YES ]]; then
-	did_notice=$NO
 	if [[ $IS_DRY -eq $YES ]]; then
-		notice "Dry-run"
 		did_notice=$YES
+		notice "Dry-run"
 	fi
 	if [[ $DEBUG_FLAGS -eq $YES ]]; then
-		notice "Enable debug flags"
 		did_notice=$YES
+		notice "Enable debug flags"
 	fi
 	if [[ $DO_CI -eq $YES ]]; then
-		notice "Continuous Integration Mode"
 		did_notice=$YES
+		notice "Continuous Integration Mode"
 		if [[ $DEBUG_FLAGS -eq $YES ]]; then
 			warning "Production mode and debug mode are active at the same time"
 		fi
 	fi
 	if [[ $DO_PACK -eq $YES ]]; then
-		notice "Deploy to: $TARGET_PATH"
 		did_notice=$YES
+		notice "Deploy to: $TARGET_PATH"
 	fi
 	if [[ ! -z $PROJECT_FILTERS ]]; then
 		did_notice=$YES
@@ -681,8 +679,8 @@ if [[ $QUIET -ne $YES ]]; then
 			notice "Filter:${COLOR_BLUE}${PROJECT_FILTERS}${COLOR_RESET}"
 		fi
 	fi
-	[[ $did_notice -eq $YES ]] && echo
 fi
+[[ $did_notice -eq $YES ]] && echo
 
 
 
