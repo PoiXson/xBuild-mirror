@@ -40,31 +40,31 @@ function DisplayHelp() {
 	echo    "  xbuild [options] <group>"
 	echo
 	echo -e "${COLOR_BROWN}Options:${COLOR_RESET}"
-	if [[ $FULL -eq $YES ]]; then
 	echo -e "  ${COLOR_GREEN}-r, --recursive${COLOR_RESET}           Recursively load xbuild.conf files"
-	echo -e "  ${COLOR_GREEN}-D, --dry${COLOR_RESET}                 Dry-run, no changes will be performed by actions"
-	echo -e "  ${COLOR_GREEN}-d, --debug-flags${COLOR_RESET}         Build with debug flags"
 	echo -e "  ${COLOR_GREEN}-n, --build-number <n>${COLOR_RESET}    Build number to use for builds and packages"
-	echo                                "                              default: x"
+	if [[ $FULL -eq $YES ]]; then
+	echo -e "  ${COLOR_GREEN}-d, --debug-flags${COLOR_RESET}         Build with debug flags"
 	echo -e "  ${COLOR_GREEN}--target <path>${COLOR_RESET}           Sets the destination path for finished binaries"
 	echo                                "                              default: target/"
 	echo -e "  ${COLOR_GREEN}-F, --filter <project>${COLOR_RESET}    Skip all projects except these"
 	echo
 	echo -e "  ${COLOR_GREEN}--deb${COLOR_RESET}                     Build .deb packages with alien"
 	echo -e "  ${COLOR_GREEN}--no-deb${COLOR_RESET}                  Skip building .deb packages"
-	echo
 	fi
-	echo -e "  ${COLOR_GREEN}--pp, --pull-push${COLOR_RESET}         Run 'git pull' and 'git push'"
+	echo
+	echo -e "  ${COLOR_GREEN}--pp, --pull-push${COLOR_RESET}         Run git clone/pull/push'"
 	echo -e "  ${COLOR_GREEN}--gg, --git-gui${COLOR_RESET}           Open git-gui for each project"
 	echo
-	if [[ $FULL -eq $YES ]]; then
 	echo -e "  ${COLOR_GREEN}-c, --clean, --cleanup${COLOR_RESET}    Cleanup workspace; delete generated files"
 	echo -e "  ${COLOR_GREEN}-C, --config, --configure${COLOR_RESET} Configure projects, with autotools or composer"
 	echo -e "  ${COLOR_GREEN}-b, --build, --compile${COLOR_RESET}    Compile the projects"
+	[[ $FULL -eq $YES ]] && \
 	echo -e "  ${COLOR_GREEN}--tests${COLOR_RESET}                   Compile and run tests for the project"
 	echo -e "  ${COLOR_GREEN}-p, --pack, --package${COLOR_RESET}     Build distributable packages"
+	[[ $FULL -eq $YES ]] && \
 	echo -e "  ${COLOR_GREEN}-i, --ide${COLOR_RESET}                 Create IDE project imports (while building)"
 	echo
+	if [[ $FULL -eq $YES ]]; then
 	echo -e "  ${COLOR_GREEN}--cb${COLOR_RESET}                      Config, build"
 	echo -e "  ${COLOR_GREEN}--cbp${COLOR_RESET}                     Config, build, pack"
 	echo -e "  ${COLOR_GREEN}--ccb${COLOR_RESET}                     Clean, config, build"
@@ -72,22 +72,22 @@ function DisplayHelp() {
 	echo -e "  ${COLOR_GREEN}--ccbp${COLOR_RESET}                    Clean, config, build, pack"
 	echo -e "  ${COLOR_GREEN}--ccbtp${COLOR_RESET}                   Clean, config, build, test, pack"
 	echo
-	fi
 	echo -e "  ${COLOR_GREEN}--ci <n>${COLOR_RESET}                  Detect if the latest git commit is a tag"
 	echo                                "                              and sets flags commonly used for continuous integration"
 	echo                                "                              Shortcut to: -v -r -n <n> --deb --clean --build --test --pack"
 	echo
+	fi
+	echo -e "  ${COLOR_GREEN}-D, --dry${COLOR_RESET}                 Dry-run, no changes will be performed by actions"
 	echo -e "  ${COLOR_GREEN}-v, --verbose${COLOR_RESET}             Enable debug logs"
-	echo -e "  ${COLOR_GREEN}-q, --quiet${COLOR_RESET}               Hide extra logs"
 	if [[ $FULL -eq $YES ]]; then
+	echo -e "  ${COLOR_GREEN}-q, --quiet${COLOR_RESET}               Hide extra logs"
 	echo -e "  ${COLOR_GREEN}--colors${COLOR_RESET}                  Enable console colors"
 	echo -e "  ${COLOR_GREEN}--no-colors${COLOR_RESET}               Disable console colors"
-	fi
 	echo -e "  ${COLOR_GREEN}-V, --version${COLOR_RESET}             Display the version"
-	echo -e "  ${COLOR_GREEN}-h, --help${COLOR_RESET}                Display this help message and exit"
-	if [[ $FULL -ne $YES ]]; then
-	echo -e " ${COLOR_GREEN}truncated.. use --help for more flags${COLOR_RESET}"
 	fi
+	echo -e "  ${COLOR_GREEN}-h, --help${COLOR_RESET}                Display this help message and exit"
+	[[ $FULL -eq $NO ]] && \
+	echo -e " ${COLOR_BLUE}truncated.. use --help for more flags${COLOR_RESET}"
 	echo
 	exit 1
 }
@@ -520,7 +520,7 @@ function restoreProjectTags() {
 
 echo
 if [[ $# -eq 0 ]]; then
-	DisplayHelp $YES
+	DisplayHelp $NO
 	exit 1
 fi
 while [ $# -gt 0 ]; do
