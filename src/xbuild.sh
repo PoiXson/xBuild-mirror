@@ -377,8 +377,9 @@ function LoadConf() {
 
 function DetectGitTag() {
 	local DIR="$1"
-	[[   -z  $DIR  ]] && return
-	[[ ! -d "$DIR" ]] && return
+	[[   -z  $DIR       ]] && return
+	[[ ! -d "$DIR"      ]] && return
+	[[ ! -d "$DIR/.git" ]] && return
 	\pushd  "$DIR/"  >/dev/null  || exit 1
 		echo_cmd "git describe --tags --exact-match"
 		if [[ $IS_DRY -eq $NO ]]; then
