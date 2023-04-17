@@ -24,6 +24,10 @@ XBUILD_VERSION="{{{VERSION}}}"
 
 
 
+BUILD_STAGES_PATH="/etc/xbuild/stages"
+
+
+
 source /usr/bin/pxn/scripts/common.sh  || exit 1
 echo
 
@@ -320,8 +324,8 @@ function doProject() {
 		fi
 	fi
 	# run build stages
-	for ENTRY in $( \ls -1 -v "/zcode/apr/xBuild/src/xbuild-stages/" ); do
-		source "/zcode/apr/xBuild/src/xbuild-stages/$ENTRY"
+	for ENTRY in $( \ls -1 -v "$BUILD_STAGES_PATH" ); do
+		source "$BUILD_STAGES_PATH/$ENTRY"
 	done
 	# project done
 	COUNT_PRJ=$((COUNT_PRJ+1))
@@ -522,6 +526,7 @@ if [[ $# -eq 0 ]]; then
 	DisplayHelp $NO
 	exit 1
 fi
+SELF="$0"
 while [ $# -gt 0 ]; do
 	case "$1" in
 
@@ -649,6 +654,14 @@ if [[ -z $TARGET_PATH ]]; then
 fi
 
 did_notice=$NO
+if [[ "$SELF" != "/usr/"* ]]; then
+	F="$WDIR/${SELF%/*}/xbuild-stages"
+	if [[ -d "$F" ]]; then
+		did_notice=$YES
+		BUILD_STAGES_PATH="$F"
+		notice "Using local stage scripts: $F"
+	fi
+fi
 if [[ $QUIET -ne $YES ]]; then
 	if [[ $IS_DRY -eq $YES ]]; then
 		did_notice=$YES
