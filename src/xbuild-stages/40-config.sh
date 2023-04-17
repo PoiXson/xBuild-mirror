@@ -8,7 +8,7 @@ if [[ " $ACTIONS " == *" config "* ]]; then
 	doProjectTags
 	if [[ $DO_CI -eq $NO ]]; then
 		# .gitignore
-		if [[ -f "$PROJECT_PATH/.gitignore" ]] then
+		if [[ -f "$PROJECT_PATH/.gitignore" ]]; then
 			local OUT_FILE=$( mktemp )
 			local RESULT=$?
 			if [[ $RESULT -ne 0 ]] || [[ -z $OUT_FILE ]]; then
