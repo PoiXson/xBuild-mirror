@@ -44,7 +44,6 @@ function DisplayHelp() {
 	echo -e "  ${COLOR_GREEN}-r, --recursive${COLOR_RESET}           Recursively load xbuild.conf files"
 	echo -e "  ${COLOR_GREEN}-D, --dry${COLOR_RESET}                 Dry-run, no changes will be performed by actions"
 	echo -e "  ${COLOR_GREEN}-d, --debug-flags${COLOR_RESET}         Build with debug flags"
-	echo -e "  ${COLOR_GREEN}-R, --release${COLOR_RESET}             Build a production release"
 	echo -e "  ${COLOR_GREEN}-n, --build-number <n>${COLOR_RESET}    Build number to use for builds and packages"
 	echo                                "                              default: x"
 	echo -e "  ${COLOR_GREEN}--target <path>${COLOR_RESET}           Sets the destination path for finished binaries"
@@ -74,6 +73,10 @@ function DisplayHelp() {
 	echo -e "  ${COLOR_GREEN}--ccbtp${COLOR_RESET}                   Clean, config, build, test, pack"
 	echo
 	fi
+	echo -e "  ${COLOR_GREEN}--ci <n>${COLOR_RESET}                  Detect if the latest git commit is a tag"
+	echo                                "                              and sets flags commonly used for continuous integration"
+	echo                                "                              Shortcut to: -v -r -n <n> --deb --clean --build --test --pack"
+	echo
 	echo -e "  ${COLOR_GREEN}-v, --verbose${COLOR_RESET}             Enable debug logs"
 	echo -e "  ${COLOR_GREEN}-q, --quiet${COLOR_RESET}               Hide extra logs"
 	if [[ $FULL -eq $YES ]]; then
@@ -106,12 +109,11 @@ VERBOSE=$NO
 QUIET=$NO
 NO_COLORS=$NO
 DO_RECURSIVE=$NO
-DO_ALIEN=$YES
+DO_ALIEN=$NO
 IS_DRY=$NO
 DEBUG_FLAGS=$NO
 
 BUILD_NUMBER=""
-BUILD_RELEASE=$NO
 TARGET_PATH=""
 PROJECT_FILTERS=""
 PROJECT_FILTERS_FOUND=""
@@ -122,7 +124,7 @@ PROJECT_NAME=""
 PROJECT_PATH=""
 PROJECT_REPO=""
 PROJECT_VERSION=""
-PROJECT_SNAPSHOT=""
+PROJECT_RELEASE=$NO
 PROJECT_GITIGNORE=""
 PROJECT_TAG_FILES=""
 PROJECT_TAGS_DONE=$NO
@@ -295,8 +297,11 @@ function doProject() {
 		title B "$PROJECT_NAME"
 		echo -e " ${COLOR_GREEN}>${COLOR_RESET} ${COLOR_BLUE}${PROJECT_PATH}${COLOR_RESET}"
 		if [[ ! -z $PROJECT_VERSION ]]; then
-			notice "Version: ${COLOR_GREEN}$PROJECT_VERSION${COLOR_RESET}"
-# $PROJECT_SNAPSHOT
+			local SNAPSHOT=""
+			if [[ $PROJECT_RELEASE -ne $YES ]]; then
+				SNAPSHOT="-SNAPSHOT"
+			fi
+			notice "Version: ${COLOR_GREEN}${PROJECT_VERSION}${SNAPSHOT}${COLOR_RESET}"
 		fi
 		echo
 	fi
@@ -333,6 +338,7 @@ function CleanupProjectVars() {
 	PROJECT_GITIGNORE=""
 	PROJECT_TAG_FILES=""
 	PROJECT_TAGS_DONE=$NO
+	PROJECT_RELEASE=$NO
 	TIME_START_PRJ=$( \date "+%s%N" )
 	TIME_LAST=$TIME_START_PRJ
 }
@@ -351,10 +357,10 @@ function LoadConf() {
 	fi
 	local LAST_PATH="$CURRENT_PATH"
 	local LAST_VERSION="$PROJECT_VERSION"
-	local LAST_SNAPSHOT="$PROJECT_SNAPSHOT"
+	local LAST_IS_RELEASE=$PROJECT_RELEASE
 	CURRENT_PATH="${1%/*}"
 	PROJECT_VERSION=""
-	PROJECT_SNAPSHOT=""
+	PROJECT_RELEASE=$NO
 	DetectGitTag "$CURRENT_PATH"
 	\pushd  "$CURRENT_PATH"  >/dev/null  || exit 1
 		# load xbuild.conf
@@ -365,7 +371,7 @@ function LoadConf() {
 	\popd >/dev/null
 	CURRENT_PATH="$LAST_PATH"
 	PROJECT_VERSION="$LAST_VERSION"
-	PROJECT_SNAPSHOT="$LAST_SNAPSHOT"
+	PROJECT_RELEASE=$LAST_IS_RELEASE
 }
 
 
@@ -383,46 +389,51 @@ function DetectGitTag() {
 				failure "Failed to detect latest commit tag"
 				failure ; exit 1
 			fi
-			# snapshot
-			if [[ -z $TAG ]]; then
-				[[ $DO_AUTO -eq $YES ]] \
-					&& BUILD_RELEASE=$NO
-				echo_cmd "git describe --tags --abbrev=0"
-				TAG=$( \git describe --tags --abbrev=0  2>/dev/null )
-				RESULT=$?
-				if [[ $RESULT -eq 0 ]]; then
-					PROJECT_VERSION="$TAG-SNAPSHOT"
+			if [[ $DO_CI -eq $YES ]]; then
+				# snapshot
+				if [[ -z $TAG ]]; then
+					PROJECT_RELEASE=$NO
+					echo_cmd "git describe --tags --abbrev=0"
+					TAG=$( \git describe --tags --abbrev=0  2>/dev/null )
+					RESULT=$?
+					if [[ $RESULT -eq 0 ]]; then
+						PROJECT_VERSION="$TAG"
+						notice "Found last tag: $TAG"
+					else
+						PROJECT_VERSION="0.1.1"
+						notice "Project has no tags"
+						notice "Defaulting to $PROJECT_VERSION"
+					fi
+				# release
 				else
-					PROJECT_VERSION="0.1.1"
-					notice "Project has no tags"
-					notice "Defaulting to $PROJECT_VERSION"
-					echo
+					PROJECT_RELEASE=$YES
+					PROJECT_VERSION="$TAG"
+					notice "Found current tag: $TAG"
 				fi
-			# release
-			else
-				notice "Found tag: $TAG"
 				echo
-				[[ $DO_AUTO -eq $YES ]] \
-					&& BUILD_RELEASE=$YES
-				PROJECT_VERSION="$TAG"
 			fi
 		fi
 	\popd >/dev/null
-	# build number
-	if [[ ! -z $BUILD_NUMBER    ]] \
-	&& [[ ! -z $PROJECT_VERSION ]] \
-	&& [[ "$PROJECT_VERSION" != "SNAPSHOT" ]]; then
-		local VERS="$PROJECT_VERSION"
-		local IS_SNAP=$NO
-		if [[ "$VERS" == *"-SNAPSHOT" ]]; then
-			VERS=${VERS%-*}
-			IS_SNAP=$YES
+	# snapshot version
+	if [[ $PROJECT_RELEASE -eq $NO ]]; then
+		# build number
+		if [[ ! -z $BUILD_NUMBER    ]] \
+		&& [[ ! -z $PROJECT_VERSION ]]; then
+			local VERS="$PROJECT_VERSION"
+			if [[ "$VERS" == *"-SNAPSHOT" ]]; then
+				VERS=${VERS%-*}
+				PROJECT_RELEASE=$NO
+			fi
+			if [[ "$VERS" == *"-"* ]]; then
+				VERS=${VERS%-*}
+			fi
+			VERS=${VERS%.*}
+			PROJECT_VERSION="${VERS}.${BUILD_NUMBER}"
 		fi
-		if [[ "$VERS" == *"-"* ]]; then
-			VERS=${VERS%-*}
-		fi
-		VERS=${VERS%.*}
-		PROJECT_VERSION="${VERS}.${BUILD_NUMBER}"
+	fi
+	if [[ -z $PROJECT_VERSION ]]; then
+		failure "Version not detected"
+		failure ; exit 1
 	fi
 }
 
@@ -517,7 +528,6 @@ while [ $# -gt 0 ]; do
 
 	-r|--recursive)  DO_RECURSIVE=$YES   ;;
 	-D|--dry)        IS_DRY=$YES         ;;
-	-R|--release)    BUILD_RELEASE=$YES  ;;
 	-d|--debug|--debug-flag|--debug-flags)  DEBUG_FLAGS=$YES  ;;
 
 	-n|--build-number)
@@ -590,6 +600,26 @@ while [ $# -gt 0 ]; do
 	--ccbp)  ACTIONS="$ACTIONS clean config build pack"       ;;
 	--ccbtp) ACTIONS="$ACTIONS clean config build test pack"  ;;
 
+	--ci)
+		if [[ -z $2 ]] || [[ "$2" == "-"* ]]; then
+			failure "--ci flag requires a build number"
+			failure ; DisplayHelp $NO ; exit 1
+		fi
+		\shift
+		BUILD_NUMBER="$1"
+		ACTIONS="$ACTIONS clean config build test pack"
+		VERBOSE=$YES ; DO_RECURSIVE=$YES ; DO_ALIEN=$YES
+	;;
+	--ci=*)
+		BUILD_NUMBER="${1#*=}"
+		if [[ -z $BUILD_NUMBER ]]; then
+			failure "--ci flag requires a build number"
+			failure ; DisplayHelp $NO ; exit 1
+		fi
+		ACTIONS="$ACTIONS clean config build test pack"
+		VERBOSE=$YES ; DO_RECURSIVE=$YES ; DO_ALIEN=$YES
+	;;
+
 	-v|--verbose)  VERBOSE=$YES  ;;
 	-q|--quiet)    QUIET=$YES    ;;
 	--color|--colors)       NO_COLORS=$NO  ; enable_colors  ;;
@@ -629,19 +659,13 @@ if [[ $QUIET -ne $YES ]]; then
 		notice "Enable debug flags"
 		did_notice=$YES
 	fi
-#	if [[ $DO_AUTO -eq $YES ]]; then
-#		notice "Auto Mode"
-#		did_notice=$YES
-#		if [[ $DEBUG_FLAGS -eq $YES ]]; then
-#			warning "Production mode and debug mode are active at the same time"
-#		fi
-#	elif [[ $BUILD_RELEASE -eq $YES ]]; then
-#		notice "Production Mode"
-#		did_notice=$YES
-#		if [[ $DEBUG_FLAGS -eq $YES ]]; then
-#			warning "Production mode and debug mode are active at the same time"
-#		fi
-#	fi
+	if [[ $DO_CI -eq $YES ]]; then
+		notice "Continuous Integration Mode"
+		did_notice=$YES
+		if [[ $DEBUG_FLAGS -eq $YES ]]; then
+			warning "Production mode and debug mode are active at the same time"
+		fi
+	fi
 	if [[ $DO_PACK -eq $YES ]]; then
 		notice "Deploy to: $TARGET_PATH"
 		did_notice=$YES

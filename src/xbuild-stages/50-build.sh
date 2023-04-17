@@ -48,21 +48,20 @@ if [[ " $ACTIONS " == *" build "* ]]; then
 	if [[ -f "$PROJECT_PATH/pom.xml" ]]; then
 		\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
 			# generate temp release pom.xml
-			if [[ $BUILD_RELEASE -eq $YES ]] \
-			|| [[ $DO_AUTO       -eq $YES ]]; then
+			if [[ $DO_CI -eq $YES ]]; then
 				echo_cmd "mv  pom.xml  pom.xml.xbuild-save"
 				if [[ $IS_DRY -eq $NO ]]; then
 					\mv -v  "$PROJECT_PATH/pom.xml"  "$PROJECT_PATH/pom.xml.xbuild-save"  || exit 1
 				fi
-				local SNAP_RELEASE=""
-				if [[ $BUILD_RELEASE -eq $YES ]]; then
-					SNAP_RELEASE="--release"
+				local SNAPSHOT_RELEASE=""
+				if [[ $PROJECT_RELEASE -eq $YES ]]; then
+					SNAPSHOT_RELEASE="--release"
 				else
-					SNAP_RELEASE="--snapshot"
+					SNAPSHOT_RELEASE="--snapshot"
 				fi
-				echo_cmd -n "genpom $SNAP_RELEASE $PROJECT_VERSION"
+				echo_cmd -n "genpom $SNAPSHOT_RELEASE $PROJECT_VERSION"
 				if [[ $IS_DRY -eq $NO ]]; then
-					\genpom  $SNAP_RELEASE  $PROJECT_VERSION  || exit 1
+					\genpom  $SNAPSHOT_RELEASE  $PROJECT_VERSION  || exit 1
 				else
 					echo
 				fi
@@ -78,8 +77,7 @@ if [[ " $ACTIONS " == *" build "* ]]; then
 				\mvn  --no-transfer-progress  eclipse:eclipse  || exit 1
 			fi
 			# restore pom.xml
-			if [[ $BUILD_RELEASE -eq $YES ]] \
-			|| [[ $DO_AUTO       -eq $YES ]]; then
+			if [[ $DO_CI -eq $YES ]]; then
 				echo_cmd "rm  pom.xml"
 				if [[ $IS_DRY -eq $NO ]]; then
 					\rm -vf --preserve-root  "$PROJECT_PATH/pom.xml"  || exit 1
@@ -96,7 +94,7 @@ if [[ " $ACTIONS " == *" build "* ]]; then
 	# rust/cargo
 	if [[ -f "$PROJECT_PATH/Cargo.toml" ]]; then
 		\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
-			if [[ $BUILD_RELEASE -eq $YES ]]; then
+			if [[ $DO_CI -eq $YES ]]; then
 				echo_cmd "cargo build --release --timings"
 				if [[ $IS_DRY -eq $NO ]]; then
 					\cargo build --release --timings  || exit 1
