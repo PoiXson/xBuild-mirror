@@ -99,10 +99,12 @@ if [[ " $ACTIONS " == *" pack "* ]]; then
 				&& [[ $DO_ALIEN -eq $YES ]]; then
 					\pushd  "$TARGET_PATH/"  >/dev/null  || exit 1
 						for ENTRY in $PACKAGES; do
-							echo
-							echo_cmd "alien --to-deb $ENTRY"
-							if [[ $IS_DRY -eq $NO ]]; then
-								\fakeroot \alien  -v --to-deb  "$ENTRY"  || exit 1
+							if [[ "$ENTRY" == *".noarch.rpm" ]]; then
+								echo
+								echo_cmd "alien --to-deb $ENTRY"
+								if [[ $IS_DRY -eq $NO ]]; then
+									\fakeroot \alien  -v --to-deb  "$ENTRY"  || exit 1
+								fi
 							fi
 						done
 						PACKAGES_DEB=$( \ls -1 *.deb )
