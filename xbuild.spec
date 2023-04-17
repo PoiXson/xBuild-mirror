@@ -12,7 +12,7 @@ URL      : https://poixson.com/
 
 Requires : pxnscripts >= 2.1.0
 Requires : bash, bc, zip, unzip, grep
-Requires : fakeroot, alien
+Recommends: fakeroot, alien
 
 %package -n xdeploy
 Summary  : Auto deploy a project or website
