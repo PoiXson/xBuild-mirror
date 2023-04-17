@@ -101,9 +101,9 @@ if [[ " $ACTIONS " == *" pack "* ]]; then
 						for ENTRY in $PACKAGES; do
 							if [[ "$ENTRY" == *".noarch.rpm" ]]; then
 								echo
-								echo_cmd "alien --to-deb $ENTRY"
+								echo_cmd "alien --to-deb --scripts $ENTRY"
 								if [[ $IS_DRY -eq $NO ]]; then
-									\fakeroot \alien  -v --to-deb  "$ENTRY"  || exit 1
+									\fakeroot \alien  -v --to-deb --scripts  "$ENTRY"  || exit 1
 								fi
 							fi
 						done
