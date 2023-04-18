@@ -143,6 +143,7 @@ fi
 
 
 
+REPO_TYPE=""
 FIND_REPO=""
 FOUND_REPO=$NO
 
@@ -157,6 +158,7 @@ function CreateRepo() {
 		FIND_REPO="$1"
 	fi
 	doCleanupVars
+	REPO_TYPE=""
 	FOUND_REPO=$NO
 	source "$WDIR/repos.conf"  || exit 1
 	REPO
@@ -181,6 +183,10 @@ function doREPO() {
 		doCleanupVars
 		return
 	fi
+	if [[ -z $REPO_TYPE ]]; then
+		failure "Repo type not set in repos.conf"
+		failure ; exit 1
+	fi
 	if [[ ! -z $FIND_REPO ]]; then
 		# already found
 		if [[ $FOUND_REPO -ne $NO ]]; then
@@ -202,7 +208,14 @@ function doREPO() {
 		failure ; exit 1
 	fi
 	\pushd "$WDIR/$REPO_NAME"  >/dev/null  || exit 1
-		\createrepo . -v --pretty --workers 6  || exit 1
+		case "$REPO_TYPE" in
+		rpm)  \createrepo . -v --pretty --workers 6         || exit 1 ;;
+		deb)  \dpkg-scanpackages --type deb --multiversion  || exit 1 ;;
+		*)
+			failure "Unknown repo type: $REPO_TYPE"
+			failure ; exit 1
+		;;
+		esac
 	\popd  >/dev/null
 	echo
 	doCleanupVars

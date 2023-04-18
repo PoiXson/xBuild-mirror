@@ -1,3 +1,4 @@
+REPO_TYPE="rpm"
 
 REPO stable/noarch
 REPO stable/rhel/9/x86_64
