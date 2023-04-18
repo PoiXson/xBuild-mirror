@@ -1,0 +1,8 @@
+
+REPO stable/noarch
+REPO stable/rhel/9/x86_64
+REPO stable/fedora/37/x86_64
+
+REPO testing/noarch
+REPO testing/rhel/9/x86_64
+REPO testing/fedora/37/x86_64
