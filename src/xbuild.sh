@@ -114,6 +114,7 @@ QUIET=$NO
 NO_COLORS=$NO
 DO_RECURSIVE=$NO
 DO_ALIEN=$NO
+DO_CI=$NO
 IS_DRY=$NO
 DEBUG_FLAGS=$NO
 
@@ -612,7 +613,8 @@ while [ $# -gt 0 ]; do
 		\shift
 		BUILD_NUMBER="$1"
 		ACTIONS="$ACTIONS clean config build test pack"
-		VERBOSE=$YES ; DO_RECURSIVE=$YES ; DO_ALIEN=$YES
+		DO_CI=$YES ; DO_RECURSIVE=$YES ; DO_ALIEN=$YES
+		VERBOSE=$YES
 	;;
 	--ci=*)
 		BUILD_NUMBER="${1#*=}"
@@ -621,7 +623,8 @@ while [ $# -gt 0 ]; do
 			failure ; DisplayHelp $NO ; exit 1
 		fi
 		ACTIONS="$ACTIONS clean config build test pack"
-		VERBOSE=$YES ; DO_RECURSIVE=$YES ; DO_ALIEN=$YES
+		DO_CI=$YES ; DO_RECURSIVE=$YES ; DO_ALIEN=$YES
+		VERBOSE=$YES
 	;;
 
 	-v|--verbose) VERBOSE=$YES ;;
@@ -678,7 +681,7 @@ if [[ $QUIET -ne $YES ]]; then
 			warning "Production mode and debug mode are active at the same time"
 		fi
 	fi
-	if [[ $DO_PACK -eq $YES ]]; then
+	if [[ " $ACTIONS " == *" pack "* ]]; then
 		did_notice=$YES
 		notice "Deploy to: $TARGET_PATH"
 	fi
