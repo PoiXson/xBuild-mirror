@@ -387,37 +387,31 @@ function DetectGitTag() {
 	[[ ! -d "$DIR/.git" ]] && return
 	\pushd  "$DIR/"  >/dev/null  || exit 1
 		echo_cmd "git describe --tags --exact-match"
-		if [[ $IS_DRY -eq $NO ]]; then
-			local TAG=$( \git describe --tags --exact-match  2>/dev/null )
+		local TAG=$( \git describe --tags --exact-match  2>/dev/null )
+		local RESULT=$?
+		# release
+		if [[ $RESULT -eq 0 ]] \
+		&& [[ ! -z $TAG ]]; then
+			PROJECT_RELEASE=$YES
+			PROJECT_VERSION="$TAG"
+			notice "Found current tag: $TAG"
+		# snapshot
+		else
+			PROJECT_RELEASE=$NO
+			echo_cmd "git describe --tags --abbrev=0"
+			TAG=$( \git describe --tags --abbrev=0  2>/dev/null )
 			RESULT=$?
-			if [[ $RESULT -ne 0 ]]; then
-				failure "Failed to detect latest commit tag"
-				failure ; exit 1
-			fi
-			if [[ $DO_CI -eq $YES ]]; then
-				# snapshot
-				if [[ -z $TAG ]]; then
-					PROJECT_RELEASE=$NO
-					echo_cmd "git describe --tags --abbrev=0"
-					TAG=$( \git describe --tags --abbrev=0  2>/dev/null )
-					RESULT=$?
-					if [[ $RESULT -eq 0 ]]; then
-						PROJECT_VERSION="$TAG"
-						notice "Found last tag: $TAG"
-					else
-						PROJECT_VERSION="0.1.1"
-						notice "Project has no tags"
-						notice "Defaulting to $PROJECT_VERSION"
-					fi
-				# release
-				else
-					PROJECT_RELEASE=$YES
-					PROJECT_VERSION="$TAG"
-					notice "Found current tag: $TAG"
-				fi
-				echo
+			if [[ $RESULT -eq 0 ]] \
+			&& [[ ! -z $TAG ]]; then
+				PROJECT_VERSION="$TAG"
+				notice "Found last tag: $TAG"
+			else
+				PROJECT_VERSION="0.1.1"
+				notice "Project has no tags"
+				notice "Defaulting to $PROJECT_VERSION"
 			fi
 		fi
+		echo
 	\popd >/dev/null
 	# snapshot version
 	if [[ $PROJECT_RELEASE -eq $NO ]]; then
