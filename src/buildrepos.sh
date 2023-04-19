@@ -209,8 +209,8 @@ function doREPO() {
 	fi
 	\pushd "$WDIR/$REPO_NAME"  >/dev/null  || exit 1
 		case "$REPO_TYPE" in
-		rpm)  \createrepo . -v --pretty --workers 6         || exit 1 ;;
-		deb)  \dpkg-scanpackages --type deb --multiversion  || exit 1 ;;
+		rpm)  \createrepo . -v --pretty --workers 6                    || exit 1 ;;
+		deb)  \dpkg-scanpackages --type deb --multiversion . /dev/null || exit 1 ;;
 		*)
 			failure "Unknown repo type: $REPO_TYPE"
 			failure ; exit 1
