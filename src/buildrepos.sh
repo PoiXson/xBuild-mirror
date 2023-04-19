@@ -151,7 +151,7 @@ let COUNT_OPS=0
 
 
 
-function CreateRepo() {
+function LoadRepos() {
 	if [[ -z $1 ]] || [[ "$1" == "ALL" ]]; then
 		FIND_REPO=""
 	else
@@ -229,10 +229,10 @@ if [[ ! -e "$WDIR/repos.conf" ]]; then
 fi
 
 if [[ $DO_ALL -eq $YES ]]; then
-	CreateRepo ALL
+	LoadRepos ALL
 else
 	for REPO in $REPO_PATHS; do
-		CreateRepo "$REPO"
+		LoadRepos "$REPO"
 	done
 fi
 
