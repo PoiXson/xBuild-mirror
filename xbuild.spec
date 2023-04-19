@@ -24,7 +24,8 @@ Requires : git, composer
 Summary  : Setup and maintain a yum/dnf repo
 Provides : xbuild-repo
 Requires : pxnscripts >= 2.1.0
-Requires : bash, createrepo_c
+Requires : bash
+Recommends: createrepo_c, dpkg-dev
 
 %description
 A tool to simplify building and managing projects in your workspace.
