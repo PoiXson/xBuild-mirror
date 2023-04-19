@@ -51,18 +51,20 @@ echo "Install.."
 	"%{buildroot}%{_sysconfdir}/xbuild/stages/"  \
 		|| exit 1
 
+# /usr/bin/
 \pushd  "%{_topdir}/../src/"  >/dev/null  || exit 1
-	# /usr/bin/
 	%{__install} -m 0644  "xbuild.sh"        "%{buildroot}%{_bindir}/xbuild"        || exit 1
 	%{__install} -m 0644  "xdeploy.sh"       "%{buildroot}%{_bindir}/xdeploy"       || exit 1
 	%{__install} -m 0644  "genautotools.sh"  "%{buildroot}%{_bindir}/genautotools"  || exit 1
 	%{__install} -m 0644  "genpom.sh"        "%{buildroot}%{_bindir}/genpom"        || exit 1
 	%{__install} -m 0644  "genspec.sh"       "%{buildroot}%{_bindir}/genspec"       || exit 1
 	%{__install} -m 0644  "xbuild-repos.sh"  "%{buildroot}%{_bindir}/xbuild-repos"  || exit 1
-	# /etc/profile.d/
-	%{__install} -m 0644  "etc-profile.d-xbuild.sh"        "%{buildroot}%{_sysconfdir}/profile.d/xbuild.sh"        || exit 1
-	%{__install} -m 0644  "etc-profile.d-xdeploy.sh"       "%{buildroot}%{_sysconfdir}/profile.d/xdeploy.sh"       || exit 1
-	%{__install} -m 0644  "etc-profile.d-xbuild-repos.sh"  "%{buildroot}%{_sysconfdir}/profile.d/xbuild-repos.sh"  || exit 1
+\popd  >/dev/null
+# /etc/profile.d/
+\pushd  "%{_topdir}/../src/profile.d/"  >/dev/null  || exit 1
+	%{__install} -m 0644  "xbuild.sh"        "%{buildroot}%{_sysconfdir}/profile.d/xbuild.sh"        || exit 1
+	%{__install} -m 0644  "xdeploy.sh"       "%{buildroot}%{_sysconfdir}/profile.d/xdeploy.sh"       || exit 1
+	%{__install} -m 0644  "xbuild-repos.sh"  "%{buildroot}%{_sysconfdir}/profile.d/xbuild-repos.sh"  || exit 1
 \popd  >/dev/null
 \pushd  "%{_topdir}/../src/xbuild-stages/"  >/dev/null  || exit 1
 	%{__install} -m 0644  "10-pull-push.sh"  "%{buildroot}%{_sysconfdir}/xbuild/stages/"  || exit 1
