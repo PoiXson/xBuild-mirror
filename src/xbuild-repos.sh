@@ -23,8 +23,8 @@
 ## You should have received a copy of the GNU Affero General Public License
 ## along with this program.  If not, see <https://www.gnu.org/licenses/>.
 ##==============================================================================
-# buildrepos.sh
-BUILDREPOS_VERSION="{{{VERSION}}}"
+# xbuild-repos.sh
+XBUILD_REPOS_VERSION="{{{VERSION}}}"
 
 
 
@@ -42,7 +42,7 @@ fi
 
 function DisplayHelp() {
 	echo -e "${COLOR_BROWN}Usage:${COLOR_RESET}"
-	echo    "  buildrepos [options] [path]"
+	echo    "  xbuild-repos [options] [path]"
 	echo
 	echo -e "${COLOR_BROWN}Repos:${COLOR_RESET}"
 	let count=0
@@ -69,7 +69,7 @@ function DisplayHelp() {
 }
 
 function DisplayVersion() {
-	echo -e "${COLOR_BROWN}BuildRepos${COLOR_RESET} ${COLOR_GREEN}${BUILDREPOS_VERSION}${COLOR_RESET}"
+	echo -e "${COLOR_BROWN}xBuild-Repos${COLOR_RESET} ${COLOR_GREEN}${XBUILD_REPOS_VERSION}${COLOR_RESET}"
 	echo
 }
 

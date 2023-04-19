@@ -1,3 +1,3 @@
 #!/usr/bin/bash
 
-alias buildrepos='clear;buildrepos'
+alias xbuild-repos='clear;xbuild-repos'

@@ -58,11 +58,11 @@ echo "Install.."
 	%{__install} -m 0644  "genautotools.sh"  "%{buildroot}%{_bindir}/genautotools"  || exit 1
 	%{__install} -m 0644  "genpom.sh"        "%{buildroot}%{_bindir}/genpom"        || exit 1
 	%{__install} -m 0644  "genspec.sh"       "%{buildroot}%{_bindir}/genspec"       || exit 1
-	%{__install} -m 0644  "buildrepos.sh"    "%{buildroot}%{_bindir}/buildrepos"    || exit 1
+	%{__install} -m 0644  "xbuild-repos.sh"  "%{buildroot}%{_bindir}/xbuild-repos"  || exit 1
 	# /etc/profile.d/
-	%{__install} -m 0644  "etc-profile.d-xbuild.sh"      "%{buildroot}%{_sysconfdir}/profile.d/xbuild.sh"      || exit 1
-	%{__install} -m 0644  "etc-profile.d-xdeploy.sh"     "%{buildroot}%{_sysconfdir}/profile.d/xdeploy.sh"     || exit 1
-	%{__install} -m 0644  "etc-profile.d-buildrepos.sh"  "%{buildroot}%{_sysconfdir}/profile.d/buildrepos.sh"  || exit 1
+	%{__install} -m 0644  "etc-profile.d-xbuild.sh"        "%{buildroot}%{_sysconfdir}/profile.d/xbuild.sh"        || exit 1
+	%{__install} -m 0644  "etc-profile.d-xdeploy.sh"       "%{buildroot}%{_sysconfdir}/profile.d/xdeploy.sh"       || exit 1
+	%{__install} -m 0644  "etc-profile.d-xbuild-repos.sh"  "%{buildroot}%{_sysconfdir}/profile.d/xbuild-repos.sh"  || exit 1
 \popd  >/dev/null
 \pushd  "%{_topdir}/../src/xbuild-stages/"  >/dev/null  || exit 1
 	%{__install} -m 0644  "10-pull-push.sh"  "%{buildroot}%{_sysconfdir}/xbuild/stages/"  || exit 1
@@ -110,5 +110,5 @@ echo "Install.."
 
 %files -n xbuild-repos
 %defattr(0555, root, root, 0755)
-%{_bindir}/buildrepos
-%{_sysconfdir}/profile.d/buildrepos.sh
+%{_bindir}/xbuild-repos
+%{_sysconfdir}/profile.d/xbuild-repos.sh
