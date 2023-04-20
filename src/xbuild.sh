@@ -166,17 +166,6 @@ function DisplayTimeProject() {
 
 
 
-function echo_cmd() {
-	local N=""
-	if [[ "$1" == "-n" ]]; then
-		N="-n"
-		\shift
-	fi
-	echo $N -e  " ${COLOR_GREEN}>${COLOR_RESET} ${COLOR_CYAN}$@${COLOR_RESET}"
-}
-
-
-
 function Path() {
 	if [[ -z $1 ]]; then
 		failure "Path value is missing for project: $PROJECT_NAME"
