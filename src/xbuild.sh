@@ -352,8 +352,6 @@ function LoadConf() {
 	local LAST_VERSION="$PROJECT_VERSION"
 	local LAST_IS_RELEASE=$PROJECT_RELEASE
 	CURRENT_PATH="${1%/*}"
-	PROJECT_VERSION=""
-	PROJECT_RELEASE=$NO
 	DetectGitTag "$CURRENT_PATH"
 	\pushd  "$CURRENT_PATH"  >/dev/null  || exit 1
 		# load xbuild.conf
