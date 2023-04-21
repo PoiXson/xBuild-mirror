@@ -4,6 +4,14 @@
 
 if [[ " $ACTIONS " == *" config "* ]]; then
 	ACTIONS_FOUND="$ACTIONS_FOUND config"
+	# version not set
+	if [[ -z $PROJECT_VERSION ]]; then
+		[[ $QUIET -eq $NO ]] && \
+			title C "Configure"
+		notice "Skipping config - project version not detected"
+		echo
+		return
+	fi
 	did_something=$NO
 	doProjectTags
 	if [[ $DO_CI -eq $NO ]]; then

@@ -49,6 +49,10 @@ if [[ " $ACTIONS " == *" build "* ]]; then
 		\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
 			# generate temp release pom.xml
 			if [[ $DO_CI -eq $YES ]]; then
+				if [[ -z $PROJECT_VERSION ]]; then
+					failure "Project version not detected"
+					failure ; exit 1
+				fi
 				echo_cmd "mv  pom.xml  pom.xml.xbuild-save"
 				if [[ $IS_DRY -eq $NO ]]; then
 					\mv -v \
