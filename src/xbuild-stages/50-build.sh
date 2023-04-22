@@ -79,9 +79,11 @@ if [[ " $ACTIONS " == *" build "* ]]; then
 				\mvn  --no-transfer-progress  clean install  || exit 1
 			fi
 			# ide projects
-			echo_cmd "mvn eclipse:eclipse"
-			if [[ $IS_DRY -eq $NO ]]; then
-				\mvn  --no-transfer-progress  eclipse:eclipse  || exit 1
+			if [[ $DO_IDE -eq $YES ]]; then
+				echo_cmd "mvn eclipse:eclipse"
+				if [[ $IS_DRY -eq $NO ]]; then
+					\mvn  --no-transfer-progress  eclipse:eclipse  || exit 1
+				fi
 			fi
 			# restore pom.xml
 			if [[ $DO_CI -eq $YES ]]; then

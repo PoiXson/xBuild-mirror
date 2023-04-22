@@ -115,6 +115,7 @@ NO_COLORS=$NO
 DO_RECURSIVE=$NO
 DO_ALIEN=$NO
 DO_CI=$NO
+DO_IDE=$NO
 IS_DRY=$NO
 DEBUG_FLAGS=$NO
 
@@ -577,7 +578,7 @@ while [ $# -gt 0 ]; do
 	-b|--build|--compile|build|compile)          ACTIONS="$ACTIONS build"  ;;
 	--test|--tests|--testing|test|tests|testing) ACTIONS="$ACTIONS test"   ;;
 	-p|--pack|--package|pack|package)            ACTIONS="$ACTIONS pack"   ;;
-	-i|--ide|ide)                                ACTIONS="$ACTIONS ide"    ;;
+	-i|--ide|ide)                                DO_IDE=$YES               ;;
 
 	--cb)    ACTIONS="$ACTIONS config build"                 ;;
 	--cbp)   ACTIONS="$ACTIONS config build pack"            ;;
