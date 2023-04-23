@@ -24,7 +24,7 @@ Requires : git, composer
 Summary  : Setup and maintain yum/dnf/apt software repositories
 Provides : xbuild-repo
 Requires : pxnscripts >= 2.1.0
-Requires : bash
+Requires : bash, gnupg
 Recommends: createrepo_c, dpkg-dev
 
 %description

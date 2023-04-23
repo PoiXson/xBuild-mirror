@@ -75,22 +75,261 @@ function DisplayVersion() {
 
 
 
+# ----------------------------------------
+
+
+
+GPG_PATH="$HOME/.gpg-package-signing"
+
+FILTER_PATHS=""
+DO_CLEAN=$NO
+IS_DRY=$NO
+VERBOSE=$NO
+
+REPO_TYPE=""
+ORG_NAME=""
+KEY_EMAIL=""
+KEY_ID=""
+
+REPO_PATH=""
+let COUNT_OPS=0
+
+
+
+function REPO() {
+	if [[ -z $REPO_TYPE ]]; then
+		failure "Repo type not set in repos.conf"
+		failure ; exit 1
+	fi
+	if [[ ! -z $REPO_PATH ]]; then
+		if [[ " $FILTER_PATHS " == *" ALL "*        ]] \
+		|| [[ " $FILTER_PATHS " == *" $REPO_PATH "* ]]; then
+			COUNT_OPS=$((COUNT_OPS+1))
+			title C "Building $REPO_TYPE Repo" "$REPO_PATH"
+			echo
+			if [[ ! -e "$WDIR/$REPO_PATH" ]]; then
+				failure "Repo not found: $REPO_PATH"
+				failure ; exit 1
+			fi
+			case "$REPO_TYPE" in
+			# yum/dnf repo
+			rpm) doREPO_RPM ;;
+			# apt repo
+			deb) doREPO_DEB ;;
+			*)
+				failure "Unknown repo type: $REPO_TYPE"
+				failure ; exit 1
+			;;
+			esac
+			echo ; echo
+			doCleanupVars
+		fi
+	fi
+	# store next
+	if [[ ! -z $1 ]]; then
+		REPO_PATH="$1"
+	fi
+}
+
+function doREPO_RPM() {
+	[[ -z $REPO_PATH ]] && return
+	\pushd "$WDIR/$REPO_PATH"  >/dev/null  || exit 1
+		echo_cmd "createrepo . -v --pretty --workers 6"
+		if [[ $IS_DRY -eq $NO ]]; then
+			\createrepo . -v --pretty --workers 6  || exit 1
+		fi
+	\popd  >/dev/null
+}
+
+function doREPO_DEB() {
+	[[ -z $REPO_PATH ]] && return
+	prepare_gpg_keys
+	\pushd "$WDIR/$REPO_PATH"  >/dev/null  || exit 1
+		# Release file
+		if [[ ! -e Release ]]; then
+			echo_cmd "cat >Release"
+			if [[ $IS_DRY -eq $NO ]]; then
+#TODO: set Suite and Codename
+				\cat >"Release" <<EOF
+Origin: $ORG_NAME
+Label: $REPO_PATH
+Suite: unstable
+Codename: unstable
+Architectures: all
+Components: main
+Description $ORG_NAME $REPO_PATH
+EOF
+			fi
+			echo_cmd "gpg --clearsign -o InRelease Release"
+			if [[ $IS_DRY -eq $NO ]]; then
+				\gpg --homedir "$GPG_PATH" \
+					--clearsign -o InRelease Release \
+						|| exit 1
+			fi
+		fi
+		# scan for .deb packages
+		echo_cmd "dpkg-scanpackages --type deb --multiversion" \
+			"| \gzip -9c > Packages.gz"
+		if [[ $IS_DRY -eq $NO ]]; then
+			\dpkg-scanpackages --type deb --multiversion . /dev/null \
+				| \gzip -9c > "Packages.gz" \
+					|| exit 1
+		fi
+		# sign packages
+		for ENTRY in $( /usr/bin/ls *.deb ); do
+			if [[ ! -e "${ENTRY}.sig" ]]; then
+				echo "Signing: $ENTRY"
+				echo_cmd "gpg --default-key $KEY_ID" \
+					"--armor --output ${ENTRY}.sig" \
+					"--detach-sig     ${ENTRY}"
+				if [[ $IS_DRY -eq $NO ]]; then
+					gpg --no-default-keyring \
+						--homedir "$GPG_PATH"           \
+						--default-key "$KEY_ID"         \
+						--armor --output "${ENTRY}.sig" \
+						--detach-sig     "${ENTRY}"     \
+							|| exit 1
+				fi
+			fi
+		done
+	\popd  >/dev/null
+}
+
+
+
+function prepare_gpg_keys() {
+	if [[ -z $GPG_PATH ]]; then
+		failure "gpg path not set"
+		failure ; exit 1
+	fi
+	# .gpg directory
+	if [[ ! -e "$GPG_PATH" ]]; then
+		if [[ ! -z $KEY_ID ]]; then
+			failure "gpg key id set but path doesn't exist: $GPG_PATH"
+			failure ; exit 1
+		fi
+		echo_cmd "mkdir $GPG_PATH"
+		if [[ $IS_DRY -eq $NO ]]; then
+			\mkdir -v  "$GPG_PATH"  || exit 1
+		fi
+		echo_cmd "chmod 0700 $GPG_PATH"
+		if [[ $IS_DRY -eq $NO ]]; then
+			\chmod -c  0700  "$GPG_PATH"  || exit 1
+		fi
+	fi
+	notice "using: $GPG_PATH"
+	# list keys
+	echo_cmd "gpg --list-keys"
+	\gpg --homedir "$GPG_PATH" --list-keys  || exit 1
+	let count=0
+	for ENTRY in $( \gpg --homedir "$GPG_PATH" --list-keys | \grep '^      ' ); do
+		[[ -z $KEY_ID   ]] && KEY_ID="$ENTRY"
+		[[ $count -eq 0 ]] && echo "Keys:"
+		echo " $ENTRY"
+		count=$((count+1))
+	done
+	if [[ -z $KEY_ID ]]; then
+		# generate key
+		if [[ $count -eq 0 ]]; then
+			notice "Generating a gpg key.."
+			local TMP_FILE=$( \mktemp )
+			if [[   -z  $TMP_FILE  ]] \
+			|| [[ ! -f "$TMP_FILE" ]]; then
+				failure "Failed to create a temp file for gpg batch"
+				failure ; exit 1
+			fi
+			echo_cmd "cat >$TMP_FILE"
+			if [[ $IS_DRY -eq $NO ]]; then
+				echo "%echo Generating a basic OpenPGP key" > "$TMP_FILE"
+				if [[ -z $KEY_PASS ]]; then
+					echo "%no-protection" >> "$TMP_FILE"
+				fi
+				\cat >>"$TMP_FILE" <<EOF
+Key-Type: RSA
+Key-Length: 4096
+Subkey-Type: RSA
+Subkey-Length: 4096
+Name-Real: "$ORG_NAME"
+Name-Comment: "$ORG_NAME Software Repo"
+Name-Email: "$KEY_EMAIL"
+Expire-Date: 0
+EOF
+				if [[ ! -z $KEY_PASS ]]; then
+					echo "Passphrase: \"$KEY_PASS\"" >> "$TMP_FILE"
+				fi
+				\cat >>"$TMP_FILE" <<EOF
+%commit
+%echo done
+EOF
+			fi
+			echo_cmd "gpg --gen-key --batch batch"
+			if [[ $IS_DRY -eq $NO ]]; then
+				\gpg --no-default-keyring \
+					--homedir "$GPG_PATH"         \
+					--gen-key --batch "$TMP_FILE" \
+						|| exit 1
+				let count=0
+				for ENTRY in $( \gpg --homedir "$GPG_PATH" --list-keys | \grep '^      ' ); do
+					[[ -z $KEY_ID   ]] && KEY_ID="$ENTRY"
+					[[ $count -eq 0 ]] && echo "Keys:"
+					echo " $ENTRY"
+					count=$((count+1))
+				done
+				if [[ $count -eq 0 ]]; then
+					failure "Failed to generate a gpg key"
+					failure ; exit 1
+				elif [[ $count -gt 1 ]]; then
+					failure "More than one key found after generating?"
+					failure ; exit 1
+				fi
+			fi
+			echo_cmd "rm -fv $TMP_FILE"
+			if [[ $IS_DRY -eq $NO ]]; then
+				\rm --preserve-root -fv "$TMP_FILE"
+			fi
+		# more than one key found
+		elif [[ $count -gt 1 ]]; then
+			failure "More than one gpg key found, please set KEY_ID in repos.conf"
+			failure ; exit 1
+		fi
+	fi
+	if [[ -z $KEY_ID ]]; then
+		failure "Failed to generate and detect a gpg key"
+		failure ; exit 1
+	fi
+	# export public key
+	if [[ ! -e "$WDIR/$REPO_PATH/pubkey.gpg" ]]; then
+		notice "Export public key.."
+		echo_cmd "gpg --armor --output pubkey.gpg --export $KEY_ID"
+		if [[ $IS_DRY -eq $NO ]]; then
+			\gpg --no-default-keyring \
+				--homedir "$GPG_PATH"                          \
+				--armor --output "$WDIR/$REPO_PATH/pubkey.gpg" \
+				--export "$KEY_ID"                             \
+					|| exit 1
+		fi
+	fi
+}
+
+
+
+function doCleanupVars() {
+	REPO_PATH=""
+}
+
+
+
 # parse args
 echo
 if [[ $# -eq 0 ]]; then
 	DisplayHelp
 	exit 1
 fi
-REPO_PATHS=""
-DO_ALL=$NO
-IS_DRY=$NO
-DO_CLEAN=$NO
-VERBOSE=$NO
 while [ $# -gt 0 ]; do
 	case "$1" in
 	# all repos
 	-a|--all)
-		DO_ALL=$YES
+		FILTER_PATHS="ALL $FILTER_PATHS"
 	;;
 	# cleanup
 	-c|--clean|--cleanup)
@@ -122,7 +361,7 @@ while [ $# -gt 0 ]; do
 	;;
 	*)
 		if [[ -e "$WDIR/$1" ]]; then
-			REPO_PATHS="$REPO_PATHS $1"
+			FILTER_PATHS="$FILTER_PATHS $1"
 		else
 			failure "Unknown repo path: $1"
 			failure ; exit 1
@@ -143,98 +382,16 @@ fi
 
 
 
-REPO_TYPE=""
-FIND_REPO=""
-FOUND_REPO=$NO
-
-let COUNT_OPS=0
-
-
-
-function LoadRepos() {
-	if [[ -z $1 ]] || [[ "$1" == "ALL" ]]; then
-		FIND_REPO=""
-	else
-		FIND_REPO="$1"
-	fi
-	doCleanupVars
-	REPO_TYPE=""
-	FOUND_REPO=$NO
-	source "$WDIR/repos.conf"  || exit 1
-	REPO
-}
-
-function doCleanupVars() {
-	REPO_NAME=""
-}
-
-function REPO() {
-	if [[  ! -z $REPO_NAME ]]; then
-		doREPO
-		doCleanupVars
-	fi
-	if [[ ! -z $1 ]]; then
-		REPO_NAME="$1"
-	fi
-}
-
-function doREPO() {
-	if [[ -z $REPO_NAME ]]; then
-		doCleanupVars
-		return
-	fi
-	if [[ -z $REPO_TYPE ]]; then
-		failure "Repo type not set in repos.conf"
-		failure ; exit 1
-	fi
-	if [[ ! -z $FIND_REPO ]]; then
-		# already found
-		if [[ $FOUND_REPO -ne $NO ]]; then
-			return
-		fi
-		# found repo
-		if [[ "$FIND_REPO" == "$REPO_NAME" ]]; then
-			FOUND_REPO=$YES
-		# not a match
-		else
-			return
-		fi
-	fi
-	COUNT_OPS=$((COUNT_OPS+1))
-	title C "Building Repo" "$REPO_NAME"
-	echo
-	if [[ ! -e "$WDIR/$REPO_NAME" ]]; then
-		failure "Repo not found: $REPO_NAME"
-		failure ; exit 1
-	fi
-	\pushd "$WDIR/$REPO_NAME"  >/dev/null  || exit 1
-		case "$REPO_TYPE" in
-		rpm)  \createrepo . -v --pretty --workers 6                    || exit 1 ;;
-		deb)  \dpkg-scanpackages --type deb --multiversion . /dev/null || exit 1 ;;
-		*)
-			failure "Unknown repo type: $REPO_TYPE"
-			failure ; exit 1
-		;;
-		esac
-	\popd  >/dev/null
-	echo
-	doCleanupVars
-}
-
-
-
 if [[ ! -e "$WDIR/repos.conf" ]]; then
 	failure "repos.conf file not found here"
 	failure ; exit 1
 fi
 
-if [[ $DO_ALL -eq $YES ]]; then
-	LoadRepos ALL
-else
-	for REPO in $REPO_PATHS; do
-		LoadRepos "$REPO"
-	done
-fi
+# load repos.conf
+doCleanupVars
+source "$WDIR/repos.conf"  || exit 1
+# do last
+REPO
 
 
 

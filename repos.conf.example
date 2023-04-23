@@ -1,4 +1,8 @@
 REPO_TYPE="rpm"
+ORG_NAME="Group Name"
+KEY_EMAIL="support@group.name"
+KEY_PASS=""
+KEY_ID=""
 
 REPO stable/noarch
 REPO stable/rhel/9/x86_64
