@@ -4,7 +4,7 @@
 ## <https://mattsoft.net> <https://poixson.com>
 ## Released under the AGPL 3.0
 ##
-## Description: Automates updating yum/dnf repositories
+## Description: Automates updating yum/dnf and apt repositories
 ##
 ## Example:
 ## > curl --output configer-install.sh https://configer.io/install.sh

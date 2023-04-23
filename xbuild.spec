@@ -21,7 +21,7 @@ Requires : pxnscripts >= 2.1.0
 Requires : git, composer
 
 %package -n xbuild-repos
-Summary  : Setup and maintain yum/dnf/apt software repositories
+Summary  : Setup and maintain yum/dnf and apt software repositories
 Provides : xbuild-repo
 Requires : pxnscripts >= 2.1.0
 Requires : bash, gnupg
@@ -34,7 +34,7 @@ A tool to simplify building and managing projects in your workspace.
 Auto deploy a project or website.
 
 %description -n xbuild-repos
-Setup and maintain yum/dnf/apt software repositories.
+Setup and maintain yum/dnf and apt software repositories.
 
 
 
