@@ -30,8 +30,6 @@ XBUILD_REPOS_VERSION="{{{VERSION}}}"
 
 source /usr/bin/pxn/scripts/common.sh  || exit 1
 
-
-
 if [[ -z $WDIR ]]; then
 	echo
 	failure "Failed to find current working directory"
@@ -42,19 +40,7 @@ fi
 
 function DisplayHelp() {
 	echo -e "${COLOR_BROWN}Usage:${COLOR_RESET}"
-	echo    "  xbuild-repos [options] [path]"
-	echo
-	echo -e "${COLOR_BROWN}Repos:${COLOR_RESET}"
-	let count=0
-#	for FILE in $( \ls -1v "$WDIR/"*.dev 2>/dev/null | \sort --version-sort ); do
-#		NAME="${FILE%%.dev}"
-#		NAME="${NAME##*/}"
-#		echo -e "  ${COLOR_GREEN}$NAME${COLOR_RESET}"
-#		count=$((count+1))
-#	done
-#	if [[ $count -eq 0 ]]; then
-#		echo "  No .dev or xbuild.conf files found here"
-#	fi
+	echo "  xbuild-repos [options] [path]"
 	echo
 	echo -e "${COLOR_BROWN}Options:${COLOR_RESET}"
 	echo -e "  ${COLOR_GREEN}-a, --all${COLOR_RESET}                 Use all .dev files found"
