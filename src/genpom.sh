@@ -40,6 +40,8 @@ fi
 
 
 
+COMPILE_FOR_JAVA_VERSION="17"
+
 MAVEN_VERSIONS_FILE="maven-versions.conf"
 SHADE=$NO
 SNAPSHOT=$YES
@@ -412,8 +414,8 @@ fi
 \cat >>"$OUT_FILE" <<EOF
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<maven.compiler.source>1.8</maven.compiler.source>
-		<maven.compiler.target>1.8</maven.compiler.target>
+		<maven.compiler.source>$COMPILE_FOR_JAVA_VERSION</maven.compiler.source>
+		<maven.compiler.target>$COMPILE_FOR_JAVA_VERSION</maven.compiler.target>
 
 EOF
 if [[ ! -z $OUT_PROPS ]]; then
@@ -545,8 +547,8 @@ fi
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>\${maven-compiler-plugin-version}</version>
 				<configuration>
-					<source>11</source>
-					<target>11</target>
+					<source>$COMPILE_FOR_JAVA_VERSION</source>
+					<target>$COMPILE_FOR_JAVA_VERSION</target>
 				</configuration>
 			</plugin>
 
