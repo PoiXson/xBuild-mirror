@@ -100,8 +100,9 @@ function REPO() {
 			case "$REPO_TYPE" in
 			# yum/dnf repo
 			rpm) doREPO_RPM ;;
-			# apt repo
-			deb) doREPO_DEB ;;
+#TODO
+#			# apt repo
+#			deb) doREPO_DEB ;;
 			*)
 				failure "Unknown repo type: $REPO_TYPE"
 				failure ; exit 1
@@ -127,59 +128,60 @@ function doREPO_RPM() {
 	\popd  >/dev/null
 }
 
-function doREPO_DEB() {
-	[[ -z $REPO_PATH ]] && return
-	prepare_gpg_keys
-	\pushd "$WDIR/$REPO_PATH"  >/dev/null  || exit 1
-		# Release file
-		if [[ ! -e Release ]]; then
-			echo_cmd "cat >Release"
-			if [[ $IS_DRY -eq $NO ]]; then
-#TODO: set Suite and Codename
-				\cat >"Release" <<EOF
-Origin: $ORG_NAME
-Label: $REPO_PATH
-Suite: unstable
-Codename: unstable
-Architectures: all
-Components: main
-Description $ORG_NAME $REPO_PATH
-EOF
-			fi
-			echo_cmd "gpg --clearsign -o InRelease Release"
-			if [[ $IS_DRY -eq $NO ]]; then
-				\gpg --homedir "$GPG_PATH" \
-					--clearsign -o InRelease Release \
-						|| exit 1
-			fi
-		fi
-		# scan for .deb packages
-		echo_cmd "dpkg-scanpackages --type deb --multiversion" \
-			"| \gzip -9c > Packages.gz"
-		if [[ $IS_DRY -eq $NO ]]; then
-			\dpkg-scanpackages --type deb --multiversion . /dev/null \
-				| \gzip -9c > "Packages.gz" \
-					|| exit 1
-		fi
-		# sign packages
-		for ENTRY in $( /usr/bin/ls *.deb ); do
-			if [[ ! -e "${ENTRY}.sig" ]]; then
-				echo "Signing: $ENTRY"
-				echo_cmd "gpg --default-key $KEY_ID" \
-					"--armor --output ${ENTRY}.sig" \
-					"--detach-sig     ${ENTRY}"
-				if [[ $IS_DRY -eq $NO ]]; then
-					gpg --no-default-keyring \
-						--homedir "$GPG_PATH"           \
-						--default-key "$KEY_ID"         \
-						--armor --output "${ENTRY}.sig" \
-						--detach-sig     "${ENTRY}"     \
-							|| exit 1
-				fi
-			fi
-		done
-	\popd  >/dev/null
-}
+#TODO
+#function doREPO_DEB() {
+#	[[ -z $REPO_PATH ]] && return
+#	prepare_gpg_keys
+#	\pushd "$WDIR/$REPO_PATH"  >/dev/null  || exit 1
+#		# Release file
+#		if [[ ! -e Release ]]; then
+#			echo_cmd "cat >Release"
+#			if [[ $IS_DRY -eq $NO ]]; then
+##TODO: set Suite and Codename
+#				\cat >"Release" <<EOF
+#Origin: $ORG_NAME
+#Label: $REPO_PATH
+#Suite: unstable
+#Codename: unstable
+#Architectures: all
+#Components: main
+#Description $ORG_NAME $REPO_PATH
+#EOF
+#			fi
+#			echo_cmd "gpg --clearsign -o InRelease Release"
+#			if [[ $IS_DRY -eq $NO ]]; then
+#				\gpg --homedir "$GPG_PATH" \
+#					--clearsign -o InRelease Release \
+#						|| exit 1
+#			fi
+#		fi
+#		# scan for .deb packages
+#		echo_cmd "dpkg-scanpackages --type deb --multiversion" \
+#			"| \gzip -9c > Packages.gz"
+#		if [[ $IS_DRY -eq $NO ]]; then
+#			\dpkg-scanpackages --type deb --multiversion . /dev/null \
+#				| \gzip -9c > "Packages.gz" \
+#					|| exit 1
+#		fi
+#		# sign packages
+#		for ENTRY in $( /usr/bin/ls *.deb ); do
+#			if [[ ! -e "${ENTRY}.sig" ]]; then
+#				echo "Signing: $ENTRY"
+#				echo_cmd "gpg --default-key $KEY_ID" \
+#					"--armor --output ${ENTRY}.sig" \
+#					"--detach-sig     ${ENTRY}"
+#				if [[ $IS_DRY -eq $NO ]]; then
+#					gpg --no-default-keyring \
+#						--homedir "$GPG_PATH"           \
+#						--default-key "$KEY_ID"         \
+#						--armor --output "${ENTRY}.sig" \
+#						--detach-sig     "${ENTRY}"     \
+#							|| exit 1
+#				fi
+#			fi
+#		done
+#	\popd  >/dev/null
+#}
 
 
 
