@@ -546,10 +546,6 @@ fi
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>\${maven-compiler-plugin-version}</version>
-				<configuration>
-					<source>$COMPILE_FOR_JAVA_VERSION</source>
-					<target>$COMPILE_FOR_JAVA_VERSION</target>
-				</configuration>
 			</plugin>
 
 EOF
