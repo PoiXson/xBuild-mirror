@@ -358,9 +358,9 @@ if [[ -e "$WDIR/tests/" ]]; then
 	FindDepVersion  "org.apache.maven.plugins"  "maven-surefire-plugin"
 	AddPropPlugin  "surefire-version"  "$FOUND_DEP_VERSION"
 
-	# cobertura
-	FindDepVersion  "org.codehaus.mojo"  "cobertura-maven-plugin"
-	AddPropPlugin  "cobertura-version"  "$FOUND_DEP_VERSION"
+#	# cobertura
+#	FindDepVersion  "org.codehaus.mojo"  "cobertura-maven-plugin"
+#	AddPropPlugin  "cobertura-version"  "$FOUND_DEP_VERSION"
 
 	# jxr - cross reference
 	FindDepVersion  "org.apache.maven.jxr"  "jxr"
@@ -681,16 +681,6 @@ if [[ -e "$WDIR/tests/" ]]; then
 				</configuration>
 			</plugin>
 
-			<!-- Cobertura Plugin -->
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>cobertura-maven-plugin</artifactId>
-				<version>\${cobertura-version}</version>
-				<configuration>
-					<quiet>true</quiet>
-				</configuration>
-			</plugin>
-
 			<!-- JXR - Cross Reference -->
 			<plugin>
 				<groupId>org.apache.maven.jxr</groupId>
@@ -706,6 +696,15 @@ if [[ -e "$WDIR/tests/" ]]; then
 			</plugin>
 
 EOF
+#			<!-- Cobertura Plugin -->
+#			<plugin>
+#				<groupId>org.codehaus.mojo</groupId>
+#				<artifactId>cobertura-maven-plugin</artifactId>
+#				<version>\${cobertura-version}</version>
+#				<configuration>
+#					<quiet>true</quiet>
+#				</configuration>
+#			</plugin>
 fi
 
 \cat >>"$OUT_FILE" <<EOF
@@ -740,18 +739,6 @@ if [[ -e "$WDIR/tests/" ]]; then
 					<dependencyLocationsEnabled>false</dependencyLocationsEnabled>
 				</configuration>
 			</plugin>
-			<!-- Cobertura Plugin -->
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>cobertura-maven-plugin</artifactId>
-				<version>\${cobertura-version}</version>
-				<configuration>
-					<formats>
-						<format>html</format>
-						<format>xml</format>
-					</formats>
-				</configuration>
-			</plugin>
 			<!-- Cross-Reference Plugin -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -761,6 +748,18 @@ if [[ -e "$WDIR/tests/" ]]; then
 		</plugins>
 	</reporting>
 EOF
+#			<!-- Cobertura Plugin -->
+#			<plugin>
+#				<groupId>org.codehaus.mojo</groupId>
+#				<artifactId>cobertura-maven-plugin</artifactId>
+#				<version>\${cobertura-version}</version>
+#				<configuration>
+#					<formats>
+#						<format>html</format>
+#						<format>xml</format>
+#					</formats>
+#				</configuration>
+#			</plugin>
 fi
 
 echo "</project>" >>"$OUT_FILE"
