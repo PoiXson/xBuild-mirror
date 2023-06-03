@@ -48,7 +48,8 @@ if [[ " $ACTIONS " == *" build "* ]]; then
 	if [[ -f "$PROJECT_PATH/pom.xml" ]]; then
 		\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
 			# generate temp release pom.xml
-			if [[ $DO_CI -eq $YES ]]; then
+			if [[ $DO_CI -eq $YES             ]] \
+			&& [[ -f "$PROJECT_PATH/pom.conf" ]]; then
 				if [[ -z $PROJECT_VERSION ]]; then
 					failure "Project version not detected"
 					failure ; exit 1
@@ -86,7 +87,8 @@ if [[ " $ACTIONS " == *" build "* ]]; then
 				fi
 			fi
 			# restore pom.xml
-			if [[ $DO_CI -eq $YES ]]; then
+			if [[ $DO_CI -eq $YES             ]] \
+			&& [[ -f "$PROJECT_PATH/pom.conf" ]]; then
 				echo_cmd "rm  pom.xml"
 				if [[ $IS_DRY -eq $NO ]]; then
 					\rm -vf --preserve-root  "$PROJECT_PATH/pom.xml"  || exit 1
