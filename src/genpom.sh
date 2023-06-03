@@ -415,6 +415,7 @@ fi
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>$COMPILE_FOR_JAVA_VERSION</java.version>
+		<maven.compiler.release>$COMPILE_FOR_JAVA_VERSION</maven.compiler.release>
 		<maven.compiler.source>$COMPILE_FOR_JAVA_VERSION</maven.compiler.source>
 		<maven.compiler.target>$COMPILE_FOR_JAVA_VERSION</maven.compiler.target>
 
