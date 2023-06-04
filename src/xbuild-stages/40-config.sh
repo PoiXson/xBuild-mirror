@@ -14,6 +14,13 @@ if [[ " $ACTIONS " == *" config "* ]]; then
 	fi
 	did_something=$NO
 	doProjectTags
+	# run commands
+	for ENTRY in ${RUN_CONFIG[@]}; do
+		notice "Running: $ENTRY"
+		if [[ $IS_DRY -eq $NO ]]; then
+			. "$ENTRY" || exit 1
+		fi
+	done
 	if [[ $DO_CI -eq $NO ]]; then
 		# .gitignore
 		if [[ -f "$PROJECT_PATH/.gitignore" ]]; then

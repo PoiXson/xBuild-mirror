@@ -135,6 +135,8 @@ PROJECT_GITIGNORE=""
 PROJECT_TAG_FILES=""
 PROJECT_TAGS_DONE=$NO
 CURRENT_PATH="$WDIR"
+RUN_CONFIG=()
+RUN_BUILD=()
 
 TIME_START=$( \date "+%s%N" )
 let TIME_START_PRJ=0
@@ -194,6 +196,19 @@ function AddIgnore() {
 		failure ; exit 1
 	fi
 	PROJECT_GITIGNORE="$PROJECT_GITIGNORE $1"
+}
+
+
+
+function RunConfig() {
+	if [[ ! -z $1 ]]; then
+		RUN_CONFIG+=("$1")
+	fi
+}
+function RunBuild() {
+	if [[ ! -z $1 ]]; then
+		RUN_BUILD+=("$1")
+	fi
 }
 
 
@@ -333,6 +348,8 @@ function CleanupProjectVars() {
 	PROJECT_TAG_FILES=""
 	PROJECT_TAGS_DONE=$NO
 	PROJECT_RELEASE=$NO
+	RUN_CONFIG=()
+	RUN_BUILD=()
 	TIME_START_PRJ=$( \date "+%s%N" )
 	TIME_LAST=$TIME_START_PRJ
 }

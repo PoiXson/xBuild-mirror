@@ -8,6 +8,13 @@ if [[ " $ACTIONS " == *" build "* ]]; then
 	[[ $QUIET -eq $NO ]] && \
 		title C "Build"
 	doProjectTags
+	# run commands
+	for ENTRY in ${RUN_BUILD[@]}; do
+		notice "Running: $ENTRY"
+		if [[ $IS_DRY -eq $NO ]]; then
+			. "$ENTRY" || exit 1
+		fi
+	done
 	# automake
 	if [[ -f "$PROJECT_PATH/configure" ]]; then
 		\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
