@@ -302,18 +302,6 @@ function doProject() {
 			PROJECT_PATH="$CURRENT_PATH/$PROJECT_PATH"
 		fi
 	fi
-	if [[ $QUIET -eq $NO ]]; then
-		title B "$PROJECT_NAME"
-		echo -e " ${COLOR_GREEN}>${COLOR_RESET} ${COLOR_BLUE}${PROJECT_PATH}${COLOR_RESET}"
-		if [[ ! -z $PROJECT_VERSION ]]; then
-			local SNAPSHOT=""
-			if [[ $PROJECT_RELEASE -ne $YES ]]; then
-				SNAPSHOT="-SNAPSHOT"
-			fi
-			notice "Version: ${COLOR_GREEN}${PROJECT_VERSION}${SNAPSHOT}${COLOR_RESET}"
-		fi
-		echo
-	fi
 	# recursive - xbuild.conf file in sub dir
 	if [[ -f "$PROJECT_PATH/xbuild.conf" ]]; then
 		if [[ "$PROJECT_PATH" != "$CURRENT_PATH" ]]; then
@@ -328,6 +316,18 @@ function doProject() {
 			CleanupProjectVars
 			return
 		fi
+	fi
+	if [[ $QUIET -eq $NO ]]; then
+		title B "$PROJECT_NAME"
+		echo -e " ${COLOR_GREEN}>${COLOR_RESET} ${COLOR_BLUE}${PROJECT_PATH}${COLOR_RESET}"
+		if [[ ! -z $PROJECT_VERSION ]]; then
+			local SNAPSHOT=""
+			if [[ $PROJECT_RELEASE -ne $YES ]]; then
+				SNAPSHOT="-SNAPSHOT"
+			fi
+			notice "Version: ${COLOR_GREEN}${PROJECT_VERSION}${SNAPSHOT}${COLOR_RESET}"
+		fi
+		echo
 	fi
 	# run build stages
 	for ENTRY in $( \ls -1 -v "$BUILD_STAGES_PATH" ); do
