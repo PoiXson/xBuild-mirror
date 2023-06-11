@@ -95,24 +95,25 @@ if [[ " $ACTIONS " == *" pack "* ]]; then
 					echo_cmd "cp  rpmbuild/RPMS/$ENTRY  $TARGET_PATH"
 					\cp -fv  "$PROJECT_PATH/rpmbuild/RPMS/$ENTRY"  "$TARGET_PATH/"  || exit 1
 				done
-				if [[ -e /usr/bin/alien  ]] \
-				&& [[ $DO_ALIEN -eq $YES ]]; then
-					\pushd  "$TARGET_PATH/"  >/dev/null  || exit 1
-						for ENTRY in $PACKAGES; do
-							if [[ "$ENTRY" == *".noarch.rpm" ]]; then
-								echo
-								echo_cmd "alien --to-deb --scripts $ENTRY"
-								if [[ $IS_DRY -eq $NO ]]; then
-									\fakeroot \alien  -v --to-deb --scripts  "$ENTRY"  || exit 1
-								fi
-							fi
-						done
-						PACKAGES_DEB=$( \ls -1 *.deb )
-						for ENTRY in $PACKAGES_DEB; do
-							PACKAGES_ALL+=("$TARGET_PATH/$ENTRY")
-						done
-					\popd >/dev/null
-				fi
+#TODO
+#				if [[ -e /usr/bin/alien  ]] \
+#				&& [[ $DO_ALIEN -eq $YES ]]; then
+#					\pushd  "$TARGET_PATH/"  >/dev/null  || exit 1
+#						for ENTRY in $PACKAGES; do
+#							if [[ "$ENTRY" == *".noarch.rpm" ]]; then
+#								echo
+#								echo_cmd "alien --to-deb --scripts $ENTRY"
+#								if [[ $IS_DRY -eq $NO ]]; then
+#									\fakeroot \alien  -v --to-deb --scripts  "$ENTRY"  || exit 1
+#								fi
+#							fi
+#						done
+#						PACKAGES_DEB=$( \ls -1 *.deb )
+#						for ENTRY in $PACKAGES_DEB; do
+#							PACKAGES_ALL+=("$TARGET_PATH/$ENTRY")
+#						done
+#					\popd >/dev/null
+#				fi
 			fi
 		\popd >/dev/null
 		echo
