@@ -103,7 +103,8 @@ if [[ " $ACTIONS " == *" clean "* ]]; then
 		\popd >/dev/null
 	fi
 	# clean target/
-	if [[ -d "$PROJECT_PATH/target" ]]; then
+	if [[ "$WDIR" != "$PROJECT_PATH" ]] \
+	&& -d "$PROJECT_PATH/target" ]]; then
 		\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
 			echo_cmd -n "rm -rf target"
 			let rm_groups=$((rm_groups+1))

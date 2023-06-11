@@ -654,6 +654,11 @@ if [[ -z $TARGET_PATH ]]; then
 	TARGET_PATH="$WDIR/target"
 fi
 
+if [[ ! -f "$WDIR/xbuild.conf" ]]; then
+	failure "xbuild.conf not found here"
+	failure ; exit 1
+fi
+
 did_notice=$NO
 if [[ "$SELF" != "/usr/"* ]]; then
 	F="$WDIR/${SELF%/*}/xbuild-stages"
@@ -699,10 +704,36 @@ fi
 
 
 
-if [[ ! -f "$WDIR/xbuild.conf" ]]; then
-	failure "xbuild.conf not found here"
-	failure ; exit 1
+# clean root target/
+if [[ " $ACTIONS " == *" clean "* ]]; then
+	[[ $QUIET -eq $NO ]] && \
+		title C "Clean"
+	if [[ -d "$WDIR/target" ]]; then
+		let count=0
+		\pushd  "$WDIR/"  >/dev/null  || exit 1
+			echo_cmd -n "rm -rf target"
+			if [[ $IS_DRY -eq $NO ]]; then
+				c=$( \rm -vrf --preserve-root target | wc -l )
+				[[ 0 -ne $? ]] && exit 1
+				[[ $c -gt 0 ]] && count=$((count+c))
+				echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
+			else
+				echo
+			fi
+		\popd >/dev/null
+		echo
+		if [[ $count -gt 0 ]]; then
+			if [[ $rm_groups -gt 1 ]]; then
+				echo "Removed $count files"
+			fi
+			DisplayTime "Cleaned"
+		fi
+	fi
 fi
+
+
+
+# run everything
 LoadConf "$WDIR/xbuild.conf"
 
 
