@@ -68,16 +68,16 @@ if [[ " $ACTIONS " == *" build "* ]]; then
 						"$PROJECT_PATH/pom.xml.xbuild-save" \
 							|| exit 1
 				fi
-				local SNAPSHOT_RELEASE=""
+				local SNAPSHOT_OR_RELEASE=""
 				if [[ $ALLOW_RELEASE   -eq $YES ]] \
 				&& [[ $PROJECT_RELEASE -eq $YES ]]; then
-					SNAPSHOT_RELEASE="--release"
+					SNAPSHOT_OR_RELEASE="--release"
 				else
-					SNAPSHOT_RELEASE="--snapshot"
+					SNAPSHOT_OR_RELEASE="--snapshot"
 				fi
-				echo_cmd -n "genpom $SNAPSHOT_RELEASE $PROJECT_VERSION"
+				echo_cmd -n "genpom $SNAPSHOT_OR_RELEASE $PROJECT_VERSION"
 				if [[ $IS_DRY -eq $NO ]]; then
-					\genpom  $SNAPSHOT_RELEASE  $PROJECT_VERSION  || exit 1
+					\genpom  $SNAPSHOT_OR_RELEASE  $PROJECT_VERSION  || exit 1
 				else
 					echo
 				fi
