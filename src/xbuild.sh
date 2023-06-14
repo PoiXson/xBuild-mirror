@@ -135,6 +135,7 @@ PROJECT_GITIGNORE=""
 PROJECT_TAG_FILES=""
 PROJECT_TAGS_DONE=$NO
 CURRENT_PATH="$WDIR"
+ALLOW_RELEASE=$NO
 RUN_CONFIG=()
 RUN_BUILD=()
 
@@ -322,7 +323,8 @@ function doProject() {
 		echo -e " ${COLOR_GREEN}>${COLOR_RESET} ${COLOR_BLUE}${PROJECT_PATH}${COLOR_RESET}"
 		if [[ ! -z $PROJECT_VERSION ]]; then
 			local SNAPSHOT=""
-			if [[ $PROJECT_RELEASE -ne $YES ]]; then
+			if [[ $ALLOW_RELEASE   -eq $NO ]] \
+			|| [[ $PROJECT_RELEASE -eq $NO ]]; then
 				SNAPSHOT="-SNAPSHOT"
 			fi
 			notice "Version: ${COLOR_GREEN}${PROJECT_VERSION}${SNAPSHOT}${COLOR_RESET}"
@@ -418,7 +420,8 @@ function DetectGitTag() {
 		echo
 	\popd >/dev/null
 	# snapshot version
-	if [[ $PROJECT_RELEASE -eq $NO ]]; then
+	if [[ $ALLOW_RELEASE   -eq $NO ]] \
+	|| [[ $PROJECT_RELEASE -eq $NO ]]; then
 		# build number
 		if [[ ! -z $BUILD_NUMBER    ]] \
 		&& [[ ! -z $PROJECT_VERSION ]]; then
@@ -612,7 +615,7 @@ while [ $# -gt 0 ]; do
 		BUILD_NUMBER="$1"
 		ACTIONS="$ACTIONS clean config build test pack"
 		DO_CI=$YES ; DO_RECURSIVE=$YES ; DO_ALIEN=$YES
-		VERBOSE=$YES
+		VERBOSE=$YES ; ALLOW_RELEASE=$YES
 	;;
 	--ci=*)
 		BUILD_NUMBER="${1#*=}"
@@ -622,7 +625,7 @@ while [ $# -gt 0 ]; do
 		fi
 		ACTIONS="$ACTIONS clean config build test pack"
 		DO_CI=$YES ; DO_RECURSIVE=$YES ; DO_ALIEN=$YES
-		VERBOSE=$YES
+		VERBOSE=$YES ; ALLOW_RELEASE=$YES
 	;;
 
 	-v|--verbose) VERBOSE=$YES ;;

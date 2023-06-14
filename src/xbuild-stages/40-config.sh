@@ -86,7 +86,8 @@ if [[ " $ACTIONS " == *" config "* ]]; then
 				title C "Generate pom"
 			\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
 				# configure for release
-				if [[ $PROJECT_RELEASE -eq $YES ]]; then
+				if [[ $ALLOW_RELEASE   -eq $YES ]] \
+				&& [[ $PROJECT_RELEASE -eq $YES ]]; then
 					echo_cmd -n "genpom --release $PROJECT_VERSION"
 					if [[ $IS_DRY -eq $NO ]]; then
 						\genpom  --release $PROJECT_VERSION  || exit 1
@@ -128,7 +129,8 @@ if [[ " $ACTIONS " == *" config "* ]]; then
 		if [[ -f "$PROJECT_PATH/composer.json" ]]; then
 			\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
 				# configure for release
-				if [[ $PROJECT_RELEASE -eq $YES ]] \
+				if [[ $ALLOW_RELEASE   -eq $YES ]] \
+				&& [[ $PROJECT_RELEASE -eq $YES ]] \
 				&& [[ -f "$PROJECT_PATH/composer.lock" ]]; then
 					[[ $QUIET -eq $NO ]] && \
 						title C "Composer Install"

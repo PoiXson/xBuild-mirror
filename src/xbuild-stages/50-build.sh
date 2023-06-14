@@ -69,7 +69,8 @@ if [[ " $ACTIONS " == *" build "* ]]; then
 							|| exit 1
 				fi
 				local SNAPSHOT_RELEASE=""
-				if [[ $PROJECT_RELEASE -eq $YES ]]; then
+				if [[ $ALLOW_RELEASE   -eq $YES ]] \
+				&& [[ $PROJECT_RELEASE -eq $YES ]]; then
 					SNAPSHOT_RELEASE="--release"
 				else
 					SNAPSHOT_RELEASE="--snapshot"
