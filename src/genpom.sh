@@ -117,7 +117,9 @@ function AddProp() {
 	OUT_PROPS="$OUT_PROPS\t\t<$1>$2</$1>\n"
 }
 function AddPropDep() {
-	OUT_PROPS_DEPS="$OUT_PROPS_DEPS\t\t<$1>$2</$1>\n"
+	local KEY="${1//./-}"
+	local VAL="$2"
+	OUT_PROPS_DEPS="$OUT_PROPS_DEPS\t\t<$KEY>$VAL</$KEY>\n"
 }
 function AddPropPlugin() {
 	OUT_PROPS_PLUGINS="$OUT_PROPS_PLUGINS\t\t<$1>$2</$1>\n"
@@ -171,7 +173,7 @@ function AddDep() {
 	OUT_DEPS="$OUT_DEPS\t\t<dependency>\n"
 	OUT_DEPS="$OUT_DEPS\t\t\t<artifactId>$ARTIFACT</artifactId>\n"
 	OUT_DEPS="$OUT_DEPS\t\t\t<groupId>$GROUP</groupId>\n"
-	OUT_DEPS="$OUT_DEPS\t\t\t<version>\${$ARTIFACT-version}</version>\n"
+	OUT_DEPS="$OUT_DEPS\t\t\t<version>\${${ARTIFACT//./-}-version}</version>\n"
 	[[ -z $SCOPE ]] || \
 	OUT_DEPS="$OUT_DEPS\t\t\t<scope>$SCOPE</scope>\n"
 	OUT_DEPS="$OUT_DEPS\t\t</dependency>\n"
