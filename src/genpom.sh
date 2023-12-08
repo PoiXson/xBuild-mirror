@@ -416,6 +416,13 @@ fi
 \cat >>"$OUT_FILE" <<EOF
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+EOF
+if [[ ! -z $LICENSE ]]; then
+\cat >>"$OUT_FILE" <<EOF
+		<project.license>$LICENSE</project.license>
+EOF
+fi
+\cat >>"$OUT_FILE" <<EOF
 		<java.version>$COMPILE_FOR_JAVA_VERSION</java.version>
 		<maven.compiler.release>$COMPILE_FOR_JAVA_VERSION</maven.compiler.release>
 		<maven.compiler.source>$COMPILE_FOR_JAVA_VERSION</maven.compiler.source>
