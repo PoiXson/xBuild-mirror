@@ -668,6 +668,13 @@ if [[ $SHADE -eq $YES ]]; then
 				<configuration>
 					<dependencyReducedPomLocation>\${project.basedir}/target/dependency-reduced-pom.xml</dependencyReducedPomLocation>
 					<filters>
+						<filter>
+							<artifact>*</artifact>
+							<excludes>
+								<exclude>META-INF/*.RSA</exclude>
+								<exclude>META-INF/*.SF</exclude>
+							</excludes>
+						</filter>
 					</filters>
 				</configuration>
 			</plugin>
