@@ -218,7 +218,7 @@ function doProject() {
 					echo -e " > ${COLOR_CYAN}ln -s $D1 $D2${COLOR_RESET}"
 					if [[ $IS_DRY -eq $NO ]]; then
 						\sudo -u "$PROJECT_USER"  \
-							\ln -svf  "$D1"  "$D2"  || exit 1
+							\ln -svfn  "$D1"  "$D2"  || exit 1
 					fi
 				done
 				[[ $did_something -eq $YES ]] && echo
