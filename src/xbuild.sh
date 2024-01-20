@@ -203,12 +203,12 @@ function AddIgnore() {
 
 function RunConfig() {
 	if [[ ! -z $1 ]]; then
-		RUN_CONFIG+=("$1")
+		RUN_CONFIG+=("$*")
 	fi
 }
 function RunBuild() {
 	if [[ ! -z $1 ]]; then
-		RUN_BUILD+=("$1")
+		RUN_BUILD+=("$*")
 	fi
 }
 

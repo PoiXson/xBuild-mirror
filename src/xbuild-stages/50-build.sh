@@ -9,7 +9,7 @@ if [[ " $ACTIONS " == *" build "* ]]; then
 		title C "Build"
 	doProjectTags
 	# run commands
-	for ENTRY in ${RUN_BUILD[@]}; do
+	for ENTRY in "${RUN_BUILD[@]}"; do
 		notice "Running: $ENTRY"
 		if [[ $IS_DRY -eq $NO ]]; then
 			. "$ENTRY" || exit 1

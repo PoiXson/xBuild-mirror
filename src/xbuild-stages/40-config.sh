@@ -15,7 +15,7 @@ if [[ " $ACTIONS " == *" config "* ]]; then
 	did_something=$NO
 	doProjectTags
 	# run commands
-	for ENTRY in ${RUN_CONFIG[@]}; do
+	for ENTRY in "${RUN_CONFIG[@]}"; do
 		notice "Running: $ENTRY"
 		if [[ $IS_DRY -eq $NO ]]; then
 			. "$ENTRY" || exit 1
