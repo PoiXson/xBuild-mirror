@@ -63,13 +63,13 @@ if [[ " $ACTIONS " == *" pack "* ]]; then
 				failure "Target path not set"
 				failure ; exit 1
 			fi
-			echo_cmd "rpmbuild\n"                                              \
-				${BUILD_NUMBER:+"     --define=build_number $BUILD_NUMBER\n"}  \
-				"     --define=_topdir $PROJECT_PATH/rpmbuild\n"               \
-				"     --define=_tmppath $PROJECT_PATH/rpmbuild/TMP\n"          \
-				"     --define=_binary_payload w9.gzdio\n"                     \
-				"     --undefine=_disable_source_fetch\n"                      \
-				"     -bb SPECS/${SPEC_NAME}.spec\n"
+			echo_cmd "rpmbuild"                                              \
+				${BUILD_NUMBER:+"     --define=build_number $BUILD_NUMBER"}  \
+				"     --define=_topdir $PROJECT_PATH/rpmbuild"               \
+				"     --define=_tmppath $PROJECT_PATH/rpmbuild/TMP"          \
+				"     --define=_binary_payload w9.gzdio"                     \
+				"     --undefine=_disable_source_fetch"                      \
+				"     -bb SPECS/${SPEC_NAME}.spec"
 			if [[ $IS_DRY -eq $NO ]]; then
 				if [[ ! -e "$TARGET_PATH/" ]]; then
 					\mkdir -pv "$TARGET_PATH/"  || exit 1
