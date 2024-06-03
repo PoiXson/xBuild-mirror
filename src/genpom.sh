@@ -416,6 +416,7 @@ fi
 \cat >>"$OUT_FILE" <<EOF
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 EOF
 if [[ ! -z $LICENSE ]]; then
 \cat >>"$OUT_FILE" <<EOF
@@ -540,6 +541,7 @@ if [[ -e "$WDIR/resources/" ]] \
 				<groupId>org.apache.maven.plugins</groupId>
 				<version>\${maven-resources-plugin-version}</version>
 				<configuration>
+					<encoding>\${project.build.sourceEncoding}</encoding>
 					<nonFilteredFileExtensions>
 						<nonFilteredFileExtension>png</nonFilteredFileExtension>
 						<nonFilteredFileExtension>so</nonFilteredFileExtension>
@@ -557,6 +559,11 @@ fi
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>\${maven-compiler-plugin-version}</version>
+				<configuration>
+					<source>${COMPILE_FOR_JAVA_VERSION}</source>
+					<target>${COMPILE_FOR_JAVA_VERSION}</target>
+					<encoding>\${project.build.sourceEncoding}</encoding>
+				</configuration>
 			</plugin>
 
 EOF
@@ -621,6 +628,14 @@ EOF
 					<projectNameTemplate>\${project.name}</projectNameTemplate>
 					<downloadSources>true</downloadSources>
 					<downloadJavadocs>true</downloadJavadocs>
+					<additionalConfig>
+						<file>
+							<name>.settings/org.eclipse.core.resources.prefs</name>
+							<content>
+								<![CDATA[eclipse.preferences.version=1\${line.separator}encoding/<project>=\${project.build.sourceEncoding}\${line.separator}]]>
+							</content>
+						</file>
+					</additionalConfig>
 				</configuration>
 			</plugin>
 
