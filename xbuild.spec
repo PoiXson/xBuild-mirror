@@ -84,6 +84,18 @@ echo "Install.."
 
 
 
+%post
+if [[ -e "/etc/java/maven.conf" ]]; then
+	\pushd  "/etc/java/"  >/dev/null  || exit 1
+		\mv -v maven.conf maven.conf.old  || exit 1
+	\popd  >/dev/null
+fi
+echo  "JAVA_HOME=""/usr/lib/jvm/java-latest"  \
+	> "/etc/java/maven.conf"  || exit 1
+\chmod -c 0644/etc/java/maven.conf  || exit 1
+
+
+
 ### Files ###
 %files
 %defattr(0555, root, root, 0755)
