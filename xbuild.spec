@@ -47,6 +47,7 @@ echo "Install.."
 %{__install} -d -m 0755  \
 	"%{buildroot}%{prefix}/"                     \
 	"%{buildroot}%{_sysconfdir}/profile.d/"      \
+	"%{buildroot}%{_sysconfdir}/java/"           \
 	"%{buildroot}%{_sysconfdir}/xbuild/"         \
 	"%{buildroot}%{_sysconfdir}/xbuild/stages/"  \
 		|| exit 1
@@ -78,8 +79,8 @@ echo "Install.."
 \pushd  "%{_topdir}/../"  >/dev/null  || exit 1
 	%{__install} -m 0644  "xdeploy-example.conf"  "%{buildroot}/xdeploy.conf"  || exit 1
 	# /etc/
-	%{__install} -m 0644  "maven-versions.conf.example"  "%{buildroot}%{_sysconfdir}/"  || exit 1
-	%{__install} -m 0644  ".gitignore"  "%{buildroot}%{_sysconfdir}/xbuild/gitignore"   || exit 1
+	%{__install} -m 0644  "maven-versions.conf.example"  "%{buildroot}%{_sysconfdir}/java/"  || exit 1
+	%{__install} -m 0644  ".gitignore"  "%{buildroot}%{_sysconfdir}/xbuild/gitignore"        || exit 1
 \popd  >/dev/null
 
 
@@ -106,7 +107,7 @@ fi
 %{_bindir}/genpom
 %{_bindir}/genspec
 %{_sysconfdir}/profile.d/xbuild.sh
-%attr(0644,-,-) %{_sysconfdir}/maven-versions.conf.example
+%attr(0644,-,-) %{_sysconfdir}/java/maven-versions.conf.example
 %dir %{_sysconfdir}/xbuild/
 %dir %{_sysconfdir}/xbuild/stages/
 %attr(0644,-,-) %config(noreplace) %{_sysconfdir}/xbuild/gitignore

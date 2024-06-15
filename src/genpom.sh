@@ -246,6 +246,12 @@ function FindDepVersion() {
 		[[ ! -z $FOUND_DEP_VERSION ]] && return
 		DID_SOMETHING=$YES
 	fi
+	# /etc/java
+	if [[ -e "/etc/java/$MAVEN_VERSIONS_FILE" ]]; then
+		source "/etc/java/$MAVEN_VERSIONS_FILE"  || exit 1
+		[[ ! -z $FOUND_DEP_VERSION ]] && return
+		DID_SOMETHING=$YES
+	fi
 	if [[ $DID_SOMETHING -ne $YES ]]; then
 		failure "File not found: $MAVEN_VERSIONS_FILE"
 		failure ; exit 1
