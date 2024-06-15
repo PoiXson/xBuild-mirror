@@ -124,6 +124,7 @@ TARGET_PATH=""
 PROJECT_FILTERS=""
 PROJECT_FILTERS_FOUND=""
 PACKAGES_ALL=()
+XBUILD_FAILED=$NO
 
 # project vars
 PROJECT_NAME=""
@@ -264,14 +265,15 @@ function MakeSymlink() {
 
 
 function Project() {
+	if [[ -z $PROJECT_NAME ]]; then
+		failure "Project name not set"
+		failure ; exit 1
+	fi
 	# perform previous project
-	if [[ ! -z $PROJECT_NAME ]]; then
-		doProject
-		CleanupProjectVars
-	fi
-	if [[ ! -z $1 ]]; then
-		PROJECT_NAME="$1"
-	fi
+	doProject
+	CleanupProjectVars
+	# configure next project
+	[[ ! -z $1 ]] && PROJECT_NAME="$1"
 }
 
 function doProject() {
@@ -283,6 +285,7 @@ function doProject() {
 	if [[ ! -z $PROJECT_FILTERS ]]; then
 		if [[ " $PROJECT_FILTERS " != *" $PROJECT_NAME "* ]]; then
 			notice "Skipping filtered: $PROJECT_NAME"
+			CleanupBackupVars
 			return
 		fi
 	fi
@@ -335,7 +338,7 @@ function doProject() {
 	for ENTRY in $( \ls -1 -v "$BUILD_STAGES_PATH" ); do
 		source "$BUILD_STAGES_PATH/$ENTRY"
 	done
-	# project done
+	# project finished
 	COUNT_PRJ=$((COUNT_PRJ+1))
 	DisplayTimeProject
 	CleanupProjectVars
@@ -532,9 +535,9 @@ SELF="$0"
 while [ $# -gt 0 ]; do
 	case "$1" in
 
-	-r|--recursive) DO_RECURSIVE=$YES ;;
-	-D|--dry)       IS_DRY=$YES       ;;
-	-d|--debug|--debug-flag|--debug-flags) DEBUG_FLAGS=$YES ;;
+	-r|--recursive)                        DO_RECURSIVE=$YES ;;
+	-D|--dry|--dry-run)                    IS_DRY=$YES       ;;
+	-d|--debug|--debug-flag|--debug-flags) DEBUG_FLAGS=$YES  ;;
 
 	-n|--build-number)
 		if [[ -z $2 ]] || [[ "$2" == "-"* ]]; then
@@ -739,10 +742,14 @@ LoadConf "$WDIR/xbuild.conf"
 
 
 
+# ----------------------------------------
+# finished
+
+
+
 if [[ $QUIET -eq $NO ]]; then
 	echo -e " ${COLOR_GREEN}===============================================${COLOR_RESET}"
 fi
-XBUILD_FAILED=$NO
 # unknown filter
 FILTERED_NOT_FOUND=$NO
 for FILTER in $PROJECT_FILTERS; do
