@@ -1,13 +1,14 @@
-REPO_TYPE="rpm"
-ORG_NAME="Group Name"
-KEY_EMAIL="support@group.name"
-KEY_PASS=""
-KEY_ID=""
 
-REPO stable/noarch
-REPO stable/rhel/9/x86_64
-REPO stable/fedora/37/x86_64
+#REPO_TYPE="rpm"
+#ORG_NAME="Group Name"
+#KEY_EMAIL="support@group.name"
+#KEY_PASS=""
+#KEY_ID=""
 
-REPO testing/noarch
-REPO testing/rhel/9/x86_64
-REPO testing/fedora/37/x86_64
+#REPO stable/noarch
+#REPO stable/rhel/9/x86_64
+#REPO stable/fedora/37/x86_64
+
+#REPO testing/noarch
+#REPO testing/rhel/9/x86_64
+#REPO testing/fedora/37/x86_64
