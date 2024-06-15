@@ -106,7 +106,7 @@ fi
 %{_bindir}/genpom
 %{_bindir}/genspec
 %{_sysconfdir}/profile.d/xbuild.sh
-%{_sysconfdir}/maven-versions.conf.example
+%attr(0644,-,-) %{_sysconfdir}/maven-versions.conf.example
 %dir %{_sysconfdir}/xbuild/
 %dir %{_sysconfdir}/xbuild/stages/
 %attr(0644,-,-) %config(noreplace) %{_sysconfdir}/xbuild/gitignore
