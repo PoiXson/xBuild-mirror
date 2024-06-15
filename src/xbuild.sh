@@ -637,13 +637,11 @@ while [ $# -gt 0 ]; do
 
 	-*)
 		failure "Unknown flag: $1"
-		failure ; DisplayHelp $NO
-		exit 1
+		failure ; DisplayHelp $NO ; exit 1
 	;;
 	*)
 		failure "Unknown argument: $1"
-		failure ; DisplayHelp $NO
-		exit 1
+		failure ; DisplayHelp $NO ; exit 1
 	;;
 
 	esac
