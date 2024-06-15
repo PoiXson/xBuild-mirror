@@ -149,8 +149,8 @@ let COUNT_ACT=0
 
 function DisplayTime() {
 	[[ $QUIET -eq $YES ]] && return
-	TIME_CURRENT=$( \date "+%s%N" )
-	ELAPSED=$( echo "scale=3;($TIME_CURRENT - $TIME_LAST) / 1000 / 1000 / 1000" | bc )
+	local TIME_CURRENT=$( \date "+%s%N" )
+	local ELAPSED=$( echo "scale=3;($TIME_CURRENT - $TIME_LAST) / 1000 / 1000 / 1000" | bc )
 	[[ "$ELAPSED" == "."* ]] && \
 		ELAPSED="0$ELAPSED"
 	echo -e " ${COLOR_CYAN}$1 in $ELAPSED seconds${COLOR_RESET}"
@@ -159,8 +159,8 @@ function DisplayTime() {
 }
 function DisplayTimeProject() {
 	[[ $QUIET -eq $YES ]] && return
-	TIME_CURRENT=$( \date "+%s%N" )
-	ELAPSED=$( echo "scale=3;($TIME_CURRENT - $TIME_START_PRJ) / 1000 / 1000 / 1000" | bc )
+	local TIME_CURRENT=$( \date "+%s%N" )
+	local ELAPSED=$( echo "scale=3;($TIME_CURRENT - $TIME_START_PRJ) / 1000 / 1000 / 1000" | bc )
 	[[ "$ELAPSED" == "."* ]] && \
 		ELAPSED="0$ELAPSED"
 	echo -e " ${COLOR_CYAN}Finished project in $ELAPSED seconds: $PROJECT_NAME${COLOR_RESET}"
