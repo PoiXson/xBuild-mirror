@@ -94,7 +94,7 @@ if [[ -e "/etc/java/" ]]; then
 	fi
 	echo  "JAVA_HOME=""/usr/lib/jvm/java-latest"  \
 		> "/etc/java/maven.conf"  || exit 1
-	\chmod -c 0644/etc/java/maven.conf  || exit 1
+	\chmod -c 0644 /etc/java/maven.conf  || exit 1
 fi
 
 
