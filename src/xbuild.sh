@@ -127,7 +127,7 @@ PACKAGES_ALL=()
 XBUILD_FAILED=$NO
 
 # project vars
-PROJECT_NAME=""
+PROJECT_NAME="<NULL>"
 PROJECT_PATH=""
 PROJECT_REPO=""
 PROJECT_VERSION=""
@@ -277,7 +277,8 @@ function Project() {
 }
 
 function doProject() {
-	if [[ -z $PROJECT_NAME ]]; then
+	if [[ -z $PROJECT_NAME ]] \
+	|| [[ "$PROJECT_NAME" = "<NULL>" ]]; then
 		CleanupProjectVars
 		return
 	fi
@@ -346,7 +347,7 @@ function doProject() {
 
 function CleanupProjectVars() {
 	restoreProjectTags
-	PROJECT_NAME=""
+	PROJECT_NAME="<NULL>"
 	PROJECT_PATH=""
 	PROJECT_REPO=""
 	PROJECT_GITIGNORE=""
