@@ -32,6 +32,7 @@ source /usr/bin/pxn/scripts/common.sh  || exit 1
 echo
 
 if [[ -z $WDIR ]]; then
+	echo
 	failure "Failed to find current working directory"
 	failure ; exit 1
 fi
