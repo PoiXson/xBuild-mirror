@@ -36,6 +36,7 @@ function DisplayHelp() {
 	echo -e "${COLOR_BROWN}Options:${COLOR_RESET}"
 	echo -e "  ${COLOR_GREEN}-d, --dl, --download${COLOR_RESET}      Download Gradle"
 	echo -e "  ${COLOR_GREEN}-f, --force${COLOR_RESET}               Force downloading Gradle; replace if already existing"
+	echo -e "  ${COLOR_GREEN}-l, --list${COLOR_RESET}                List the currently installed Gradle versions"
 	echo
 	echo -e "  ${COLOR_GREEN}-V, --gradle-version=<V>${COLOR_RESET}  Gradle version to use (current, nightly, release-nightly)"
 	echo
@@ -78,6 +79,11 @@ while [ $# -gt 0 ]; do
 
 	-d|--dl|--download) DO_DOWNLOAD=$YES ;;
 	-f|--force)         DO_FORCE=$YES    ;;
+
+	-l|--list)
+		\ls -1  /var/lib/gradle/  || exit 1
+		exit 0
+	;;
 
 	-V|--gradle-version|--gradleversion)
 		if [[ -z $2 ]] || [[ "$2" == "-"* ]]; then
