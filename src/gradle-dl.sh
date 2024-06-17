@@ -29,6 +29,15 @@ source /usr/bin/pxn/scripts/gradle-common.sh  || exit 1
 
 
 
+# only as root
+if [[ $EUID -ne 0 ]]; then
+	failure "Run this script as root"
+	echo " > sudo $0 $@"
+	failure ; exit 1
+fi
+
+
+
 function DisplayHelp() {
 	echo -e "${COLOR_BROWN}Usage:${COLOR_RESET}"
 	echo    "  gradle-dl [options]"
@@ -82,6 +91,7 @@ while [ $# -gt 0 ]; do
 
 	-l|--list)
 		\ls -1  /var/lib/gradle/  || exit 1
+		echo
 		exit 0
 	;;
 
@@ -131,13 +141,6 @@ while [ $# -gt 0 ]; do
 done
 
 
-
-# only as root
-if [[ $EUID -ne 0 ]]; then
-	failure "Run this script as root"
-	echo " > sudo $0"
-	failure ; exit 1
-fi
 
 # create /var/lib/gradle
 if [[ ! -d /var/lib/gradle ]]; then
