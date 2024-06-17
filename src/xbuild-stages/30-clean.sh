@@ -42,10 +42,10 @@ if [[ " $ACTIONS " == *" clean "* ]]; then
 					fi
 				fi
 				if [[ -d "$ENTRY" ]]; then
-					echo_cmd -n "rm -rf $ENTRY"
+					echo_cmd -n "rm -Rf $ENTRY"
 					let rm_groups=$((rm_groups+1))
 					if [[ $IS_DRY -eq $NO ]]; then
-						local c=$( \rm -vrf --preserve-root "$ENTRY" | \wc -l )
+						local c=$( \rm -Rvf --preserve-root "$ENTRY" | \wc -l )
 						[[ 0 -ne $? ]] && exit 1
 						[[ $c -gt 0 ]] && count=$((count+c))
 						echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
@@ -72,9 +72,9 @@ if [[ " $ACTIONS " == *" clean "* ]]; then
 							fi
 						fi
 						if [[ -d "$ENTRY" ]]; then
-							echo_cmd -n "rm -rf $ENTRY"
+							echo_cmd -n "rm -Rf $ENTRY"
 							if [[ $IS_DRY -eq $NO ]]; then
-								local c=$( \rm -vrf --preserve-root "$ENTRY" | \wc -l )
+								local c=$( \rm -Rvf --preserve-root "$ENTRY" | \wc -l )
 								[[ 0 -ne $? ]] && exit 1
 								[[ $c -gt 0 ]] && count=$((count+c))
 								echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
@@ -90,10 +90,10 @@ if [[ " $ACTIONS " == *" clean "* ]]; then
 	# clean rpm project
 	if [[ -d "$PROJECT_PATH/rpmbuild" ]]; then
 		\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
-			echo_cmd -n "rm -rf rpmbuild"
+			echo_cmd -n "rm -Rf rpmbuild"
 			let rm_groups=$((rm_groups+1))
 			if [[ $IS_DRY -eq $NO ]]; then
-				local c=$( \rm -vrf --preserve-root rpmbuild | wc -l )
+				local c=$( \rm -Rvf --preserve-root rpmbuild | wc -l )
 				[[ 0 -ne $? ]] && exit 1
 				[[ $c -gt 0 ]] && count=$((count+c))
 				echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
@@ -106,10 +106,10 @@ if [[ " $ACTIONS " == *" clean "* ]]; then
 	if [[ "$WDIR" != "$PROJECT_PATH" ]] \
 	&& [[ -d "$PROJECT_PATH/target" ]]; then
 		\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
-			echo_cmd -n "rm -rf target"
+			echo_cmd -n "rm -Rf target"
 			let rm_groups=$((rm_groups+1))
 			if [[ $IS_DRY -eq $NO ]]; then
-				local c=$( \rm -vrf --preserve-root target | wc -l )
+				local c=$( \rm -Rvf --preserve-root target | wc -l )
 				[[ 0 -ne $? ]] && exit 1
 				[[ $c -gt 0 ]] && count=$((count+c))
 				echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
@@ -121,10 +121,10 @@ if [[ " $ACTIONS " == *" clean "* ]]; then
 	# clean gradle
 	if [[ -d "$PROJECT_PATH/gradle" ]]; then
 		\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
-			echo_cmd -n "rm -rf  gradle"
+			echo_cmd -n "rm -Rf  gradle"
 			let rm_groups=$((rm_groups+1))
 			if [[ $IS_DRY -eq $NO ]]; then
-				local c=$( \rm -vrf --preserve-root  gradle .gradle gradlew gradlew.bat  | wc -l )
+				local c=$( \rm -Rvf --preserve-root  gradle .gradle gradlew gradlew.bat  | wc -l )
 				[[ 0 -ne $? ]] && exit 1
 				[[ $c -gt 0 ]] && count=$((count+c))
 				echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
@@ -136,10 +136,10 @@ if [[ " $ACTIONS " == *" clean "* ]]; then
 	# clean build
 	if [[ -d "$PROJECT_PATH/build" ]]; then
 		\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
-			echo_cmd -n "rm -rf  build"
+			echo_cmd -n "rm -Rf  build"
 			let rm_groups=$((rm_groups+1))
 			if [[ $IS_DRY -eq $NO ]]; then
-				local c=$( \rm -vrf --preserve-root  build  | wc -l )
+				local c=$( \rm -Rvf --preserve-root  build  | wc -l )
 				[[ 0 -ne $? ]] && exit 1
 				[[ $c -gt 0 ]] && count=$((count+c))
 				echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
@@ -153,10 +153,10 @@ if [[ " $ACTIONS " == *" clean "* ]]; then
 		# clean vendor/
 		if [[ -d "$PROJECT_PATH/vendor" ]]; then
 			\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
-				echo_cmd -n "rm -rf vendor"
+				echo_cmd -n "rm -Rf vendor"
 				let rm_groups=$((rm_groups+1))
 				if [[ $IS_DRY -eq $NO ]]; then
-					local c=$( \rm -vrf --preserve-root vendor | wc -l )
+					local c=$( \rm -Rvf --preserve-root vendor | wc -l )
 					[[ 0 -ne $? ]] && exit 1
 					[[ $c -gt 0 ]] && count=$((count+c))
 					echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"

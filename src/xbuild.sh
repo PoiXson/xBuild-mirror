@@ -717,9 +717,9 @@ if [[ " $ACTIONS " == *" clean "* ]]; then
 	let count=0
 	if [[ -d "$WDIR/target" ]]; then
 		\pushd  "$WDIR/"  >/dev/null  || exit 1
-			echo_cmd -n "rm -rf target"
+			echo_cmd -n "rm -Rf target"
 			if [[ $IS_DRY -eq $NO ]]; then
-				c=$( \rm -vrf --preserve-root target | wc -l )
+				c=$( \rm -Rvf --preserve-root target | wc -l )
 				[[ 0 -ne $? ]] && exit 1
 				[[ $c -gt 0 ]] && count=$((count+c))
 				echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
@@ -731,9 +731,9 @@ if [[ " $ACTIONS " == *" clean "* ]]; then
 	fi
 	if [[ -d "$WDIR/gradle" ]]; then
 		\pushd  "$WDIR/"  >/dev/null  || exit 1
-			echo_cmd -n "rm -rf  gradle .gradle gradlew gradlew.bat"
+			echo_cmd -n "rm -Rf  gradle .gradle gradlew gradlew.bat"
 			if [[ $IS_DRY -eq $NO ]]; then
-				c=$( \rm -vrf --preserve-root  gradle .gradle gradlew gradlew.bat  | wc -l )
+				c=$( \rm -Rvf --preserve-root  gradle .gradle gradlew gradlew.bat  | wc -l )
 				[[ 0 -ne $? ]] && exit 1
 				[[ $c -gt 0 ]] && count=$((count+c))
 				echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
@@ -745,9 +745,9 @@ if [[ " $ACTIONS " == *" clean "* ]]; then
 	fi
 	if [[ -d "$WDIR/build" ]]; then
 		\pushd  "$WDIR/"  >/dev/null  || exit 1
-			echo_cmd -n "rm -rf  build"
+			echo_cmd -n "rm -Rf  build"
 			if [[ $IS_DRY -eq $NO ]]; then
-				c=$( \rm -vrf --preserve-root  build  | wc -l )
+				c=$( \rm -Rvf --preserve-root  build  | wc -l )
 				[[ 0 -ne $? ]] && exit 1
 				[[ $c -gt 0 ]] && count=$((count+c))
 				echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
