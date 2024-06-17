@@ -96,7 +96,7 @@ echo "Install.."
 if [[ -e "/etc/java/" ]]; then
 	if [[ -e "/etc/java/maven.conf" ]]; then
 		\pushd  "/etc/java/"  >/dev/null  || exit 1
-			\mv -v maven.conf maven.conf.old  || exit 1
+			\mv -v maven.conf maven.conf.old
 		\popd  >/dev/null
 	fi
 	echo  "JAVA_HOME=""/usr/lib/jvm/java-latest"  \
@@ -107,7 +107,9 @@ fi
 
 
 %postun
-\alternatives --remove-all gradle
+if [[ $1 -eq 0 ]]; then
+	\alternatives --remove-all gradle
+fi
 
 
 
