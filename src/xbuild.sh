@@ -714,8 +714,8 @@ fi
 if [[ " $ACTIONS " == *" clean "* ]]; then
 	[[ $QUIET -eq $NO ]] && \
 		title C "Clean"
+	let count=0
 	if [[ -d "$WDIR/target" ]]; then
-		let count=0
 		\pushd  "$WDIR/"  >/dev/null  || exit 1
 			echo_cmd -n "rm -rf target"
 			if [[ $IS_DRY -eq $NO ]]; then
@@ -728,12 +728,40 @@ if [[ " $ACTIONS " == *" clean "* ]]; then
 			fi
 		\popd >/dev/null
 		echo
-		if [[ $count -gt 0 ]]; then
-			if [[ $rm_groups -gt 1 ]]; then
-				echo "Removed $count files"
+	fi
+	if [[ -d "$WDIR/gradle" ]]; then
+		\pushd  "$WDIR/"  >/dev/null  || exit 1
+			echo_cmd -n "rm -rf  gradle .gradle gradlew gradlew.bat"
+			if [[ $IS_DRY -eq $NO ]]; then
+				c=$( \rm -vrf --preserve-root  gradle .gradle gradlew gradlew.bat  | wc -l )
+				[[ 0 -ne $? ]] && exit 1
+				[[ $c -gt 0 ]] && count=$((count+c))
+				echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
+			else
+				echo
 			fi
-			DisplayTime "Cleaned"
+		\popd >/dev/null
+		echo
+	fi
+	if [[ -d "$WDIR/build" ]]; then
+		\pushd  "$WDIR/"  >/dev/null  || exit 1
+			echo_cmd -n "rm -rf  build"
+			if [[ $IS_DRY -eq $NO ]]; then
+				c=$( \rm -vrf --preserve-root  build  | wc -l )
+				[[ 0 -ne $? ]] && exit 1
+				[[ $c -gt 0 ]] && count=$((count+c))
+				echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
+			else
+				echo
+			fi
+		\popd >/dev/null
+		echo
+	fi
+	if [[ $count -gt 0 ]]; then
+		if [[ $rm_groups -gt 1 ]]; then
+			echo "Removed $count files"
 		fi
+		DisplayTime "Cleaned"
 	fi
 fi
 

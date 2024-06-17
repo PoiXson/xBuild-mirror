@@ -118,6 +118,36 @@ if [[ " $ACTIONS " == *" clean "* ]]; then
 			fi
 		\popd >/dev/null
 	fi
+	# clean gradle
+	if [[ -d "$PROJECT_PATH/gradle" ]]; then
+		\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
+			echo_cmd -n "rm -rf  gradle"
+			let rm_groups=$((rm_groups+1))
+			if [[ $IS_DRY -eq $NO ]]; then
+				local c=$( \rm -vrf --preserve-root  gradle .gradle gradlew gradlew.bat  | wc -l )
+				[[ 0 -ne $? ]] && exit 1
+				[[ $c -gt 0 ]] && count=$((count+c))
+				echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
+			else
+				echo
+			fi
+		\popd >/dev/null
+	fi
+	# clean build
+	if [[ -d "$PROJECT_PATH/build" ]]; then
+		\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
+			echo_cmd -n "rm -rf  build"
+			let rm_groups=$((rm_groups+1))
+			if [[ $IS_DRY -eq $NO ]]; then
+				local c=$( \rm -vrf --preserve-root  build  | wc -l )
+				[[ 0 -ne $? ]] && exit 1
+				[[ $c -gt 0 ]] && count=$((count+c))
+				echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
+			else
+				echo
+			fi
+		\popd >/dev/null
+	fi
 	# clean php project
 	if [[ -f "$PROJECT_PATH/composer.json" ]]; then
 		# clean vendor/

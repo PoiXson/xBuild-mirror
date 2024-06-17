@@ -110,6 +110,37 @@ if [[ " $ACTIONS " == *" build "* ]]; then
 		echo
 		did_something=$YES
 	fi
+	# gradle
+	if [[ -f "$PROJECT_PATH/build.gradle" ]]; then
+		\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
+			# build
+			echo_cmd "gradle "
+			if [[ $IS_DRY -eq $NO ]]; then
+				\mvn  --no-transfer-progress  clean install  || exit 1
+			fi
+			# ide projects
+			if [[ $DO_IDE -eq $YES ]]; then
+				echo_cmd "mvn eclipse:eclipse"
+				if [[ $IS_DRY -eq $NO ]]; then
+					\mvn  --no-transfer-progress  eclipse:eclipse  || exit 1
+				fi
+			fi
+			# restore pom.xml
+			if [[ $DO_CI -eq $YES             ]] \
+			&& [[ -f "$PROJECT_PATH/pom.conf" ]]; then
+				echo_cmd "rm  pom.xml"
+				if [[ $IS_DRY -eq $NO ]]; then
+					\rm -vf --preserve-root  "$PROJECT_PATH/pom.xml"  || exit 1
+				fi
+				echo_cmd "mv  pom.xml.xbuild-save  pom.xml"
+				if [[ $IS_DRY -eq $NO ]]; then
+					\mv -v  "$PROJECT_PATH/pom.xml.xbuild-save"  "$PROJECT_PATH/pom.xml"  || exit 1
+				fi
+			fi
+		\popd >/dev/null
+		echo
+		did_something=$YES
+	fi
 	# rust/cargo
 	if [[ -f "$PROJECT_PATH/Cargo.toml" ]]; then
 		\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
