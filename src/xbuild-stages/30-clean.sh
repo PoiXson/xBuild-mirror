@@ -119,7 +119,7 @@ if [[ " $ACTIONS " == *" clean "* ]]; then
 		\popd >/dev/null
 	fi
 	# clean gradle
-	if [[ -d "$PROJECT_PATH/gradle" ]]; then
+	if [[ -d "$PROJECT_PATH/.gradle" ]]; then
 		\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
 			echo_cmd -n "rm -Rf  gradle"
 			let rm_groups=$((rm_groups+1))
@@ -165,6 +165,21 @@ if [[ " $ACTIONS " == *" clean "* ]]; then
 				fi
 			\popd >/dev/null
 		fi
+	fi
+	# clean eclipse project
+	if [[ -e "$PROJECT_PATH/.project" ]]; then
+		\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
+			echo_cmd -n "rm -Rf .project .classpath .settings"
+			let rm_groups=$((rm_groups+1))
+			if [[ $IS_DRY -eq $NO ]]; then
+				local c=$( \rm -Rvf --preserve-root .project .classpath .settings | wc -l )
+				[[ 0 -ne $? ]] && exit 1
+				[[ $c -gt 0 ]] && count=$((count+c))
+				echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
+			else
+				echo
+			fi
+		\popd >/dev/null
 	fi
 	# nothing to do
 	if [[ $count -gt 0 ]]; then

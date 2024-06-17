@@ -723,13 +723,33 @@ if [[ " $ACTIONS " == *" clean "* ]]; then
 				[[ 0 -ne $? ]] && exit 1
 				[[ $c -gt 0 ]] && count=$((count+c))
 				echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
-			else
-				echo
 			fi
 		\popd >/dev/null
 		echo
 	fi
-	if [[ -d "$WDIR/gradle" ]]; then
+	if [[ $count -gt 0 ]]; then
+		if [[ $rm_groups -gt 1 ]]; then
+			echo "Removed $count files"
+		fi
+		DisplayTime "Cleaned"
+	else
+		echo
+	fi
+fi
+
+
+
+# run everything
+LoadConf "$WDIR/xbuild.conf"
+
+
+
+# clean root gradle/
+if [[ " $ACTIONS " == *" clean "* ]]; then
+	[[ $QUIET -eq $NO ]] && \
+		title C "Clean"
+	let count=0
+	if [[ -d "$WDIR/.gradle" ]]; then
 		\pushd  "$WDIR/"  >/dev/null  || exit 1
 			echo_cmd -n "rm -Rf  gradle .gradle gradlew gradlew.bat"
 			if [[ $IS_DRY -eq $NO ]]; then
@@ -737,8 +757,6 @@ if [[ " $ACTIONS " == *" clean "* ]]; then
 				[[ 0 -ne $? ]] && exit 1
 				[[ $c -gt 0 ]] && count=$((count+c))
 				echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
-			else
-				echo
 			fi
 		\popd >/dev/null
 		echo
@@ -751,8 +769,30 @@ if [[ " $ACTIONS " == *" clean "* ]]; then
 				[[ 0 -ne $? ]] && exit 1
 				[[ $c -gt 0 ]] && count=$((count+c))
 				echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
-			else
-				echo
+			fi
+		\popd >/dev/null
+		echo
+	fi
+	if [[ -d "$WDIR/run" ]]; then
+		\pushd  "$WDIR/"  >/dev/null  || exit 1
+			echo_cmd -n "rm -Rf  run"
+			if [[ $IS_DRY -eq $NO ]]; then
+				c=$( \rm -Rvf --preserve-root  run  | wc -l )
+				[[ 0 -ne $? ]] && exit 1
+				[[ $c -gt 0 ]] && count=$((count+c))
+				echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
+			fi
+		\popd >/dev/null
+		echo
+	fi
+	if [[ -e "$WDIR/.project" ]]; then
+		\pushd  "$WDIR/"  >/dev/null  || exit 1
+			echo_cmd -n "rm -Rf  .project .classpath .settings"
+			if [[ $IS_DRY -eq $NO ]]; then
+				c=$( \rm -Rvf --preserve-root  .project .classpath .settings  | wc -l )
+				[[ 0 -ne $? ]] && exit 1
+				[[ $c -gt 0 ]] && count=$((count+c))
+				echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
 			fi
 		\popd >/dev/null
 		echo
@@ -762,13 +802,10 @@ if [[ " $ACTIONS " == *" clean "* ]]; then
 			echo "Removed $count files"
 		fi
 		DisplayTime "Cleaned"
+	else
+		echo
 	fi
 fi
-
-
-
-# run everything
-LoadConf "$WDIR/xbuild.conf"
 
 
 
