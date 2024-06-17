@@ -54,13 +54,20 @@ echo "Install.."
 
 # /usr/bin/
 \pushd  "%{_topdir}/../src/"  >/dev/null  || exit 1
+	# tools
 	%{__install} -m 0644  "xbuild.sh"        "%{buildroot}%{_bindir}/xbuild"        || exit 1
 	%{__install} -m 0644  "xdeploy.sh"       "%{buildroot}%{_bindir}/xdeploy"       || exit 1
 	%{__install} -m 0644  "genautotools.sh"  "%{buildroot}%{_bindir}/genautotools"  || exit 1
 	%{__install} -m 0644  "genpom.sh"        "%{buildroot}%{_bindir}/genpom"        || exit 1
 	%{__install} -m 0644  "genspec.sh"       "%{buildroot}%{_bindir}/genspec"       || exit 1
 	%{__install} -m 0644  "xbuild-repos.sh"  "%{buildroot}%{_bindir}/xbuild-repos"  || exit 1
+	%{__install} -m 0644  "gradle-dl.sh"     "%{buildroot}%{_bindir}/gradle-dl"     || exit 1
+	# /usr/bin/pxn/scripts/
+	%{__install} -m 0644  \
+		"gradle-common.sh"  \
+			"%{buildroot}%{prefix}/"  || exit 1
 \popd  >/dev/null
+
 # /etc/profile.d/
 \pushd  "%{_topdir}/../src/profile.d/"  >/dev/null  || exit 1
 	%{__install} -m 0644  "xbuild.sh"        "%{buildroot}%{_sysconfdir}/profile.d/xbuild.sh"        || exit 1
@@ -99,6 +106,11 @@ fi
 
 
 
+%postun
+\alternatives --remove-all gradle
+
+
+
 ### Files ###
 %files
 %defattr(0555, root, root, 0755)
@@ -106,6 +118,8 @@ fi
 %{_bindir}/genautotools
 %{_bindir}/genpom
 %{_bindir}/genspec
+%{prefix}/gradle-common.sh
+%{_bindir}/gradle-dl
 %{_sysconfdir}/profile.d/xbuild.sh
 %attr(0644,-,-) %{_sysconfdir}/java/maven-versions.conf.example
 %dir %{_sysconfdir}/xbuild/
