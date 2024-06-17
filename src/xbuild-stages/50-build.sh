@@ -114,31 +114,26 @@ if [[ " $ACTIONS " == *" build "* ]]; then
 	if [[ -f "$PROJECT_PATH/build.gradle" ]]; then
 		\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
 			# build
-			echo_cmd "gradle "
+			echo_cmd "gradle build"
 			if [[ $IS_DRY -eq $NO ]]; then
-				\mvn  --no-transfer-progress  clean install  || exit 1
+				\gradle  build  || exit 1
+				echo
 			fi
 			# ide projects
 			if [[ $DO_IDE -eq $YES ]]; then
-				echo_cmd "mvn eclipse:eclipse"
+				echo_cmd "gradle cleanEclipse"
 				if [[ $IS_DRY -eq $NO ]]; then
-					\mvn  --no-transfer-progress  eclipse:eclipse  || exit 1
+					\gradle  cleanEclipse  || exit 1
+					echo
 				fi
-			fi
-			# restore pom.xml
-			if [[ $DO_CI -eq $YES             ]] \
-			&& [[ -f "$PROJECT_PATH/pom.conf" ]]; then
-				echo_cmd "rm  pom.xml"
+				echo_cmd "gradle eclipse"
 				if [[ $IS_DRY -eq $NO ]]; then
-					\rm -vf --preserve-root  "$PROJECT_PATH/pom.xml"  || exit 1
-				fi
-				echo_cmd "mv  pom.xml.xbuild-save  pom.xml"
-				if [[ $IS_DRY -eq $NO ]]; then
-					\mv -v  "$PROJECT_PATH/pom.xml.xbuild-save"  "$PROJECT_PATH/pom.xml"  || exit 1
+					\gradle  eclipse  || exit 1
+					echo
 				fi
 			fi
 		\popd >/dev/null
-		echo
+		[[ $IS_DRY -eq $YES ]] && echo
 		did_something=$YES
 	fi
 	# rust/cargo
