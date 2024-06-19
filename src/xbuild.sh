@@ -790,8 +790,8 @@ if [[ " $ACTIONS " == *" clean "* ]]; then
 		\popd >/dev/null
 		echo
 	fi
-	if [[ $DO_SUPER_CLEAN -eq $$YES ]] \
-	&& [[ -e "$WDIR/.project"       ]]; then
+	if [[ $DO_SUPER_CLEAN -eq $YES ]] \
+	&& [[ -e "$WDIR/.project"      ]]; then
 		\pushd  "$WDIR/"  >/dev/null  || exit 1
 			echo_cmd -n "rm -Rf  .project .classpath .settings"
 			if [[ $IS_DRY -eq $NO ]]; then
