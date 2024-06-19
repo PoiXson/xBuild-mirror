@@ -70,6 +70,8 @@ function DisplayHelp() {
 	echo -e "  ${COLOR_GREEN}-i, --ide${COLOR_RESET}                 Create IDE project imports (while building)"
 	echo
 	if [[ $FULL -eq $YES ]]; then
+	echo -e "  ${COLOR_GREEN}-u, --super-clean${COLOR_RESET}         Remove more files than a simple clean"
+	echo
 	echo -e "  ${COLOR_GREEN}--cb${COLOR_RESET}                      Config, build"
 	echo -e "  ${COLOR_GREEN}--cbp${COLOR_RESET}                     Config, build, pack"
 	echo -e "  ${COLOR_GREEN}--ccb${COLOR_RESET}                     Clean, config, build"
@@ -117,6 +119,7 @@ DO_RECURSIVE=$NO
 DO_ALIEN=$NO
 DO_CI=$NO
 DO_IDE=$NO
+DO_SUPER_CLEAN=$NO
 IS_DRY=$NO
 DEBUG_FLAGS=$NO
 
@@ -604,6 +607,8 @@ while [ $# -gt 0 ]; do
 	-p|--pack|--package|pack|package)            ACTIONS="$ACTIONS pack"   ;;
 	-i|--ide|ide)                                DO_IDE=$YES               ;;
 
+	-u|--superclean|--super-clean) DO_SUPER_CLEAN=$YES ;;
+
 	--cb)    ACTIONS="$ACTIONS config build"                 ;;
 	--cbp)   ACTIONS="$ACTIONS config build pack"            ;;
 	--ccb)   ACTIONS="$ACTIONS clean config build"           ;;
@@ -785,7 +790,8 @@ if [[ " $ACTIONS " == *" clean "* ]]; then
 		\popd >/dev/null
 		echo
 	fi
-	if [[ -e "$WDIR/.project" ]]; then
+	if [[ $DO_SUPER_CLEAN -eq $$YES ]] \
+	&& [[ -e "$WDIR/.project"       ]]; then
 		\pushd  "$WDIR/"  >/dev/null  || exit 1
 			echo_cmd -n "rm -Rf  .project .classpath .settings"
 			if [[ $IS_DRY -eq $NO ]]; then

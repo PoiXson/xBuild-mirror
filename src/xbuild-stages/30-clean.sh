@@ -167,7 +167,8 @@ if [[ " $ACTIONS " == *" clean "* ]]; then
 		fi
 	fi
 	# clean eclipse project
-	if [[ -e "$PROJECT_PATH/.project" ]]; then
+	if [[ $DO_SUPER_CLEAN -eq $$YES   ]] \
+	&& [[ -e "$PROJECT_PATH/.project" ]]; then
 		\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
 			echo_cmd -n "rm -Rf .project .classpath .settings"
 			let rm_groups=$((rm_groups+1))
