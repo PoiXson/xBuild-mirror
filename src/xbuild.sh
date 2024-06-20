@@ -46,6 +46,9 @@ function DisplayHelp() {
 	echo
 	echo -e "${COLOR_BROWN}Options:${COLOR_RESET}"
 	echo -e "  ${COLOR_GREEN}-r, --recursive${COLOR_RESET}           Recursively load xbuild.conf files"
+	if [[ $FULL -eq $YES ]]; then
+	echo -e "  ${COLOR_GREEN}-R, --not-recursive${COLOR_RESET}       Don't recursively load xbuild.conf files"
+	fi
 	echo -e "  ${COLOR_GREEN}-n, --build-number <n>${COLOR_RESET}    Build number to use for builds and packages"
 	if [[ $FULL -eq $YES ]]; then
 	echo -e "  ${COLOR_GREEN}-d, --debug-flags${COLOR_RESET}         Build with debug flags"
@@ -541,6 +544,7 @@ while [ $# -gt 0 ]; do
 	case "$1" in
 
 	-r|--recursive)                        DO_RECURSIVE=$YES ;;
+	-R|--not-recursive)                    DO_RECURSIVE=$NO  ;;
 	-D|--dry|--dry-run)                    IS_DRY=$YES       ;;
 	-d|--debug|--debug-flag|--debug-flags) DEBUG_FLAGS=$YES  ;;
 

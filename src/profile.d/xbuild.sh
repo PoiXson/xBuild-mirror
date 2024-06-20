@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 
-alias xbuild='clear;xbuild -v'
+alias xbuild='clear;xbuild -v -r'
 
 # https://github.com/marco-c/rust-code-coverage-sample
 alias cargocov='grcov . --binary-path ./target/debug/ -s . -t html --branch --ignore-not-existing -o ./coverage/'
