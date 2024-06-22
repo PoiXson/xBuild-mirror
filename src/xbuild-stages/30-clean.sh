@@ -6,192 +6,53 @@ if [[ " $ACTIONS " == *" clean "* ]]; then
 	ACTIONS_FOUND="$ACTIONS_FOUND clean"
 	[[ $QUIET -eq $NO ]] && \
 		title C "Clean"
-	let count=0
-	let rm_groups=0
+	LAST_RM_TOTAL=$RM_TOTAL
 	restoreProjectTags
 	# make clean
 	if [[ -f "$PROJECT_PATH/Makefile.am" ]]; then
 		if [[ -f "$PROJECT_PATH/Makefile" ]]; then
 			\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
 				echo_cmd -n "make distclean"
-				let rm_groups=$((rm_groups+1))
 				if [[ $IS_DRY -eq $NO ]]; then
-					local c=$( \make distclean | \wc -l )
+					c=$( \make distclean | \wc -l )
 					[[ 0 -ne $? ]] && exit 1
-					[[ $c -gt 0 ]] && count=$((count+c))
 					echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
-				else
-					echo
-				fi
-			\popd >/dev/null
-		fi
-		\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
-			# remove .deps/ dirs
-			RESULT=$( \find "$PROJECT_PATH" -type d -name .deps )
-			for ENTRY in $RESULT; do
-				if [[ -f "$ENTRY" ]]; then
-					echo_cmd -n "rm ${ENTRY}.."
-					let rm_groups=$((rm_groups+1))
-					if [[ $IS_DRY -eq $NO ]]; then
-						local c=$( \rm -v "$ENTRY" | \wc -l )
-						[[ 0 -ne $? ]] && exit 1
-						[[ $c -gt 0 ]] && count=$((count+c))
-						echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
-					else
-						echo
+					if [[ $c -gt 0 ]]; then
+						let RM_GROUPS=$((RM_GROUPS+1))
+						let RM_TOTAL=$((RM_TOTAL+c))
 					fi
-				fi
-				if [[ -d "$ENTRY" ]]; then
-					echo_cmd -n "rm -Rf $ENTRY"
-					let rm_groups=$((rm_groups+1))
-					if [[ $IS_DRY -eq $NO ]]; then
-						local c=$( \rm -Rvf --preserve-root "$ENTRY" | \wc -l )
-						[[ 0 -ne $? ]] && exit 1
-						[[ $c -gt 0 ]] && count=$((count+c))
-						echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
-					else
-						echo
-					fi
-				fi
-			done
-			# remove more files
-			CLEAN_PATHS=". src"
-			CLEAN_FILES="autom4te.cache aclocal.m4 compile configure config.log config.guess config.status config.sub depcomp install-sh ltmain.sh Makefile Makefile.in missing"
-			for DIR in $CLEAN_PATHS; do
-				\pushd  "$DIR/"  >/dev/null || continue
-					for ENTRY in $CLEAN_FILES; do
-						if [[ -f "$ENTRY" ]]; then
-							echo_cmd -n "rm $ENTRY"
-							if [[ $IS_DRY -eq $NO ]]; then
-								local c=$( \rm -v "$ENTRY" | \wc -l )
-								[[ 0 -ne $? ]] && exit 1
-								[[ $c -gt 0 ]] && count=$((count+c))
-								echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
-							else
-								echo
-							fi
-						fi
-						if [[ -d "$ENTRY" ]]; then
-							echo_cmd -n "rm -Rf $ENTRY"
-							if [[ $IS_DRY -eq $NO ]]; then
-								local c=$( \rm -Rvf --preserve-root "$ENTRY" | \wc -l )
-								[[ 0 -ne $? ]] && exit 1
-								[[ $c -gt 0 ]] && count=$((count+c))
-								echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
-							else
-								echo
-							fi
-						fi
-					done
-				\popd >/dev/null
-			done
-		\popd >/dev/null
-	fi
-	# clean rpm project
-	if [[ -d "$PROJECT_PATH/rpmbuild" ]]; then
-		\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
-			echo_cmd -n "rm -Rf rpmbuild"
-			let rm_groups=$((rm_groups+1))
-			if [[ $IS_DRY -eq $NO ]]; then
-				local c=$( \rm -Rvf --preserve-root rpmbuild | wc -l )
-				[[ 0 -ne $? ]] && exit 1
-				[[ $c -gt 0 ]] && count=$((count+c))
-				echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
-			else
-				echo
-			fi
-		\popd >/dev/null
-	fi
-	# clean target/
-	if [[ "$WDIR" != "$PROJECT_PATH" ]] \
-	&& [[ -d "$PROJECT_PATH/target" ]]; then
-		\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
-			echo_cmd -n "rm -Rf target"
-			let rm_groups=$((rm_groups+1))
-			if [[ $IS_DRY -eq $NO ]]; then
-				local c=$( \rm -Rvf --preserve-root target | wc -l )
-				[[ 0 -ne $? ]] && exit 1
-				[[ $c -gt 0 ]] && count=$((count+c))
-				echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
-			else
-				echo
-			fi
-		\popd >/dev/null
-	fi
-	# clean gradle
-	if [[ -d "$PROJECT_PATH/.gradle" ]]; then
-		\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
-			echo_cmd -n "rm -Rf  gradle"
-			let rm_groups=$((rm_groups+1))
-			if [[ $IS_DRY -eq $NO ]]; then
-				local c=$( \rm -Rvf --preserve-root  gradle .gradle gradlew gradlew.bat  | wc -l )
-				[[ 0 -ne $? ]] && exit 1
-				[[ $c -gt 0 ]] && count=$((count+c))
-				echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
-			else
-				echo
-			fi
-		\popd >/dev/null
-	fi
-	# clean build
-	if [[ -d "$PROJECT_PATH/build" ]]; then
-		\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
-			echo_cmd -n "rm -Rf  build"
-			let rm_groups=$((rm_groups+1))
-			if [[ $IS_DRY -eq $NO ]]; then
-				local c=$( \rm -Rvf --preserve-root  build  | wc -l )
-				[[ 0 -ne $? ]] && exit 1
-				[[ $c -gt 0 ]] && count=$((count+c))
-				echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
-			else
-				echo
-			fi
-		\popd >/dev/null
-	fi
-	# clean php project
-	if [[ -f "$PROJECT_PATH/composer.json" ]]; then
-		# clean vendor/
-		if [[ -d "$PROJECT_PATH/vendor" ]]; then
-			\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
-				echo_cmd -n "rm -Rf vendor"
-				let rm_groups=$((rm_groups+1))
-				if [[ $IS_DRY -eq $NO ]]; then
-					local c=$( \rm -Rvf --preserve-root vendor | wc -l )
-					[[ 0 -ne $? ]] && exit 1
-					[[ $c -gt 0 ]] && count=$((count+c))
-					echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
 				else
 					echo
 				fi
 			\popd >/dev/null
 		fi
 	fi
-	# clean eclipse project
-	if [[ $DO_SUPER_CLEAN -eq $YES    ]] \
-	&& [[ -e "$PROJECT_PATH/.project" ]]; then
-		\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
-			echo_cmd -n "rm -Rf .project .classpath .settings"
-			let rm_groups=$((rm_groups+1))
-			if [[ $IS_DRY -eq $NO ]]; then
-				local c=$( \rm -Rvf --preserve-root .project .classpath .settings | wc -l )
-				[[ 0 -ne $? ]] && exit 1
-				[[ $c -gt 0 ]] && count=$((count+c))
-				echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
-			else
-				echo
-			fi
-		\popd >/dev/null
-	fi
-	# nothing to do
-	if [[ $count -gt 0 ]]; then
-		echo
-		if [[ $rm_groups -gt 1 ]]; then
-			echo "Removed $count files"
+	\pushd  "$PROJECT_PATH/"  >/dev/null || return
+		# remove .deps/ dirs
+		RESULT=$( \find "$PROJECT_PATH" -type d -name ".deps" )
+		if [[ ! -z $RESULT ]]; then
+			doClean "$RESULT"
 		fi
+		# remove more files
+		local CLEAN_FILES="autom4te.cache aclocal.m4 compile configure config.log config.guess config.status config.sub depcomp install-sh ltmain.sh Makefile Makefile.in missing"
+		doClean "$CLEAN_FILES"
+		\pushd  "$PROJECT_PATH/src/"  >/dev/null || return
+			doClean "$CLEAN_FILES"
+		\popd >/dev/null
+		doClean "target build bin run rpmbuild"
+		# super clean
+		if [[ $DO_SUPER_CLEAN -eq $YES ]]; then
+			doClean ".project .classpath .settings gradle .gradle gradlew gradlew.bat vendor"
+		fi
+	\popd >/dev/null
+	echo
+	let COUNT=$((RM_TOTAL-LAST_RM_TOTAL))
+	if [[ $COUNT -gt 1 ]]; then
+		echo -e " ${COLOR_CYAN}Removed ${COLOR_BLUE}${COUNT}${COLOR_CYAN} files/dirs"
 		DisplayTime "Cleaned"
-	elif [[ $rm_groups -le 0 ]]; then
+	# nothing to do
+	elif [[ $RM_GROUPS -le 0 ]]; then
 		notice "Nothing to clean.."
-		echo
 	fi
 	COUNT_ACT=$((COUNT_ACT+1))
 fi

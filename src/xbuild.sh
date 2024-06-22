@@ -152,6 +152,8 @@ let TIME_START_PRJ=0
 let TIME_LAST=0
 let COUNT_PRJ=0
 let COUNT_ACT=0
+let RM_GROUPS=0
+let RM_TOTAL=0
 
 
 
@@ -267,6 +269,60 @@ function MakeSymlink() {
 	fi
 	echo -ne "$COLOR_RESET"
 	[[ $RESULT -eq 0 ]] || exit 1
+}
+
+
+
+function doClean() {
+	local RM_FILES=$YES
+	local RM_DIRS=$YES
+	let COUNT=0
+	while [ $# -gt 0 ]; do
+		case "$1" in
+		-f) RM_FILES=$NO  ;;
+		-F) RM_FILES=$YES ;;
+		-d) RM_DIRS=$NO   ;;
+		-D) RM_DIRS=$YES  ;;
+		*)
+			for ENTRY in $1; do
+				# file
+				if [[ $RM_FILES -eq $YES ]]  \
+				&& [[ -f "$ENTRY"        ]]; then
+					echo_cmd -n "rm $ENTRY"
+					if [[ $IS_DRY -eq $NO ]]; then
+						local c=$( \rm -fv "$ENTRY" | \wc -l )
+						[[ 0 -ne $? ]] && exit 1
+						[[ $c -gt 0 ]] && COUNT=$((COUNT+c))
+						echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
+					else
+						local c=$( \ls -1 "$ENTRY" | \wc -l )
+						[[ $c -gt 0 ]] && COUNT=$((COUNT+c))
+						echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
+					fi
+				# dir
+				elif [[ $RM_FILES -eq $YES ]]  \
+				&&   [[ -d "$ENTRY"        ]]; then
+					echo_cmd -n "rm -R $ENTRY"
+					if [[ $IS_DRY -eq $NO ]]; then
+						local c=$( \rm -Rfv "$ENTRY" | \wc -l )
+						[[ 0 -ne $? ]] && exit 1
+						[[ $c -gt 0 ]] && COUNT=$((COUNT+c))
+						echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
+					else
+						local c=$( \tree "$ENTRY" | \wc -l )
+						[[ $c -gt 0 ]] && COUNT=$((COUNT+c))
+						echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
+					fi
+				fi
+			done
+		;;
+		esac
+		\shift
+	done
+	if [[ $COUNT -gt 0 ]]; then
+		let RM_GROUPS=$((RM_GROUPS+1))
+		let RM_TOTAL=$((RM_TOTAL+COUNT))
+	fi
 }
 
 
@@ -719,30 +775,25 @@ fi
 
 
 
-# clean root target/
+CleanupProjectVars
+
+
+
 if [[ " $ACTIONS " == *" clean "* ]]; then
 	[[ $QUIET -eq $NO ]] && \
 		title C "Clean"
-	let count=0
-	if [[ -d "$WDIR/target" ]]; then
-		\pushd  "$WDIR/"  >/dev/null  || exit 1
-			echo_cmd -n "rm -Rf target"
-			if [[ $IS_DRY -eq $NO ]]; then
-				c=$( \rm -Rvf --preserve-root target | wc -l )
-				[[ 0 -ne $? ]] && exit 1
-				[[ $c -gt 0 ]] && count=$((count+c))
-				echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
-			fi
-		\popd >/dev/null
-		echo
-	fi
-	if [[ $count -gt 0 ]]; then
-		if [[ $rm_groups -gt 1 ]]; then
-			echo "Removed $count files"
+	LAST_RM_TOTAL=$RM_TOTAL
+	\pushd  "$WDIR/"  >/dev/null || return
+		doClean  "target build bin run rpmbuild"
+		if [[ $DO_SUPER_CLEAN -eq $YES ]]; then
+			doClean  ".project .classpath .settings gradle .gradle gradlew gradlew.bat vendor"
 		fi
+	\popd >/dev/null
+	echo
+	let COUNT=$((RM_TOTAL-LAST_RM_TOTAL))
+	if [[ $COUNT -gt 1 ]]; then
+		echo -e " ${COLOR_CYAN}Removed ${COLOR_BLUE}${COUNT}${COLOR_CYAN} files/dirs${COLOR_RESET}"
 		DisplayTime "Cleaned"
-	else
-		echo
 	fi
 fi
 
@@ -750,72 +801,6 @@ fi
 
 # run everything
 LoadConf "$WDIR/xbuild.conf"
-
-
-
-# clean root gradle/
-if [[ " $ACTIONS " == *" clean "* ]]; then
-	[[ $QUIET -eq $NO ]] && \
-		title C "Clean"
-	let count=0
-	if [[ -d "$WDIR/.gradle" ]]; then
-		\pushd  "$WDIR/"  >/dev/null  || exit 1
-			echo_cmd -n "rm -Rf  gradle .gradle gradlew gradlew.bat"
-			if [[ $IS_DRY -eq $NO ]]; then
-				c=$( \rm -Rvf --preserve-root  gradle .gradle gradlew gradlew.bat  | wc -l )
-				[[ 0 -ne $? ]] && exit 1
-				[[ $c -gt 0 ]] && count=$((count+c))
-				echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
-			fi
-		\popd >/dev/null
-		echo
-	fi
-	if [[ -d "$WDIR/build" ]]; then
-		\pushd  "$WDIR/"  >/dev/null  || exit 1
-			echo_cmd -n "rm -Rf  build"
-			if [[ $IS_DRY -eq $NO ]]; then
-				c=$( \rm -Rvf --preserve-root  build  | wc -l )
-				[[ 0 -ne $? ]] && exit 1
-				[[ $c -gt 0 ]] && count=$((count+c))
-				echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
-			fi
-		\popd >/dev/null
-		echo
-	fi
-	if [[ -d "$WDIR/run" ]]; then
-		\pushd  "$WDIR/"  >/dev/null  || exit 1
-			echo_cmd -n "rm -Rf  run"
-			if [[ $IS_DRY -eq $NO ]]; then
-				c=$( \rm -Rvf --preserve-root  run  | wc -l )
-				[[ 0 -ne $? ]] && exit 1
-				[[ $c -gt 0 ]] && count=$((count+c))
-				echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
-			fi
-		\popd >/dev/null
-		echo
-	fi
-	if [[ $DO_SUPER_CLEAN -eq $YES ]] \
-	&& [[ -e "$WDIR/.project"      ]]; then
-		\pushd  "$WDIR/"  >/dev/null  || exit 1
-			echo_cmd -n "rm -Rf  .project .classpath .settings"
-			if [[ $IS_DRY -eq $NO ]]; then
-				c=$( \rm -Rvf --preserve-root  .project .classpath .settings  | wc -l )
-				[[ 0 -ne $? ]] && exit 1
-				[[ $c -gt 0 ]] && count=$((count+c))
-				echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
-			fi
-		\popd >/dev/null
-		echo
-	fi
-	if [[ $count -gt 0 ]]; then
-		if [[ $rm_groups -gt 1 ]]; then
-			echo "Removed $count files"
-		fi
-		DisplayTime "Cleaned"
-	else
-		echo
-	fi
-fi
 
 
 
@@ -862,6 +847,11 @@ echo -ne " ${COLOR_GREEN}Performed $COUNT_ACT operation"
 [[ $COUNT_ACT -gt 1 ]] && echo -n "s"
 [[ $COUNT_PRJ -gt 1 ]] && echo -ne " on $COUNT_PRJ projects"
 echo -e "${COLOR_RESET}"
+
+if [[ $RM_GROUPS -gt 0 ]] \
+|| [[ $RM_TOTAL  -gt 0 ]]; then
+	echo -e " ${COLOR_GREEN}Removed ${COLOR_BLUE}${RM_TOTAL}${COLOR_GREEN} files/dirs in ${COLOR_BLUE}${RM_GROUPS}${COLOR_GREEN} groups"
+fi
 
 TIME_END=$(date +%s%N)
 ELAPSED=$( echo "scale=3;($TIME_END - $TIME_START) / 1000 / 1000 / 1000" | \bc )
