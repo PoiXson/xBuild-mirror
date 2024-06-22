@@ -163,7 +163,7 @@ function DisplayTime() {
 	local ELAPSED=$( echo "scale=3;($TIME_CURRENT - $TIME_LAST) / 1000 / 1000 / 1000" | bc )
 	[[ "$ELAPSED" == "."* ]] && \
 		ELAPSED="0$ELAPSED"
-	echo -e " ${COLOR_CYAN}$1 in $ELAPSED seconds${COLOR_RESET}"
+	echo -e " ${COLOR_CYAN}$1 in ${COLOR_GREEN}${ELAPSED}${COLOR_CYAN} seconds${COLOR_RESET}"
 	echo
 	TIME_LAST=$TIME_CURRENT
 }
@@ -173,7 +173,7 @@ function DisplayTimeProject() {
 	local ELAPSED=$( echo "scale=3;($TIME_CURRENT - $TIME_START_PRJ) / 1000 / 1000 / 1000" | bc )
 	[[ "$ELAPSED" == "."* ]] && \
 		ELAPSED="0$ELAPSED"
-	echo -e " ${COLOR_CYAN}Finished project in $ELAPSED seconds: $PROJECT_NAME${COLOR_RESET}"
+	echo -e " ${COLOR_CYAN}Finished project in ${COLOR_GREEN}${ELAPSED}${COLOR_CYAN} seconds: ${PROJECT_NAME}${COLOR_RESET}"
 	echo -e " ${COLOR_CYAN}--------------------------------------------------${COLOR_RESET}"
 	echo
 }
@@ -843,9 +843,9 @@ fi
 
 
 
-echo -ne " ${COLOR_GREEN}Performed $COUNT_ACT operation"
+echo -ne " ${COLOR_GREEN}Performed ${COLOR_BLUE}${COUNT_ACT}${COLOR_GREEN} operation"
 [[ $COUNT_ACT -gt 1 ]] && echo -n "s"
-[[ $COUNT_PRJ -gt 1 ]] && echo -ne " on $COUNT_PRJ projects"
+[[ $COUNT_PRJ -gt 1 ]] && echo -ne " on ${COLOR_BLUE}${COUNT_PRJ}${COLOR_GREEN} projects"
 echo -e "${COLOR_RESET}"
 
 if [[ $RM_GROUPS -gt 0 ]] \
@@ -857,6 +857,14 @@ TIME_END=$(date +%s%N)
 ELAPSED=$( echo "scale=3;($TIME_END - $TIME_START) / 1000 / 1000 / 1000" | \bc )
 [[ "$ELAPSED" == "."* ]] && ELAPSED="0$ELAPSED"
 echo -e " ${COLOR_GREEN}Finished in $ELAPSED seconds${COLOR_RESET}"
+if [[ $IS_DRY -eq $YES ]]; then
+	echo
+	notice "Dry-run"
+fi
+if [[ " $ACTIONS " == *" pack "* ]]; then
+	did_notice=$YES
+	notice "Deploy to: $TARGET_PATH"
+fi
 echo
 
 if [[ ! -z $PACKAGES_ALL ]]; then
