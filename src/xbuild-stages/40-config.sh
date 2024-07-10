@@ -49,6 +49,33 @@ if [[ " $ACTIONS " == *" config "* ]]; then
 			fi
 			\rm -f "$OUT_FILE"
 		fi
+		# .gitattributes
+		if [[ -f "$PROJECT_PATH/.gitattributes" ]]; then
+			local OUT_FILE=$( mktemp )
+			local RESULT=$?
+			if [[ $RESULT -ne 0 ]] || [[ -z $OUT_FILE ]]; then
+				failure "Failed to create a temp file for .gitattributes"
+				failure ; exit $RESULT
+			fi
+			if [[ ! -z $PROJECT_GITIGNORE ]]; then
+				for ENTRY in $PROJECT_GITIGNORE; do
+					echo "$ENTRY" >>"$OUT_FILE"
+				done
+				echo >>"$OUT_FILE"
+			fi
+			\cat /etc/xbuild/gitattributes >>"$OUT_FILE" || exit 1
+			local HASH_A=$( \cat "$OUT_FILE"                    | \md5sum )
+			local HASH_B=$( \cat "$PROJECT_PATH/.gitattributes" | \md5sum )
+			if [[ "$HASH_A" != "$HASH_B" ]]; then
+				title C "Updating .gitattributes.."
+				echo_cmd "cat $OUT_FILE > $PROJECT_PATH/.gitattributes"
+				if [[ $IS_DRY -eq $NO ]]; then
+					\cat  "$OUT_FILE"  >"$PROJECT_PATH/.gitattributes"  || exit 1
+				fi
+				did_something=$YES
+			fi
+			\rm -f "$OUT_FILE"
+		fi
 		# automake
 		if [[ $DO_CI -eq $NO ]]; then
 			# generate automake files

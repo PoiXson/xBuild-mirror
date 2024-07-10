@@ -140,6 +140,7 @@ PROJECT_REPO=""
 PROJECT_VERSION=""
 PROJECT_RELEASE=$NO
 PROJECT_GITIGNORE=""
+PROJECT_GITATTRIB=""
 PROJECT_TAG_FILES=""
 PROJECT_TAGS_DONE=$NO
 CURRENT_PATH="$WDIR"
@@ -207,6 +208,13 @@ function AddIgnore() {
 		failure ; exit 1
 	fi
 	PROJECT_GITIGNORE="$PROJECT_GITIGNORE $1"
+}
+function AddGitAttrib() {
+	if [[ -z $1 ]]; then
+		failure "AddGitAttrib value is missing for project: $PROJECT_NAME"
+		failure ; exit 1
+	fi
+	PROJECT_GITATTRIB="$PROJECT_GITATTRIB $1"
 }
 
 
@@ -414,6 +422,7 @@ function CleanupProjectVars() {
 	PROJECT_PATH=""
 	PROJECT_REPO=""
 	PROJECT_GITIGNORE=""
+	PROJECT_GITATTRIB=""
 	PROJECT_TAG_FILES=""
 	PROJECT_TAGS_DONE=$NO
 	PROJECT_RELEASE=$NO
