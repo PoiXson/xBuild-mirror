@@ -50,3 +50,4 @@ settings.gradle text
 *.map binary
 *.woff binary
 *.woff2 binary
+*.ttf binary
