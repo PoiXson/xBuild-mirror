@@ -57,8 +57,8 @@ if [[ " $ACTIONS " == *" config "* ]]; then
 				failure "Failed to create a temp file for .gitattributes"
 				failure ; exit $RESULT
 			fi
-			if [[ ! -z $PROJECT_GITIGNORE ]]; then
-				for ENTRY in $PROJECT_GITIGNORE; do
+			if [[ ! -z $PROJECT_GITATTRIB ]]; then
+				for ENTRY in $PROJECT_GITATTRIB; do
 					echo "$ENTRY" >>"$OUT_FILE"
 				done
 				echo >>"$OUT_FILE"
