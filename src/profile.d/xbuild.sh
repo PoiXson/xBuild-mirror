@@ -9,4 +9,4 @@ alias genautotools='clear;genautotools'
 alias genpom='clear;genpom'
 alias genspec='clear;genspec'
 
-alias phpunit='vendor/bin/phpunit -v --coverage-html coverage/html'
+alias phpunit='vendor/bin/phpunit --coverage-html coverage/html'
