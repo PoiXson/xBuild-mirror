@@ -90,8 +90,8 @@ if [[ " $ACTIONS " == *" config "* ]]; then
 				done
 				echo >>"$OUT_FILE"
 			fi
-			\cat /etc/xbuild/phpunit.xml >>"$OUT_FILE" || exit 1
-			local HASH_A=$( \cat "$OUT_FILE"                    | \md5sum )
+			\cat /etc/xbuild/phpunit_xml >>"$OUT_FILE" || exit 1
+			local HASH_A=$( \cat "$OUT_FILE"                 | \md5sum )
 			local HASH_B=$( \cat "$PROJECT_PATH/phpunit.xml" | \md5sum )
 			if [[ "$HASH_A" != "$HASH_B" ]]; then
 				title C "Updating phpunit.xml.."

@@ -89,7 +89,7 @@ echo "Install.."
 	%{__install} -m 0644  "maven-versions.conf.example"  "%{buildroot}%{_sysconfdir}/java/"    || exit 1
 	%{__install} -m 0644  ".gitignore"      "%{buildroot}%{_sysconfdir}/xbuild/gitignore"      || exit 1
 	%{__install} -m 0644  ".gitattributes"  "%{buildroot}%{_sysconfdir}/xbuild/gitattributes"  || exit 1
-	%{__install} -m 0644  "phpunit.xml"     "%{buildroot}%{_sysconfdir}/xbuild/phpunit.xml"    || exit 1
+	%{__install} -m 0644  "phpunit_xml"     "%{buildroot}%{_sysconfdir}/xbuild/phpunit_xml"    || exit 1
 \popd  >/dev/null
 
 
@@ -130,7 +130,7 @@ fi
 %dir %{_sysconfdir}/xbuild/stages/
 %attr(0644,-,-) %config(noreplace) %{_sysconfdir}/xbuild/gitignore
 %attr(0644,-,-) %config(noreplace) %{_sysconfdir}/xbuild/gitattributes
-%attr(0644,-,-) %config(noreplace) %{_sysconfdir}/xbuild/phpunit.xml
+%attr(0644,-,-) %config(noreplace) %{_sysconfdir}/xbuild/phpunit_xml
 %attr(0644,-,-) %{_sysconfdir}/xbuild/stages/10-pull-push.sh
 %attr(0644,-,-) %{_sysconfdir}/xbuild/stages/30-clean.sh
 %attr(0644,-,-) %{_sysconfdir}/xbuild/stages/40-config.sh
