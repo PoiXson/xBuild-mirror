@@ -10,4 +10,3 @@ alias genpom='clear;genpom'
 alias genspec='clear;genspec'
 
 alias phpunit='vendor/bin/phpunit --coverage-html coverage/html'
-alias phpunit='clear;phpunit'
