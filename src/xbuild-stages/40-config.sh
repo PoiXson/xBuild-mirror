@@ -30,13 +30,22 @@ if [[ " $ACTIONS " == *" config "* ]]; then
 				failure "Failed to create a temp file for .gitignore"
 				failure ; exit $RESULT
 			fi
+			# prepend
 			if [[ ! -z $PROJECT_GITIGNORE ]]; then
 				for ENTRY in $PROJECT_GITIGNORE; do
 					echo "$ENTRY" >>"$OUT_FILE"
 				done
 				echo >>"$OUT_FILE"
 			fi
+			# defaults
 			\cat /etc/xbuild/gitignore >>"$OUT_FILE" || exit 1
+			# append
+			if [[ ! -z $PROJECT_GITIGNOREEND ]]; then
+				echo >>"$OUT_FILE"
+				for ENTRY in $PROJECT_GITIGNOREEND; do
+					echo "$ENTRY" >>"$OUT_FILE"
+				done
+			fi
 			local HASH_A=$( \cat "$OUT_FILE"                | \md5sum )
 			local HASH_B=$( \cat "$PROJECT_PATH/.gitignore" | \md5sum )
 			if [[ "$HASH_A" != "$HASH_B" ]]; then

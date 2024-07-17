@@ -140,6 +140,7 @@ PROJECT_REPO=""
 PROJECT_VERSION=""
 PROJECT_RELEASE=$NO
 PROJECT_GITIGNORE=""
+PROJECT_GITIGNOREEND=""
 PROJECT_GITATTRIB=""
 PROJECT_TAG_FILES=""
 PROJECT_TAGS_DONE=$NO
@@ -208,6 +209,13 @@ function AddIgnore() {
 		failure ; exit 1
 	fi
 	PROJECT_GITIGNORE="$PROJECT_GITIGNORE $1"
+}
+function AddIgnoreEnd() {
+	if [[ -z $1 ]]; then
+		failure "AddIgnoreEnd value is missing for project: $PROJECT_NAME"
+		failure ; exit 1
+	fi
+	PROJECT_GITIGNOREEND="$PROJECT_GITIGNOREEND $1"
 }
 function AddGitAttrib() {
 	if [[ -z $1 ]]; then
@@ -422,6 +430,7 @@ function CleanupProjectVars() {
 	PROJECT_PATH=""
 	PROJECT_REPO=""
 	PROJECT_GITIGNORE=""
+	PROJECT_GITIGNOREEND=""
 	PROJECT_GITATTRIB=""
 	PROJECT_TAG_FILES=""
 	PROJECT_TAGS_DONE=$NO
