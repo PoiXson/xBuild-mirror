@@ -99,7 +99,17 @@ if [[ " $ACTIONS " == *" config "* ]]; then
 				done
 				echo >>"$OUT_FILE"
 			fi
-			\cat /etc/xbuild/phpunit_xml >>"$OUT_FILE" || exit 1
+			DATA=$( \cat "/etc/xbuild/phpunit_xml" )
+			if [[ -z $DATA ]]; then
+				failure "Failed to load /etc/xbuild/phpunit_xml"
+				failure ; exit 1
+			fi
+			if [[ -e "$PROJECT_PATH/tests/bootstrap.php" ]]; then
+				DATA=${DATA/<BOOTSTRAP>/tests\/bootstrap.php}
+			else
+				DATA=${DATA/<BOOTSTRAP>/vendor\/autoload.php}
+			fi
+			echo "$DATA" >>"$OUT_FILE" || exit 1
 			local HASH_A=$( \cat "$OUT_FILE"                 | \md5sum )
 			local HASH_B=$( \cat "$PROJECT_PATH/phpunit.xml" | \md5sum )
 			if [[ "$HASH_A" != "$HASH_B" ]]; then
