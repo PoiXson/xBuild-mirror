@@ -7,7 +7,7 @@
 ## Description: Automates updating yum/dnf and apt repositories
 ##
 ## Example:
-## > curl --output configer-install.sh https://configer.io/install.sh
+## > curl --output configer-install.sh https://configer.online/install.sh
 ## > sh configer-install.sh --wizard
 ##
 ## This program is free software: you can redistribute it and/or modify
