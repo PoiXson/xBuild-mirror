@@ -140,9 +140,9 @@ if [[ " $ACTIONS " == *" build "* ]]; then
 	if [[ -f "$PROJECT_PATH/Cargo.toml" ]]; then
 		\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
 			if [[ $DO_CI -eq $YES ]]; then
-				echo_cmd "cargo build --release --timings"
+				echo_cmd "cargo build --release --timings --locked"
 				if [[ $IS_DRY -eq $NO ]]; then
-					\cargo build --release --timings  || exit 1
+					\cargo build --release --timings  --locked  || exit 1
 				fi
 			else
 				if [[ $DEBUG_FLAGS -eq $YES ]]; then
