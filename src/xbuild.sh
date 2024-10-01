@@ -548,17 +548,17 @@ function doProjectTags() {
 				notice "File already exists: ${F}.xbuild_temp"
 			# restore original
 			[[ $VERBOSE -eq $YES ]] && \
-				echo_cmd "rm -fv $F"
+				echo_cmd "rm -f $F"
 			[[ $IS_DRY -eq $NO ]] && \
 				\rm -fv  "$PROJECT_PATH/$F"  || exit 1
 		else
 			[[ $VERBOSE -eq $YES ]] && \
-				echo_cmd "mv -v $F ${F}.xbuild_temp"
+				echo_cmd "mv $F ${F}.xbuild_temp"
 			[[ $IS_DRY -eq $NO ]] && \
 				\mv -v  "$PROJECT_PATH/$F"  "$PROJECT_PATH/${F}.xbuild_temp"  || exit 1
 		fi
 		[[ $VERBOSE -eq $YES ]] && \
-			echo_cmd "cp -v ${F}.xbuild_temp $F"
+			echo_cmd "cp ${F}.xbuild_temp $F"
 		[[ $IS_DRY -eq $NO ]] && \
 			\cp -v  "$PROJECT_PATH/${F}.xbuild_temp"  "$PROJECT_PATH/$F"  || exit 1
 		# tags
