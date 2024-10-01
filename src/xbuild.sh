@@ -564,7 +564,8 @@ function doProjectTags() {
 		# tags
 		if [[ ! -z $PROJECT_VERSION ]]; then
 			# special case for rust/cargo
-			if [[ "$PROJECT_PATH/$F" == *"/Cargo.toml" ]]; then
+			if [[ "$PROJECT_PATH/$F" == *"/Cargo.toml" ]] \
+			||    "$PROJECT_PATH/$F" == *"/Cargo.lock" ]]; then
 				if [[ ! -z $BUILD_NUMBER ]] && [[ "$BUILD_NUMBER" != "x" ]]; then
 					local VERS_GUESS=${PROJECT_VERSION%.*}".0"
 					[[ $VERBOSE -eq $YES ]] && \
