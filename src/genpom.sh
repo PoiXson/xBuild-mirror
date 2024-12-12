@@ -364,17 +364,17 @@ if [[ -e "$WDIR/tests/" ]]; then
 	FindDepVersion  "org.apache.maven.plugins"  "maven-surefire-plugin"
 	AddPropPlugin  "surefire-version"  "$FOUND_DEP_VERSION"
 
-#	# cobertura
-#	FindDepVersion  "org.codehaus.mojo"  "cobertura-maven-plugin"
-#	AddPropPlugin  "cobertura-version"  "$FOUND_DEP_VERSION"
+	# jacoco
+	FindDepVersion  "org.jacoco"  "jacoco-maven-plugin"
+	AddPropPlugin  "jacoco-version"  "$FOUND_DEP_VERSION"
 
-#	# jxr - cross reference
-#	FindDepVersion  "org.apache.maven.jxr"  "jxr"
-#	AddPropPlugin  "jxr-version"  "$FOUND_DEP_VERSION"
+	# jxr - cross reference
+	FindDepVersion  "org.apache.maven.jxr"  "jxr"
+	AddPropPlugin  "jxr-version"  "$FOUND_DEP_VERSION"
 
-#	# reports
-#	FindDepVersion  "org.apache.maven.plugins"  "maven-project-info-reports-plugin"
-#	AddPropPlugin  "project-info-reports-version"  "$FOUND_DEP_VERSION"
+	# reports
+	FindDepVersion  "org.apache.maven.plugins"  "maven-project-info-reports-plugin"
+	AddPropPlugin  "project-info-reports-version"  "$FOUND_DEP_VERSION"
 
 fi
 
@@ -718,28 +718,42 @@ if [[ -e "$WDIR/tests/" ]]; then
 				</configuration>
 			</plugin>
 
+			<!-- JaCoCo - Code Coverage -->
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>\${jacoco-version}</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>report</id>
+						<phase>test</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- JXR - Cross Reference -->
+			<plugin>
+				<groupId>org.apache.maven.jxr</groupId>
+				<artifactId>jxr</artifactId>
+				<version>\${jxr-version}</version>
+			</plugin>
+
+			<!-- Reports -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-project-info-reports-plugin</artifactId>
+				<version>\${project-info-reports-version}</version>
+			</plugin>
+
 EOF
-#			<!-- JXR - Cross Reference -->
-#			<plugin>
-#				<groupId>org.apache.maven.jxr</groupId>
-#				<artifactId>jxr</artifactId>
-#				<version>\${jxr-version}</version>
-#			</plugin>
-#			<!-- Cobertura Plugin -->
-#			<plugin>
-#				<groupId>org.codehaus.mojo</groupId>
-#				<artifactId>cobertura-maven-plugin</artifactId>
-#				<version>\${cobertura-version}</version>
-#				<configuration>
-#					<quiet>true</quiet>
-#				</configuration>
-#			</plugin>
-#			<!-- Reports -->
-#			<plugin>
-#				<groupId>org.apache.maven.plugins</groupId>
-#				<artifactId>maven-project-info-reports-plugin</artifactId>
-#				<version>\${project-info-reports-version}</version>
-#			</plugin>
 fi
 
 \cat >>"$OUT_FILE" <<EOF
@@ -761,41 +775,46 @@ if [[ ! -z $OUT_DEPS ]]; then
 	echo -e "\t</dependencies>" >>"$OUT_FILE"
 fi
 
-#if [[ -e "$WDIR/tests/" ]]; then
-#\cat >>"$OUT_FILE" <<EOF
-#	<reporting>
-#		<plugins>
-#			<!-- Reports Plugin -->
-#			<plugin>
-#				<groupId>org.apache.maven.plugins</groupId>
-#				<artifactId>maven-project-info-reports-plugin</artifactId>
-#				<version>\${project-info-reports-version}</version>
-#				<configuration>
-#					<dependencyLocationsEnabled>false</dependencyLocationsEnabled>
-#				</configuration>
-#			</plugin>
-#			<!-- Cobertura Plugin -->
-#			<plugin>
-#				<groupId>org.codehaus.mojo</groupId>
-#				<artifactId>cobertura-maven-plugin</artifactId>
-#				<version>\${cobertura-version}</version>
-#				<configuration>
-#					<formats>
-#						<format>html</format>
-#						<format>xml</format>
-#					</formats>
-#				</configuration>
-#			</plugin>
-#			<!-- Cross-Reference Plugin -->
-#			<plugin>
-#				<groupId>org.apache.maven.plugins</groupId>
-#				<artifactId>maven-jxr-plugin</artifactId>
-#				<version>\${jxr-version}</version>
-#			</plugin>
-#		</plugins>
-#	</reporting>
-#EOF
-#fi
+if [[ -e "$WDIR/tests/" ]]; then
+\cat >>"$OUT_FILE" <<EOF
+	<reporting>
+		<plugins>
+
+			<!-- JaCoCo - Code Coverage -->
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>\${jacoco-version}</version>
+				<reportSets>
+					<reportSet>
+						<reports>
+							<report>report</report>
+						</reports>
+					</reportSet>
+				</reportSets>
+			</plugin>
+
+			<!-- Reports Plugin -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-project-info-reports-plugin</artifactId>
+				<version>\${project-info-reports-version}</version>
+				<configuration>
+					<dependencyLocationsEnabled>false</dependencyLocationsEnabled>
+				</configuration>
+			</plugin>
+
+			<!-- Cross-Reference Plugin -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jxr-plugin</artifactId>
+				<version>\${jxr-version}</version>
+			</plugin>
+
+		</plugins>
+	</reporting>
+EOF
+fi
 
 echo "</project>" >>"$OUT_FILE"
 
