@@ -686,7 +686,8 @@ while [ $# -gt 0 ]; do
 	-p|--pack|--package|pack|package)            ACTIONS="$ACTIONS pack"   ;;
 	-i|--ide|ide)                                DO_IDE=$YES               ;;
 
-	-u|--superclean|--super-clean) DO_SUPER_CLEAN=$YES ;;
+	-u|--superclean|--super-clean|--deepclean|--deep-clean|--extraclean|--extra-clean)
+		DO_SUPER_CLEAN=$YES ;;
 
 	--cb)    ACTIONS="$ACTIONS config build"                 ;;
 	--cbp)   ACTIONS="$ACTIONS config build pack"            ;;
