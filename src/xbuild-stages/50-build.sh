@@ -82,16 +82,20 @@ if [[ " $ACTIONS " == *" build "* ]]; then
 					echo
 				fi
 			fi
+			FLAG_TRANSFER_PROGRESS=""
+			if [[ $DO_CI -eq $YES ]]; then
+				FLAG_TRANSFER_PROGRESS="--no-transfer-progress"
+			fi
 			# build
 			echo_cmd "mvn clean install"
 			if [[ $IS_DRY -eq $NO ]]; then
-				\mvn  --no-transfer-progress  clean install  || exit 1
+				\mvn  $FLAG_TRANSFER_PROGRESS  clean install  || exit 1
 			fi
 			# ide projects
 			if [[ $DO_IDE -eq $YES ]]; then
 				echo_cmd "mvn eclipse:eclipse"
 				if [[ $IS_DRY -eq $NO ]]; then
-					\mvn  --no-transfer-progress  eclipse:eclipse  || exit 1
+					\mvn  $FLAG_TRANSFER_PROGRESS  eclipse:eclipse  || exit 1
 				fi
 			fi
 			# restore pom.xml
