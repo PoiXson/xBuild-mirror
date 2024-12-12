@@ -687,7 +687,7 @@ while [ $# -gt 0 ]; do
 	-i|--ide|ide)                                DO_IDE=$YES               ;;
 
 	-u|--superclean|--super-clean|--deepclean|--deep-clean|--extraclean|--extra-clean)
-		DO_SUPER_CLEAN=$YES ;;
+		DO_SUPER_CLEAN=$YES ; ACTIONS="$ACTIONS clean" ;;
 
 	--cb)    ACTIONS="$ACTIONS config build"                 ;;
 	--cbp)   ACTIONS="$ACTIONS config build pack"            ;;
