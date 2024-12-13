@@ -191,8 +191,11 @@ function AddRepo() {
 	OUT_REPOS="$OUT_REPOS\t\t<repository>\n"
 	OUT_REPOS="$OUT_REPOS\t\t\t<id>$NAME</id>\n"
 	OUT_REPOS="$OUT_REPOS\t\t\t<url>$URL</url>\n"
-	OUT_REPOS="$OUT_REPOS\t\t\t<snapshots>\n"
+	OUT_REPOS="$OUT_REPOS\t\t\t<releases>\n"
 	OUT_REPOS="$OUT_REPOS\t\t\t\t<enabled>true</enabled>\n"
+	OUT_REPOS="$OUT_REPOS\t\t\t</releases>\n"
+	OUT_REPOS="$OUT_REPOS\t\t\t<snapshots>\n"
+	OUT_REPOS="$OUT_REPOS\t\t\t\t<enabled>false</enabled>\n"
 	OUT_REPOS="$OUT_REPOS\t\t\t</snapshots>\n"
 	OUT_REPOS="$OUT_REPOS\t\t</repository>\n"
 }
