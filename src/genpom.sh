@@ -133,12 +133,8 @@ function AddDep() {
 	local VERSION=""
 	while [ $# -gt 0 ]; do
 		case "$1" in
-		"scope="*)
-			SCOPE="${1#*scope=}"
-		;;
-		"version="*)
-			VERSION="${1#*scope=}"
-		;;
+		"scope="*)   SCOPE="${1#*scope=}"   ;;
+		"version="*) VERSION="${1#*scope=}" ;;
 		*)
 			failure "Unknown dependency argument: $1"
 			failure ; exit 1
@@ -597,7 +593,6 @@ fi
 					<encoding>\${project.build.sourceEncoding}</encoding>
 				</configuration>
 			</plugin>
-
 EOF
 
 # jar plugin
@@ -643,7 +638,6 @@ echo -e "\t\t\t</plugin>" >>"$OUT_FILE"
 					</execution>
 				</executions>
 			</plugin>
-
 EOF
 
 # eclipse plugin
@@ -667,7 +661,6 @@ EOF
 					</additionalConfig>
 				</configuration>
 			</plugin>
-
 EOF
 
 # git commit id plugin
@@ -690,7 +683,6 @@ EOF
 					<dotGitDirectory>.git/</dotGitDirectory>
 				</configuration>
 			</plugin>
-
 EOF
 
 # shade jar
@@ -722,7 +714,6 @@ if [[ $SHADE -eq $YES ]]; then
 					</filters>
 				</configuration>
 			</plugin>
-
 EOF
 fi
 
@@ -742,7 +733,6 @@ if [[ -e "$WDIR/tests/" ]]; then
 					<trimStackTrace>false</trimStackTrace>
 				</configuration>
 			</plugin>
-
 			<!-- JaCoCo - Code Coverage -->
 			<plugin>
 				<groupId>org.jacoco</groupId>
@@ -763,21 +753,18 @@ if [[ -e "$WDIR/tests/" ]]; then
 					</execution>
 				</executions>
 			</plugin>
-
 			<!-- JXR - Cross Reference -->
 			<plugin>
 				<groupId>org.apache.maven.jxr</groupId>
 				<artifactId>jxr</artifactId>
 				<version>\${jxr-version}</version>
 			</plugin>
-
 			<!-- Reports -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-project-info-reports-plugin</artifactId>
 				<version>\${project-info-reports-version}</version>
 			</plugin>
-
 EOF
 fi
 
@@ -804,7 +791,6 @@ if [[ -e "$WDIR/tests/" ]]; then
 \cat >>"$OUT_FILE" <<EOF
 	<reporting>
 		<plugins>
-
 			<!-- JaCoCo - Code Coverage -->
 			<plugin>
 				<groupId>org.jacoco</groupId>
@@ -818,7 +804,6 @@ if [[ -e "$WDIR/tests/" ]]; then
 					</reportSet>
 				</reportSets>
 			</plugin>
-
 			<!-- Reports Plugin -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -828,14 +813,12 @@ if [[ -e "$WDIR/tests/" ]]; then
 					<dependencyLocationsEnabled>false</dependencyLocationsEnabled>
 				</configuration>
 			</plugin>
-
 			<!-- Cross-Reference Plugin -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jxr-plugin</artifactId>
 				<version>\${jxr-version}</version>
 			</plugin>
-
 		</plugins>
 	</reporting>
 EOF
