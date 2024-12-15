@@ -112,15 +112,15 @@ done
 
 
 function AddProp() {
-	OUT_PROPS="$OUT_PROPS\t\t<$1>$2</$1>\n"
+	OUT_PROPS="$OUT_PROPS"$'\t\t'"<$1>$2</$1>"$'\n'
 }
 function AddPropDep() {
 	local KEY="${1//./-}"
 	local VAL="$2"
-	OUT_PROPS_DEPS="$OUT_PROPS_DEPS\t\t<$KEY>$VAL</$KEY>\n"
+	OUT_PROPS_DEPS="$OUT_PROPS_DEPS"$'\t\t'"<$KEY>$VAL</$KEY>"$'\n'
 }
 function AddPropPlugin() {
-	OUT_PROPS_PLUGINS="$OUT_PROPS_PLUGINS\t\t<$1>$2</$1>\n"
+	OUT_PROPS_PLUGINS="$OUT_PROPS_PLUGINS"$'\t\t'"<$1>$2</$1>"$'\n'
 }
 
 
@@ -168,13 +168,18 @@ function AddDep() {
 			SCOPE="provided"
 		fi
 	fi
-	OUT_DEPS="$OUT_DEPS\t\t<dependency>\n"
-	OUT_DEPS="$OUT_DEPS\t\t\t<artifactId>$ARTIFACT</artifactId>\n"
-	OUT_DEPS="$OUT_DEPS\t\t\t<groupId>$GROUP</groupId>\n"
-	OUT_DEPS="$OUT_DEPS\t\t\t<version>\${${ARTIFACT//./-}-version}</version>\n"
-	[[ -z $SCOPE ]] || \
-	OUT_DEPS="$OUT_DEPS\t\t\t<scope>$SCOPE</scope>\n"
-	OUT_DEPS="$OUT_DEPS\t\t</dependency>\n"
+	OUT_DEPS+=$( \cat <<EOF
+		<dependency>
+			<artifactId>$ARTIFACT</artifactId>
+			<groupId>$GROUP</groupId>
+			<version>\${${ARTIFACT//./-}-version}</version>
+EOF
+	)
+	OUT_DEPS+=$'\n'
+	if [[ ! -z $SCOPE ]]; then
+		OUT_DEPS="$OUT_DEPS"$'\t\t\t'"<scope>$SCOPE</scope>"$'\n'
+	fi
+	OUT_DEPS="$OUT_DEPS"$'\t\t'"</dependency>"$'\n'
 }
 
 function AddRepo() {
@@ -188,16 +193,17 @@ function AddRepo() {
 		failure "Repo URL argument is required"
 		failure ; exit 1
 	fi
-	OUT_REPOS="$OUT_REPOS\t\t<repository>\n"
-	OUT_REPOS="$OUT_REPOS\t\t\t<id>$NAME</id>\n"
-	OUT_REPOS="$OUT_REPOS\t\t\t<url>$URL</url>\n"
-	OUT_REPOS="$OUT_REPOS\t\t\t<releases>\n"
-	OUT_REPOS="$OUT_REPOS\t\t\t\t<enabled>true</enabled>\n"
-	OUT_REPOS="$OUT_REPOS\t\t\t</releases>\n"
-	OUT_REPOS="$OUT_REPOS\t\t\t<snapshots>\n"
-	OUT_REPOS="$OUT_REPOS\t\t\t\t<enabled>false</enabled>\n"
-	OUT_REPOS="$OUT_REPOS\t\t\t</snapshots>\n"
-	OUT_REPOS="$OUT_REPOS\t\t</repository>\n"
+	OUT_REPOS+=$( \cat <<EOF
+		<repository>
+			<id>$NAME</id>
+			<url>$URL</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+EOF
+	)
+	OUT_REPOS+=$'\n'
 }
 
 function AddRes() {
@@ -205,14 +211,14 @@ function AddRes() {
 		failure "AddRes requires a file argument to include"
 		failure ; exit 1
 	fi
-	OUT_RES="$OUT_RES\t\t\t\t\t<include>$1</include>\n"
+	OUT_RES="$OUT_RES"$'\t\t\t\t\t'"<include>$1</include>"$'\n'
 }
 function AddBin() {
 	if [[ -z $1 ]]; then
 		failure "AddBin requires a file argument to include"
 		failure ; exit 1
 	fi
-	OUT_BIN="$OUT_BIN\t\t\t\t\t<include>$1</include>\n"
+	OUT_BIN="$OUT_BIN"$'\t\t\t\t\t'"<include>$1</include>"'\n'
 }
 
 
@@ -410,12 +416,12 @@ TIMESTAMP=$( \date )
 	<version>$OUT_VERSION</version>
 	<packaging>jar</packaging>
 EOF
-[[ -z $URL  ]] || echo -e "\t<url>$URL</url>"                  >>"$OUT_FILE"
-[[ -z $DESC ]] || echo -e "\t<description>$DESC</description>" >>"$OUT_FILE"
+[[ -z $URL  ]] || echo $'\t'"<url>$URL</url>"                  >>"$OUT_FILE"
+[[ -z $DESC ]] || echo $'\t'"<description>$DESC</description>" >>"$OUT_FILE"
 if [[ ! -z $ORG_NAME ]] || [[ ! -z $ORG_URL ]]; then
 	echo -e "\t<organization>"                                 >>"$OUT_FILE"
-	[[ -z $ORG_NAME ]] || echo -e "\t\t<name>$ORG_NAME</name>" >>"$OUT_FILE"
-	[[ -z $ORG_URL  ]] || echo -e "\t\t<url>$ORG_URL</url>"    >>"$OUT_FILE"
+	[[ -z $ORG_NAME ]] || echo $'\t\t'"<name>$ORG_NAME</name>" >>"$OUT_FILE"
+	[[ -z $ORG_URL  ]] || echo $'\t\t'"<url>$ORG_URL</url>"    >>"$OUT_FILE"
 	echo -e "\t</organization>"                                >>"$OUT_FILE"
 fi
 
@@ -426,36 +432,34 @@ fi
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 EOF
 if [[ ! -z $LICENSE ]]; then
-\cat >>"$OUT_FILE" <<EOF
-		<project.license>$LICENSE</project.license>
-EOF
+	echo $'\t\t'"<project.license>$LICENSE</project.license>" >>"$OUT_FILE"
 fi
 \cat >>"$OUT_FILE" <<EOF
 		<java.version>$COMPILE_FOR_JAVA_VERSION</java.version>
 		<maven.compiler.release>$COMPILE_FOR_JAVA_VERSION</maven.compiler.release>
 		<maven.compiler.source>$COMPILE_FOR_JAVA_VERSION</maven.compiler.source>
 		<maven.compiler.target>$COMPILE_FOR_JAVA_VERSION</maven.compiler.target>
-
 EOF
 if [[ ! -z $OUT_PROPS ]]; then
-	echo -e "$OUT_PROPS" >>"$OUT_FILE"
+	echo -ne "\n\n"   >>"$OUT_FILE"
+	echo "$OUT_PROPS" >>"$OUT_FILE"
 fi
 if [[ ! -z $OUT_PROPS_PLUGINS ]]; then
-	echo -e "\t\t<!-- Maven Plugins -->" >>"$OUT_FILE"
-	echo -e "$OUT_PROPS_PLUGINS"   >>"$OUT_FILE"
+	echo -e "\n\t\t<!-- Maven Plugins -->" >>"$OUT_FILE"
+	echo -n "$OUT_PROPS_PLUGINS"           >>"$OUT_FILE"
 fi
 if [[ ! -z $OUT_PROPS_DEPS ]]; then
-	echo -e "\t\t<!-- Dependencies -->" >>"$OUT_FILE"
-	echo -e "$OUT_PROPS_DEPS"           >>"$OUT_FILE"
+	echo -e "\n\t\t<!-- Dependencies -->" >>"$OUT_FILE"
+	echo -n "$OUT_PROPS_DEPS"             >>"$OUT_FILE"
 fi
 echo -e "\t</properties>" >>"$OUT_FILE"
 
 # scm
 if [[ ! -z $REPO_URL ]] || [[ ! -z $REPO_PUB ]] || [[ ! -z $REPO_DEV ]]; then
 	echo -e "\t<scm>" >>"$OUT_FILE"
-	[[ -z $REPO_URL ]] || echo -e "\t\t<url>$REPO_URL</url>"                                 >>"$OUT_FILE"
-	[[ -z $REPO_PUB ]] || echo -e "\t\t<connection>$REPO_PUB</connection>"                   >>"$OUT_FILE"
-	[[ -z $REPO_DEV ]] || echo -e "\t\t<developerConnection>$REPO_DEV</developerConnection>" >>"$OUT_FILE"
+	[[ -z $REPO_URL ]] || echo $'\t\t'"<url>$REPO_URL</url>"                                 >>"$OUT_FILE"
+	[[ -z $REPO_PUB ]] || echo $'\t\t'"<connection>$REPO_PUB</connection>"                   >>"$OUT_FILE"
+	[[ -z $REPO_DEV ]] || echo $'\t\t'"<developerConnection>$REPO_DEV</developerConnection>" >>"$OUT_FILE"
 	echo -e "\t</scm>" >>"$OUT_FILE"
 fi
 
@@ -504,7 +508,7 @@ if [[ -e "$WDIR/resources/" ]]; then
 				<filtering>true</filtering>
 				<includes>
 EOF
-echo -ne "$OUT_RES" >> "$OUT_FILE"
+echo -n "$OUT_RES" >> "$OUT_FILE"
 \cat >>"$OUT_FILE" <<EOF
 				</includes>
 			</resource>
@@ -517,7 +521,7 @@ EOF
 				<filtering>false</filtering>
 				<includes>
 EOF
-echo -ne "$OUT_BIN" >> "$OUT_FILE"
+echo -n "$OUT_BIN" >> "$OUT_FILE"
 \cat >>"$OUT_FILE" <<EOF
 				</includes>
 			</resource>
@@ -536,7 +540,7 @@ if [[ -e "$WDIR/testresources/" ]]; then
 EOF
 fi
 
-echo -e "\t\t<plugins>\n" >>"$OUT_FILE"
+echo -e "\t\t<plugins>" >>"$OUT_FILE"
 
 # resources
 if [[ -e "$WDIR/resources/" ]] \
@@ -596,10 +600,7 @@ if [[ ! -z $MAINCLASS ]]; then
 				</configuration>
 EOF
 fi
-\cat >>"$OUT_FILE" <<EOF
-			</plugin>
-
-EOF
+echo -e "\t\t\t</plugin>" >>"$OUT_FILE"
 
 # source plugin
 \cat >>"$OUT_FILE" <<EOF
@@ -766,16 +767,16 @@ EOF
 
 # 3rd party repositories
 if [[ ! -z $OUT_REPOS ]]; then
-	echo -e "\t<repositories>"  >>"$OUT_FILE"
-	echo -en "$OUT_REPOS"       >>"$OUT_FILE"
-	echo -e "\t</repositories>" >>"$OUT_FILE"
+	echo -e "\t<repositories>"   >>"$OUT_FILE"
+	echo -n "$OUT_REPOS"         >>"$OUT_FILE"
+	echo -e "\t</repositories>"  >>"$OUT_FILE"
 fi
 
 # dependencies
 if [[ ! -z $OUT_DEPS ]]; then
-	echo -e "\t<dependencies>"  >>"$OUT_FILE"
-	echo -en "$OUT_DEPS"        >>"$OUT_FILE"
-	echo -e "\t</dependencies>" >>"$OUT_FILE"
+	echo -e "\t<dependencies>"   >>"$OUT_FILE"
+	echo -n "$OUT_DEPS"          >>"$OUT_FILE"
+	echo -e "\t</dependencies>"  >>"$OUT_FILE"
 fi
 
 if [[ -e "$WDIR/tests/" ]]; then
