@@ -185,6 +185,20 @@ EOF
 function AddRepo() {
 	local NAME="$1"
 	local URL="$2"
+	shift ; shift
+	local ALLOW_SNAPSHOTS=$NO
+	while [ $# -gt 0 ]; do
+		case "$1" in
+		"snap"|"snaps"|"snapshot"|"snapshots"|"SNAP"|"SNAPS"|"SNAPSHOT"|"SNAPSHOTS")
+			ALLOW_SNAPSHOTS=$YES
+			;;
+		*)
+			failure "Unknown repository argument: $1"
+			failure ; exit 1
+		;;
+		esac
+		shift
+	done
 	if [[ -z $NAME ]]; then
 		failure "Repo Name argument is required"
 		failure ; exit 1
@@ -193,12 +207,19 @@ function AddRepo() {
 		failure "Repo URL argument is required"
 		failure ; exit 1
 	fi
+	ENABLE_SNAPSHOTS="false"
+	if [[ $ALLOW_SNAPSHOTS -eq $YES ]]; then
+		ENABLE_SNAPSHOTS="true"
+	fi
 	OUT_REPOS+=$( \cat <<EOF
 		<repository>
 			<id>$NAME</id>
 			<url>$URL</url>
-			<snapshots>
+			<releases>
 				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>$ENABLE_SNAPSHOTS</enabled>
 			</snapshots>
 		</repository>
 EOF
