@@ -438,7 +438,7 @@ function CleanupProjectVars() {
 	RUN_CONFIG=()
 	RUN_BUILD=()
 	TIME_START_PRJ=$( \date "+%s%N" )
-	TIME_LAST=$TIME_START_PRJ
+	TIME_LAST=$( \date "+%s%N" )
 }
 
 
@@ -873,7 +873,7 @@ if [[ $RM_GROUPS -gt 0 ]] \
 	echo -e " ${COLOR_GREEN}Removed ${COLOR_BLUE}${RM_TOTAL}${COLOR_GREEN} files/dirs in ${COLOR_BLUE}${RM_GROUPS}${COLOR_GREEN} groups"
 fi
 
-TIME_END=$(date +%s%N)
+TIME_END=$( \date "+%s%N" )
 ELAPSED=$( echo "scale=3;($TIME_END - $TIME_START) / 1000 / 1000 / 1000" | \bc )
 [[ "$ELAPSED" == "."* ]] && ELAPSED="0$ELAPSED"
 echo -e " ${COLOR_GREEN}Finished in $ELAPSED seconds${COLOR_RESET}"
