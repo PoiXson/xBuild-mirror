@@ -178,6 +178,15 @@ if [[ " $ACTIONS " == *" config "* ]]; then
 					else
 						echo
 					fi
+					# check for dependency updates
+					if [[ $DEBUG_FLAGS -eq $YES ]]; then
+						[[ $QUIET -eq $NO ]] && \
+							title C "Check dependency updates"
+						echo_cmd "mvn versions:display-dependency-updates"
+						if [[ $IS_DRY -eq $NO ]]; then
+							\mvn  versions:display-dependency-updates
+						fi
+					fi
 				fi
 			\popd >/dev/null
 			echo
