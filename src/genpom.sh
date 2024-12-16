@@ -235,7 +235,7 @@ function AddBin() {
 		failure "AddBin requires a file argument to include"
 		failure ; exit 1
 	fi
-	OUT_BIN="$OUT_BIN"$'\t\t\t\t\t'"<include>$1</include>"'\n'
+	OUT_BIN="$OUT_BIN"$'\t\t\t\t\t'"<include>$1</include>"$'\n'
 }
 
 
