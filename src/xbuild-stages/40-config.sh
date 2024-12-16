@@ -178,13 +178,14 @@ if [[ " $ACTIONS " == *" config "* ]]; then
 					else
 						echo
 					fi
+#TODO: capture the output of this
 					# check for dependency updates
 					if [[ $DEBUG_FLAGS -eq $YES ]]; then
 						[[ $QUIET -eq $NO ]] && \
 							title C "Check dependency updates"
-						echo_cmd "mvn versions:display-dependency-updates"
+						echo_cmd "mvn versions:display-dependency-updates versions:display-plugin-updates"
 						if [[ $IS_DRY -eq $NO ]]; then
-							\mvn  versions:display-dependency-updates
+							\mvn  versions:display-dependency-updates  versions:display-plugin-updates
 						fi
 					fi
 				fi
