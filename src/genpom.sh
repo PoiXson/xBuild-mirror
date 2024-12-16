@@ -362,6 +362,14 @@ AddPropPlugin  "maven-compiler-plugin-version"  "$FOUND_DEP_VERSION"
 FindDepVersion  "org.apache.maven.plugins"  "maven-jar-plugin"
 AddPropPlugin  "maven-jar-plugin-version"  "$FOUND_DEP_VERSION"
 
+# maven version plugin
+FindDepVersion  "org.apache.maven.plugins"  "maven-enforcer-plugin"
+AddPropPlugin  "maven-enforcer-plugin-version"  "$FOUND_DEP_VERSION"
+
+# versions plugin
+FindDepVersion  "org.codehaus.mojo"  "versions-maven-plugin"
+AddPropPlugin  "versions-maven-plugin-version"  "$FOUND_DEP_VERSION"
+
 # source plugin
 FindDepVersion  "org.apache.maven.plugins"  "maven-source-plugin"
 AddPropPlugin  "maven-source-plugin-version"  "$FOUND_DEP_VERSION"
@@ -617,6 +625,43 @@ if [[ ! -z $MAINCLASS ]]; then
 EOF
 fi
 echo -e "\t\t\t</plugin>" >>"$OUT_FILE"
+
+# maven version plugin
+\cat >>"$OUT_FILE" <<EOF
+			<!-- Maven Version Enforcer Plugin -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-enforcer-plugin</artifactId>
+				<version>\${maven-enforcer-plugin-version}</version>
+				<inherited>true</inherited>
+				<executions>
+					<execution>
+						<id>enforce-maven-version</id>
+						<goals>
+							<goal>enforce</goal>
+						</goals>
+						<configuration>
+							<rules>
+								<requireMavenVersion>
+									<version>3.8.5</version>
+								</requireMavenVersion>
+							</rules>
+							<fail>true</fail>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+EOF
+
+# versions plugin
+\cat >>"$OUT_FILE" <<EOF
+			<!-- Versions Plugin -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>versions-maven-plugin</artifactId>
+				<version>\${versions-maven-plugin-version}</version>
+			</plugin>
+EOF
 
 # source plugin
 \cat >>"$OUT_FILE" <<EOF
