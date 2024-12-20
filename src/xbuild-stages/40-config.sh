@@ -7,7 +7,7 @@ if [[ " $ACTIONS " == *" config "* ]]; then
 	# version not set
 	if [[ -z $PROJECT_VERSION ]]; then
 		[[ $QUIET -eq $NO ]] && \
-			title C "Configure"
+			title C  "Configure"  "$PROJECT_NAME"
 		notice "Skipping config - project version not detected"
 		echo
 		return
@@ -49,7 +49,7 @@ if [[ " $ACTIONS " == *" config "* ]]; then
 			local HASH_A=$( \cat "$OUT_FILE"                | \md5sum )
 			local HASH_B=$( \cat "$PROJECT_PATH/.gitignore" | \md5sum )
 			if [[ "$HASH_A" != "$HASH_B" ]]; then
-				title C "Updating .gitignore.."
+				title C  "Updating .gitignore.."  "$PROJECT_NAME"
 				echo_cmd "cat $OUT_FILE > $PROJECT_PATH/.gitignore"
 				if [[ $IS_DRY -eq $NO ]]; then
 					\cat  "$OUT_FILE"  >"$PROJECT_PATH/.gitignore"  || exit 1
@@ -76,7 +76,7 @@ if [[ " $ACTIONS " == *" config "* ]]; then
 			local HASH_A=$( \cat "$OUT_FILE"                    | \md5sum )
 			local HASH_B=$( \cat "$PROJECT_PATH/.gitattributes" | \md5sum )
 			if [[ "$HASH_A" != "$HASH_B" ]]; then
-				title C "Updating .gitattributes.."
+				title C  "Updating .gitattributes.."  "$PROJECT_NAME"
 				echo_cmd "cat $OUT_FILE > $PROJECT_PATH/.gitattributes"
 				if [[ $IS_DRY -eq $NO ]]; then
 					\cat  "$OUT_FILE"  >"$PROJECT_PATH/.gitattributes"  || exit 1
@@ -113,7 +113,7 @@ if [[ " $ACTIONS " == *" config "* ]]; then
 			local HASH_A=$( \cat "$OUT_FILE"                 | \md5sum )
 			local HASH_B=$( \cat "$PROJECT_PATH/phpunit.xml" | \md5sum )
 			if [[ "$HASH_A" != "$HASH_B" ]]; then
-				title C "Updating phpunit.xml.."
+				title C  "Updating phpunit.xml.."  "$PROJECT_NAME"
 				echo_cmd "cat $OUT_FILE > $PROJECT_PATH/phpunit.xml"
 				if [[ $IS_DRY -eq $NO ]]; then
 					\cat  "$OUT_FILE"  >"$PROJECT_PATH/phpunit.xml"  || exit 1
@@ -127,7 +127,7 @@ if [[ " $ACTIONS " == *" config "* ]]; then
 			# generate automake files
 			if [[ -f "$PROJECT_PATH/autotools.conf" ]]; then
 				[[ $QUIET -eq $NO ]] && \
-					title C "Generate autotools"
+					title C  "Generate autotools"  "$PROJECT_NAME"
 				\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
 					echo_cmd -n "genautotools"
 					if [[ $IS_DRY -eq $NO ]]; then
@@ -142,7 +142,7 @@ if [[ " $ACTIONS " == *" config "* ]]; then
 			# automake
 			if [[ -f "$PROJECT_PATH/configure.ac" ]]; then
 				[[ $QUIET -eq $NO ]] && \
-					title C "autoreconf"
+					title C  "autoreconf"  "$PROJECT_NAME"
 				\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
 					echo_cmd "autoreconf -v --install"
 					if [[ $IS_DRY -eq $NO ]]; then
@@ -156,7 +156,7 @@ if [[ " $ACTIONS " == *" config "* ]]; then
 		# generate pom.xml file
 		if [[ -f "$PROJECT_PATH/pom.conf" ]]; then
 			[[ $QUIET -eq $NO ]] && \
-				title C "Generate pom"
+				title C  "Generate pom"  "$PROJECT_NAME"
 			\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
 				# configure for release
 				if [[ $ALLOW_RELEASE   -eq $YES ]] \
@@ -182,7 +182,7 @@ if [[ " $ACTIONS " == *" config "* ]]; then
 					# check for dependency updates
 					if [[ $DEBUG_FLAGS -eq $YES ]]; then
 						[[ $QUIET -eq $NO ]] && \
-							title C "Check dependency updates"
+							title C  "Check dependency updates"  "$PROJECT_NAME"
 						echo_cmd "mvn versions:display-dependency-updates versions:display-plugin-updates"
 						if [[ $IS_DRY -eq $NO ]]; then
 							\mvn  versions:display-dependency-updates  versions:display-plugin-updates
@@ -196,7 +196,7 @@ if [[ " $ACTIONS " == *" config "* ]]; then
 		# generate .spec file
 		if [[ -f "$PROJECT_PATH/spec.conf" ]]; then
 			[[ $QUIET -eq $NO ]] && \
-				title C "Generate spec"
+				title C  "Generate spec"  "$PROJECT_NAME"
 			\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
 				echo_cmd -n "genspec"
 				if [[ $IS_DRY -eq $NO ]]; then
@@ -216,7 +216,7 @@ if [[ " $ACTIONS " == *" config "* ]]; then
 				&& [[ $PROJECT_RELEASE -eq $YES ]] \
 				&& [[ -f "$PROJECT_PATH/composer.lock" ]]; then
 					[[ $QUIET -eq $NO ]] && \
-						title C "Composer Install"
+						title C  "Composer Install"  "$PROJECT_NAME"
 					echo_cmd "composer install -a -o --no-dev --prefer-dist"
 					if [[ $IS_DRY -eq $NO ]]; then
 						\composer install --no-dev --prefer-dist --classmap-authoritative --optimize-autoloader  || exit 1
@@ -226,14 +226,14 @@ if [[ " $ACTIONS " == *" config "* ]]; then
 					if [[ $DEBUG_FLAGS -eq $YES ]] \
 					|| [[ ! -f "$PROJECT_PATH/composer.lock" ]]; then
 						[[ $QUIET -eq $NO ]] && \
-							title C "Composer Update"
+							title C  "Composer Update"  "$PROJECT_NAME"
 						echo_cmd "composer update"
 						if [[ $IS_DRY -eq $NO ]]; then
 							\composer update  || exit 1
 						fi
 					else
 						[[ $QUIET -eq $NO ]] && \
-							title C "Composer Install"
+							title C  "Composer Install"  "$PROJECT_NAME"
 						echo_cmd "composer install"
 						if [[ $IS_DRY -eq $NO ]]; then
 							\composer install  || exit 1
@@ -251,7 +251,7 @@ if [[ " $ACTIONS " == *" config "* ]]; then
 		COUNT_ACT=$((COUNT_ACT+1))
 	else
 		[[ $QUIET -eq $NO ]] && \
-			title C "Configure"
+			title C  "Configure"
 		notice "Nothing found to configure.."
 		echo
 	fi

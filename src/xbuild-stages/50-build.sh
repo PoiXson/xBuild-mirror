@@ -6,7 +6,7 @@ if [[ " $ACTIONS " == *" build "* ]]; then
 	ACTIONS_FOUND="$ACTIONS_FOUND build"
 	did_something=$NO
 	[[ $QUIET -eq $NO ]] && \
-		title C "Build"
+		title C  "Build"  "$PROJECT_NAME"
 	doProjectTags
 	# run commands
 	for ENTRY in "${RUN_BUILD[@]}"; do

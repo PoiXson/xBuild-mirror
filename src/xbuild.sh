@@ -402,7 +402,9 @@ function doProject() {
 		fi
 	fi
 	if [[ $QUIET -eq $NO ]]; then
-		title B "$PROJECT_NAME"
+		echo
+		title B  "$PROJECT_NAME"
+		echo
 		echo -e " ${COLOR_GREEN}>${COLOR_RESET} ${COLOR_BLUE}${PROJECT_PATH}${COLOR_RESET}"
 		if [[ ! -z $PROJECT_VERSION ]]; then
 			local SNAPSHOT=""
@@ -801,7 +803,7 @@ CleanupProjectVars
 
 if [[ " $ACTIONS " == *" clean "* ]]; then
 	[[ $QUIET -eq $NO ]] && \
-		title C "Clean"
+		title C  "Clean"
 	LAST_RM_TOTAL=$RM_TOTAL
 	\pushd  "$WDIR/"  >/dev/null || return
 		doClean  "target build bin run rpmbuild"

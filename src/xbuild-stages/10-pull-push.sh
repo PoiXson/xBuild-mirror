@@ -9,7 +9,7 @@ if [[ " $ACTIONS " == *" pull-push "* ]]; then
 		# clone repo
 		if [[ ! -e "$PROJECT_PATH" ]]; then
 			[[ $QUIET -eq $NO ]] && \
-				title C "Clone"
+				title C  "Clone"  "$PROJECT_NAME"
 			\pushd  "$CURRENT_PATH/"  >/dev/null  || exit 1
 				local CLONE_PATH="${PROJECT_PATH##*/}"
 				# git clone
@@ -23,7 +23,7 @@ if [[ " $ACTIONS " == *" pull-push "* ]]; then
 			return
 		fi
 		[[ $QUIET -eq $NO ]] && \
-			title C "Pull/Push"
+			title C  "Pull/Push"  "$PROJECT_NAME"
 		\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
 			# git pull
 			echo_cmd "git pull"

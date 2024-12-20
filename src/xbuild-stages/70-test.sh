@@ -7,7 +7,7 @@ if [[ " $ACTIONS " == *" test "* ]]; then
 	did_something=$NO
 	doProjectTags
 	[[ $QUIET -eq $NO ]] && \
-		title C "Testing"
+		title C  "Testing"  "$PROJECT_NAME"
 	# make check
 	if [[ -f "$PROJECT_PATH/Makefile" ]]; then
 		\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1

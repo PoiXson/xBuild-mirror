@@ -7,7 +7,7 @@ if [[ " $ACTIONS " == *" pack "* ]]; then
 	local did_something=$NO
 	doProjectTags
 	[[ $QUIET -eq $NO ]] && \
-		title C "Package"
+		title C  "Package"  "$PROJECT_NAME"
 	# make dist
 	if [[ -f "$PROJECT_PATH/Makefile" ]]; then
 		\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1

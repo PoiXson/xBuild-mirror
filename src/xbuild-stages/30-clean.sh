@@ -5,7 +5,7 @@
 if [[ " $ACTIONS " == *" clean "* ]]; then
 	ACTIONS_FOUND="$ACTIONS_FOUND clean"
 	[[ $QUIET -eq $NO ]] && \
-		title C "Clean"
+		title C  "Clean"  "$PROJECT_NAME"
 	LAST_RM_TOTAL=$RM_TOTAL
 	restoreProjectTags
 	# make clean
