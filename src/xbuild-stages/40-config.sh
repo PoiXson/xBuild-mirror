@@ -21,107 +21,114 @@ if [[ " $ACTIONS " == *" config "* ]]; then
 			. "$ENTRY" || exit 1
 		fi
 	done
+	# stub files
 	if [[ $DO_CI -eq $NO ]]; then
-		# .gitignore
-		if [[ -f "$PROJECT_PATH/.gitignore" ]]; then
-			OUT_FILE=$( mktemp )
-			RESULT=$?
-			if [[ $RESULT -ne 0 ]] || [[ -z $OUT_FILE ]]; then
-				failure "Failed to create a temp file for .gitignore"
-				failure ; exit $RESULT
-			fi
-			# prepend
-			if [[ ! -z $PROJECT_GITIGNORE ]]; then
-				for ENTRY in $PROJECT_GITIGNORE; do
-					echo "$ENTRY" >>"$OUT_FILE"
-				done
-				echo >>"$OUT_FILE"
-			fi
-			# defaults
-			\cat /etc/xbuild/gitignore >>"$OUT_FILE" || exit 1
-			# append
-			if [[ ! -z $PROJECT_GITIGNOREEND ]]; then
-				echo >>"$OUT_FILE"
-				for ENTRY in $PROJECT_GITIGNOREEND; do
-					echo "$ENTRY" >>"$OUT_FILE"
-				done
-			fi
-			HASH_A=$( \cat "$OUT_FILE"                | \md5sum )
-			HASH_B=$( \cat "$PROJECT_PATH/.gitignore" | \md5sum )
-			if [[ "$HASH_A" != "$HASH_B" ]]; then
-				title C  "Updating .gitignore.."  "$PROJECT_NAME"
-				echo_cmd "cat $OUT_FILE > $PROJECT_PATH/.gitignore"
-				if [[ $IS_DRY -eq $NO ]]; then
-					\cat  "$OUT_FILE"  >"$PROJECT_PATH/.gitignore"  || exit 1
+		FILES_EXIST=$NO
+		for FILE in \
+				/etc/xbuild/stubs/.* \
+				/etc/xbuild/stubs/*; do
+			FILENAME=${FILE##*/}
+			# has file
+			if [[ ! -z $FILENAME               ]] \
+			&& [[ -f "$PROJECT_PATH/$FILENAME" ]]; then
+				FILES_EXIST=$YES
+				SRC_FILE="$FILE"
+				TMP_FILE=""
+				# files needing temp
+				case "$FILENAME" in
+				".gitignore")
+					if [[ ! -z $PROJECT_GITIGNORE    ]] \
+					|| [[ ! -z $PROJECT_GITIGNOREEND ]]; then
+						TMP_FILE=$( mktemp )
+						RESULT=$?
+						if [[ $RESULT -ne 0 ]] || [[ -z $TMP_FILE ]]; then
+							failure "Failed to create a temp file for $FILENAME"
+							failure ; exit $RESULT
+						fi
+						# prepend
+						if [[ ! -z $PROJECT_GITIGNORE    ]]; then
+							for ENTRY in $PROJECT_GITIGNORE; do
+								echo "$ENTRY" >>"$TMP_FILE"
+							done
+							echo >>"$TMP_FILE"
+						fi
+						# default content
+						echo_cmd "cat $FILE >> $TMP_FILE"
+						\cat  "$FILE"  >>"$TMP_FILE"  || exit 1
+						# append
+						if [[ ! -z $PROJECT_GITIGNOREEND ]]; then
+							echo >>"$TMP_FILE"
+							for ENTRY in $PROJECT_GITIGNOREEND; do
+								echo "$ENTRY" >>"$TMP_FILE"
+							done
+						fi
+					fi
+					;;
+				".gitattributes")
+					if [[ ! -z $PROJECT_GITATTRIB ]]; then
+						TMP_FILE=$( mktemp )
+						RESULT=$?
+						if [[ $RESULT -ne 0 ]] || [[ -z $TMP_FILE ]]; then
+							failure "Failed to create a temp file for $FILENAME"
+							failure ; exit $RESULT
+						fi
+						# prepend
+						for ENTRY in $PROJECT_GITATTRIB; do
+							echo "$ENTRY" >>"$TMP_FILE"
+						done
+						echo >>"$TMP_FILE"
+						# default content
+						echo_cmd "cat $FILE >> $TMP_FILE"
+						\cat  "$FILE"  >>"$TMP_FILE"  || exit 1
+					fi
+					;;
+				"phpunit.xml")
+					TMP_FILE=$( mktemp )
+					RESULT=$?
+					if [[ $RESULT -ne 0 ]] || [[ -z $TMP_FILE ]]; then
+						failure "Failed to create a temp file for $FILENAME"
+						failure ; exit $RESULT
+					fi
+					echo_cmd "cat $FILE"
+					DATA=$( \cat "$FILE" )
+					if [[ -z $DATA ]]; then
+						failure "Failed to load /etc/xbuild/phpunit_xml"
+						failure ; exit 1
+					fi
+					if [[ -e "$PROJECT_PATH/tests/bootstrap.php" ]]; then
+						DATA=${DATA/<BOOTSTRAP>/tests\/bootstrap.php}
+					else
+						DATA=${DATA/<BOOTSTRAP>/vendor\/autoload.php}
+					fi
+					echo_cmd "echo ... >> TMP_FILE"
+					echo "$DATA" >>"TMP_FILE" || exit 1
+					;;
+				esac
+				if [[ ! -z $TMP_FILE ]]; then
+					SRC_FILE="$TMP_FILE"
 				fi
-				did_something=$YES
-			fi
-			\rm -f "$OUT_FILE"
-		fi
-		# .gitattributes
-		if [[ -f "$PROJECT_PATH/.gitattributes" ]]; then
-			OUT_FILE=$( mktemp )
-			RESULT=$?
-			if [[ $RESULT -ne 0 ]] || [[ -z $OUT_FILE ]]; then
-				failure "Failed to create a temp file for .gitattributes"
-				failure ; exit $RESULT
-			fi
-			if [[ ! -z $PROJECT_GITATTRIB ]]; then
-				for ENTRY in $PROJECT_GITATTRIB; do
-					echo "$ENTRY" >>"$OUT_FILE"
-				done
-				echo >>"$OUT_FILE"
-			fi
-			\cat /etc/xbuild/gitattributes >>"$OUT_FILE" || exit 1
-			HASH_A=$( \cat "$OUT_FILE"                    | \md5sum )
-			HASH_B=$( \cat "$PROJECT_PATH/.gitattributes" | \md5sum )
-			if [[ "$HASH_A" != "$HASH_B" ]]; then
-				title C  "Updating .gitattributes.."  "$PROJECT_NAME"
-				echo_cmd "cat $OUT_FILE > $PROJECT_PATH/.gitattributes"
-				if [[ $IS_DRY -eq $NO ]]; then
-					\cat  "$OUT_FILE"  >"$PROJECT_PATH/.gitattributes"  || exit 1
+				echo_cmd "md5sum $FILENAME"
+				HASH_SRC=$( \cat "$SRC_FILE"               | \md5sum )
+				HASH_DST=$( \cat "$PROJECT_PATH/$FILENAME" | \md5sum )
+				if [[ "$HASH_SRC" != "$HASH_DST" ]]; then
+					title C  "Updating $FILENAME .."
+					echo_cmd "cat $SRC_FILE > $PROJECT_PATH/$FILENAME"
+					if [[ $IS_DRY -eq $NO ]]; then
+						\cat  "$SRC_FILE"  >"$PROJECT_PATH/$FILENAME"  || exit 1
+						did_something=$YES
+					fi
 				fi
-				did_something=$YES
-			fi
-			\rm -f "$OUT_FILE"
-		fi
-		# phpunit.xml
-		if [[ -f "$PROJECT_PATH/phpunit.xml" ]]; then
-			OUT_FILE=$( mktemp )
-			RESULT=$?
-			if [[ $RESULT -ne 0 ]] || [[ -z $OUT_FILE ]]; then
-				failure "Failed to create a temp file for phpunit.xml"
-				failure ; exit $RESULT
-			fi
-			if [[ ! -z $PROJECT_GITATTRIB ]]; then
-				for ENTRY in $PROJECT_GITATTRIB; do
-					echo "$ENTRY" >>"$OUT_FILE"
-				done
-				echo >>"$OUT_FILE"
-			fi
-			DATA=$( \cat "/etc/xbuild/phpunit_xml" )
-			if [[ -z $DATA ]]; then
-				failure "Failed to load /etc/xbuild/phpunit_xml"
-				failure ; exit 1
-			fi
-			if [[ -e "$PROJECT_PATH/tests/bootstrap.php" ]]; then
-				DATA=${DATA/<BOOTSTRAP>/tests\/bootstrap.php}
-			else
-				DATA=${DATA/<BOOTSTRAP>/vendor\/autoload.php}
-			fi
-			echo "$DATA" >>"$OUT_FILE" || exit 1
-			HASH_A=$( \cat "$OUT_FILE"                 | \md5sum )
-			HASH_B=$( \cat "$PROJECT_PATH/phpunit.xml" | \md5sum )
-			if [[ "$HASH_A" != "$HASH_B" ]]; then
-				title C  "Updating phpunit.xml.."  "$PROJECT_NAME"
-				echo_cmd "cat $OUT_FILE > $PROJECT_PATH/phpunit.xml"
-				if [[ $IS_DRY -eq $NO ]]; then
-					\cat  "$OUT_FILE"  >"$PROJECT_PATH/phpunit.xml"  || exit 1
+				# cleanup temp
+				if [[ ! -z $TMP_FILE ]]; then
+					\rm -f  "$TMP_FILE"
 				fi
-				did_something=$YES
 			fi
-			\rm -f "$OUT_FILE"
+			# end has file
+		done
+		if [[ $FILES_EXIST -eq $YES ]]; then
+			echo
 		fi
+		# end stub FILE
 		# automake
 		if [[ $DO_CI -eq $NO ]]; then
 			# generate automake files

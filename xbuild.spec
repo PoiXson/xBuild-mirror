@@ -57,6 +57,7 @@ echo "Install.."
 	"%{buildroot}%{_sysconfdir}/java/"           \
 	"%{buildroot}%{_sysconfdir}/xbuild/"         \
 	"%{buildroot}%{_sysconfdir}/xbuild/stages/"  \
+	"%{buildroot}%{_sysconfdir}/xbuild/stubs/"   \
 		|| exit 1
 
 # /usr/bin/
@@ -94,9 +95,13 @@ echo "Install.."
 	%{__install} -m 0644  "xdeploy-example.conf"  "%{buildroot}/xdeploy.conf"  || exit 1
 	# /etc/
 	%{__install} -m 0644  "maven-versions.conf.example"  "%{buildroot}%{_sysconfdir}/java/"    || exit 1
-	%{__install} -m 0644  ".gitignore"      "%{buildroot}%{_sysconfdir}/xbuild/gitignore"      || exit 1
-	%{__install} -m 0644  ".gitattributes"  "%{buildroot}%{_sysconfdir}/xbuild/gitattributes"  || exit 1
-	%{__install} -m 0644  "phpunit_xml"     "%{buildroot}%{_sysconfdir}/xbuild/phpunit_xml"    || exit 1
+	# /etc/xbuild/stubs/
+	%{__install} -m 0644  \
+		".gitignore"            \
+		".gitattributes"        \
+		"stubs/phpunit.xml"     \
+		"%{buildroot}%{_sysconfdir}/xbuild/stubs/"  \
+			|| exit 1
 \popd  >/dev/null
 
 
@@ -134,10 +139,13 @@ fi
 %{_sysconfdir}/profile.d/xbuild.sh
 %attr(0644,-,-) %{_sysconfdir}/java/maven-versions.conf.example
 %dir %{_sysconfdir}/xbuild/
+# stubs
+%dir %{_sysconfdir}/xbuild/stubs/
+%attr(0644,-,-) %config(noreplace) %{_sysconfdir}/xbuild/stubs/.gitignore
+%attr(0644,-,-) %config(noreplace) %{_sysconfdir}/xbuild/stubs/.gitattributes
+%attr(0644,-,-) %config(noreplace) %{_sysconfdir}/xbuild/stubs/phpunit.xml
+# build stages
 %dir %{_sysconfdir}/xbuild/stages/
-%attr(0644,-,-) %config(noreplace) %{_sysconfdir}/xbuild/gitignore
-%attr(0644,-,-) %config(noreplace) %{_sysconfdir}/xbuild/gitattributes
-%attr(0644,-,-) %config(noreplace) %{_sysconfdir}/xbuild/phpunit_xml
 %attr(0644,-,-) %{_sysconfdir}/xbuild/stages/10-pull-push.sh
 %attr(0644,-,-) %{_sysconfdir}/xbuild/stages/30-clean.sh
 %attr(0644,-,-) %{_sysconfdir}/xbuild/stages/40-config.sh
