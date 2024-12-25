@@ -101,7 +101,7 @@ if [[ " $ACTIONS " == *" config "* ]]; then
 						DATA=${DATA/<BOOTSTRAP>/vendor\/autoload.php}
 					fi
 					echo_cmd "echo ... >> TMP_FILE"
-					echo "$DATA" >>"TMP_FILE" || exit 1
+					echo "$DATA" >>"$TMP_FILE" || exit 1
 					;;
 				esac
 				if [[ ! -z $TMP_FILE ]]; then
