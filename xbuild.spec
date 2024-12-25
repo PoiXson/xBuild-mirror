@@ -92,9 +92,9 @@ echo "Install.."
 	%{__install} -m 0644  "90-git-gui.sh"    "%{buildroot}%{_sysconfdir}/xbuild/stages/"  || exit 1
 \popd  >/dev/null
 \pushd  "%{_topdir}/../"  >/dev/null  || exit 1
-	%{__install} -m 0644  "xdeploy-example.conf"  "%{buildroot}/xdeploy.conf"  || exit 1
-	# /etc/
-	%{__install} -m 0644  "maven-versions.conf.example"  "%{buildroot}%{_sysconfdir}/java/"    || exit 1
+	# /etc/xbuild/
+	%{__install} -m 0644  "xdeploy-example.conf"         "%{buildroot}/xdeploy.conf"         || exit 1
+	%{__install} -m 0644  "maven-versions.conf.example"  "%{buildroot}%{_sysconfdir}/java/"  || exit 1
 	# /etc/xbuild/stubs/
 	%{__install} -m 0644  \
 		".gitignore"            \

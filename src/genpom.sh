@@ -653,7 +653,7 @@ echo -e "\t\t\t</plugin>" >>"$OUT_FILE"
 			</plugin>
 EOF
 
-# versions plugin
+# versions plugin - https://www.mojohaus.org/versions/versions-maven-plugin/index.html
 \cat >>"$OUT_FILE" <<EOF
 			<!-- Versions Plugin -->
 			<plugin>
