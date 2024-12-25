@@ -53,7 +53,6 @@ if [[ " $ACTIONS " == *" config "* ]]; then
 							echo >>"$TMP_FILE"
 						fi
 						# default content
-						echo_cmd "cat $FILE >> $TMP_FILE"
 						\cat  "$FILE"  >>"$TMP_FILE"  || exit 1
 						# append
 						if [[ ! -z $PROJECT_GITIGNOREEND ]]; then
@@ -78,7 +77,6 @@ if [[ " $ACTIONS " == *" config "* ]]; then
 						done
 						echo >>"$TMP_FILE"
 						# default content
-						echo_cmd "cat $FILE >> $TMP_FILE"
 						\cat  "$FILE"  >>"$TMP_FILE"  || exit 1
 					fi
 					;;
@@ -89,7 +87,6 @@ if [[ " $ACTIONS " == *" config "* ]]; then
 						failure "Failed to create a temp file for $FILENAME"
 						failure ; exit $RESULT
 					fi
-					echo_cmd "cat $FILE"
 					DATA=$( \cat "$FILE" )
 					if [[ -z $DATA ]]; then
 						failure "Failed to load /etc/xbuild/phpunit_xml"
@@ -100,7 +97,6 @@ if [[ " $ACTIONS " == *" config "* ]]; then
 					else
 						DATA=${DATA/<BOOTSTRAP>/vendor\/autoload.php}
 					fi
-					echo_cmd "echo ... >> TMP_FILE"
 					echo "$DATA" >>"$TMP_FILE" || exit 1
 					;;
 				esac
