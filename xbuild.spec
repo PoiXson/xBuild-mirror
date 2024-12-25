@@ -99,6 +99,7 @@ echo "Install.."
 	%{__install} -m 0644  \
 		".gitignore"            \
 		".gitattributes"        \
+		"stubs/app.properties"  \
 		"stubs/phpunit.xml"     \
 		"%{buildroot}%{_sysconfdir}/xbuild/stubs/"  \
 			|| exit 1
@@ -143,6 +144,7 @@ fi
 %dir %{_sysconfdir}/xbuild/stubs/
 %attr(0644,-,-) %config(noreplace) %{_sysconfdir}/xbuild/stubs/.gitignore
 %attr(0644,-,-) %config(noreplace) %{_sysconfdir}/xbuild/stubs/.gitattributes
+%attr(0644,-,-) %config(noreplace) %{_sysconfdir}/xbuild/stubs/app.properties
 %attr(0644,-,-) %config(noreplace) %{_sysconfdir}/xbuild/stubs/phpunit.xml
 # build stages
 %dir %{_sysconfdir}/xbuild/stages/
