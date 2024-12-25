@@ -68,7 +68,7 @@ if [[ " $ACTIONS " == *" build "* ]]; then
 						"$PROJECT_PATH/pom.xml.xbuild-save" \
 							|| exit 1
 				fi
-				local SNAPSHOT_OR_RELEASE=""
+				SNAPSHOT_OR_RELEASE=""
 				if [[ $ALLOW_RELEASE   -eq $YES ]] \
 				&& [[ $PROJECT_RELEASE -eq $YES ]]; then
 					SNAPSHOT_OR_RELEASE="--release"

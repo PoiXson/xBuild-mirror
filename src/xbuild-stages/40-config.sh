@@ -24,8 +24,8 @@ if [[ " $ACTIONS " == *" config "* ]]; then
 	if [[ $DO_CI -eq $NO ]]; then
 		# .gitignore
 		if [[ -f "$PROJECT_PATH/.gitignore" ]]; then
-			local OUT_FILE=$( mktemp )
-			local RESULT=$?
+			OUT_FILE=$( mktemp )
+			RESULT=$?
 			if [[ $RESULT -ne 0 ]] || [[ -z $OUT_FILE ]]; then
 				failure "Failed to create a temp file for .gitignore"
 				failure ; exit $RESULT
@@ -46,8 +46,8 @@ if [[ " $ACTIONS " == *" config "* ]]; then
 					echo "$ENTRY" >>"$OUT_FILE"
 				done
 			fi
-			local HASH_A=$( \cat "$OUT_FILE"                | \md5sum )
-			local HASH_B=$( \cat "$PROJECT_PATH/.gitignore" | \md5sum )
+			HASH_A=$( \cat "$OUT_FILE"                | \md5sum )
+			HASH_B=$( \cat "$PROJECT_PATH/.gitignore" | \md5sum )
 			if [[ "$HASH_A" != "$HASH_B" ]]; then
 				title C  "Updating .gitignore.."  "$PROJECT_NAME"
 				echo_cmd "cat $OUT_FILE > $PROJECT_PATH/.gitignore"
@@ -60,8 +60,8 @@ if [[ " $ACTIONS " == *" config "* ]]; then
 		fi
 		# .gitattributes
 		if [[ -f "$PROJECT_PATH/.gitattributes" ]]; then
-			local OUT_FILE=$( mktemp )
-			local RESULT=$?
+			OUT_FILE=$( mktemp )
+			RESULT=$?
 			if [[ $RESULT -ne 0 ]] || [[ -z $OUT_FILE ]]; then
 				failure "Failed to create a temp file for .gitattributes"
 				failure ; exit $RESULT
@@ -73,8 +73,8 @@ if [[ " $ACTIONS " == *" config "* ]]; then
 				echo >>"$OUT_FILE"
 			fi
 			\cat /etc/xbuild/gitattributes >>"$OUT_FILE" || exit 1
-			local HASH_A=$( \cat "$OUT_FILE"                    | \md5sum )
-			local HASH_B=$( \cat "$PROJECT_PATH/.gitattributes" | \md5sum )
+			HASH_A=$( \cat "$OUT_FILE"                    | \md5sum )
+			HASH_B=$( \cat "$PROJECT_PATH/.gitattributes" | \md5sum )
 			if [[ "$HASH_A" != "$HASH_B" ]]; then
 				title C  "Updating .gitattributes.."  "$PROJECT_NAME"
 				echo_cmd "cat $OUT_FILE > $PROJECT_PATH/.gitattributes"
@@ -87,8 +87,8 @@ if [[ " $ACTIONS " == *" config "* ]]; then
 		fi
 		# phpunit.xml
 		if [[ -f "$PROJECT_PATH/phpunit.xml" ]]; then
-			local OUT_FILE=$( mktemp )
-			local RESULT=$?
+			OUT_FILE=$( mktemp )
+			RESULT=$?
 			if [[ $RESULT -ne 0 ]] || [[ -z $OUT_FILE ]]; then
 				failure "Failed to create a temp file for phpunit.xml"
 				failure ; exit $RESULT
@@ -110,8 +110,8 @@ if [[ " $ACTIONS " == *" config "* ]]; then
 				DATA=${DATA/<BOOTSTRAP>/vendor\/autoload.php}
 			fi
 			echo "$DATA" >>"$OUT_FILE" || exit 1
-			local HASH_A=$( \cat "$OUT_FILE"                 | \md5sum )
-			local HASH_B=$( \cat "$PROJECT_PATH/phpunit.xml" | \md5sum )
+			HASH_A=$( \cat "$OUT_FILE"                 | \md5sum )
+			HASH_B=$( \cat "$PROJECT_PATH/phpunit.xml" | \md5sum )
 			if [[ "$HASH_A" != "$HASH_B" ]]; then
 				title C  "Updating phpunit.xml.."  "$PROJECT_NAME"
 				echo_cmd "cat $OUT_FILE > $PROJECT_PATH/phpunit.xml"
@@ -169,7 +169,7 @@ if [[ " $ACTIONS " == *" config "* ]]; then
 					fi
 				# configure for snapshot
 				else
-					local SNAPSHOT=""
+					SNAPSHOT=""
 					[[ -z $PROJECT_VERSION ]] || \
 						SNAPSHOT="--snapshot $PROJECT_VERSION"
 					echo_cmd -n "genpom $SNAPSHOT"

@@ -35,7 +35,7 @@ if [[ " $ACTIONS " == *" clean "* ]]; then
 		fi
 		# remove more files
 		if [[ -d "$PROJECT_PATH/src/" ]]; then
-			local CLEAN_FILES="autom4te.cache aclocal.m4 compile configure config.log config.guess config.status config.sub depcomp install-sh ltmain.sh Makefile Makefile.in missing"
+			CLEAN_FILES="autom4te.cache aclocal.m4 compile configure config.log config.guess config.status config.sub depcomp install-sh ltmain.sh Makefile Makefile.in missing"
 			doClean "$CLEAN_FILES"
 			\pushd  "$PROJECT_PATH/src/"  >/dev/null || return
 				doClean "$CLEAN_FILES"

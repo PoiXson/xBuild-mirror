@@ -4,7 +4,7 @@
 
 if [[ " $ACTIONS " == *" pack "* ]]; then
 	ACTIONS_FOUND="$ACTIONS_FOUND pack"
-	local did_something=$NO
+	did_something=$NO
 	doProjectTags
 	[[ $QUIET -eq $NO ]] && \
 		title C  "Package"  "$PROJECT_NAME"
@@ -17,16 +17,16 @@ if [[ " $ACTIONS " == *" pack "* ]]; then
 			fi
 		\popd >/dev/null
 		echo
-		local did_something=$YES
+		did_something=$YES
 	fi
 	# find .spec file
-	local SPEC_FILE_COUNT=$( \ls -1 "$PROJECT_PATH/"*.spec 2>/dev/null | \wc -l )
+	SPEC_FILE_COUNT=$( \ls -1 "$PROJECT_PATH/"*.spec 2>/dev/null | \wc -l )
 	if [[ $SPEC_FILE_COUNT -gt 1 ]]; then
 		failure "$SPEC_FILE_COUNT .spec files were found here"
 		failure ; exit 1
 	fi
-	local SPEC_FILE=""
-	local SPEC_NAME=""
+	SPEC_FILE=""
+	SPEC_NAME=""
 	if [[ $SPEC_FILE_COUNT -eq 1 ]]; then
 		SPEC_FILE=$( \ls -1 "$PROJECT_PATH/"*.spec )
 		SPEC_NAME=${SPEC_FILE%.*}
@@ -39,7 +39,7 @@ if [[ " $ACTIONS " == *" pack "* ]]; then
 			echo_cmd -n "rm rpmbuild"
 			if [[ $IS_DRY -eq $NO ]]; then
 				\pushd  "$PROJECT_PATH"  >/dev/null  || exit 1
-					local c=$( \rm -Rvf --preserve-root rpmbuild/ | \wc -l )
+					c=$( \rm -Rvf --preserve-root rpmbuild/ | \wc -l )
 					[[ 0 -ne $? ]] && exit 1
 					echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
 				\popd >/dev/null
@@ -49,15 +49,15 @@ if [[ " $ACTIONS " == *" pack "* ]]; then
 		fi
 		# make build root dirs
 		echo_cmd -n "mkdir rpmbuild/.."
-		local c=$( \mkdir -pv "$PROJECT_PATH"/rpmbuild/{BUILD,BUILDROOT,SOURCES,SPECS,RPMS,SRPMS,TMP} | \wc -l )
+		c=$( \mkdir -pv "$PROJECT_PATH"/rpmbuild/{BUILD,BUILDROOT,SOURCES,SPECS,RPMS,SRPMS,TMP} | \wc -l )
 		[[ 0 -ne $? ]] && exit 1
 		echo -e " ${COLOR_BLUE}${c}${COLOR_RESET}"
 		echo_cmd "cp  "${SPEC_FILE##*/}"  rpmbuild/SPECS/"
 		if [[ $IS_DRY -eq $NO ]]; then
 			\cp -vf  "$SPEC_FILE"  "$PROJECT_PATH/rpmbuild/SPECS/"  || exit 1
 		fi
-		local PACKAGES=""
-		local PACKAGES_DEB=""
+		PACKAGES=""
+		PACKAGES_DEB=""
 		\pushd  "$PROJECT_PATH/rpmbuild/"  >/dev/null  || exit 1
 			if [[ -z $TARGET_PATH ]]; then
 				failure "Target path not set"
@@ -127,7 +127,7 @@ if [[ " $ACTIONS " == *" pack "* ]]; then
 			echo -e "   ${COLOR_CYAN}DRY${COLOR_RESET}"
 		fi
 		echo -e " ${COLOR_CYAN}-----------------------------------------------${COLOR_RESET}"
-		local did_something=$YES
+		did_something=$YES
 	fi
 	# nothing to do
 	if [[ $did_something -eq $YES ]]; then

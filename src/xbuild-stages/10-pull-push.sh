@@ -11,7 +11,7 @@ if [[ " $ACTIONS " == *" pull-push "* ]]; then
 			[[ $QUIET -eq $NO ]] && \
 				title C  "Clone"  "$PROJECT_NAME"
 			\pushd  "$CURRENT_PATH/"  >/dev/null  || exit 1
-				local CLONE_PATH="${PROJECT_PATH##*/}"
+				CLONE_PATH="${PROJECT_PATH##*/}"
 				# git clone
 				echo_cmd "git clone  $PROJECT_REPO  $CLONE_PATH"
 				if [[ $IS_DRY -eq $NO ]]; then
