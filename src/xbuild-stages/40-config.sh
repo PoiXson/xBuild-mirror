@@ -28,6 +28,9 @@ if [[ " $ACTIONS " == *" config "* ]]; then
 				/etc/xbuild/stubs/.* \
 				/etc/xbuild/stubs/*; do
 			FILENAME=${FILE##*/}
+			if [[ "$FILENAME" == "app.properties" ]]; then
+				FILENAME="resources/$FILENAME"
+			fi
 			# has file
 			if [[ ! -z $FILENAME               ]] \
 			&& [[ -f "$PROJECT_PATH/$FILENAME" ]]; then
