@@ -391,8 +391,8 @@ fi
 if [[ -e "$WDIR/tests/" ]]; then
 
 	# junit
-	FindDepVersion  "junit"  "junit"
-	AddPropPlugin  "junit-version"  "$FOUND_DEP_VERSION"
+	FindDepVersion  "org.junit.jupiter"  "junit-jupiter"
+	AddPropPlugin  "junit-jupiter-version"  "$FOUND_DEP_VERSION"
 
 	# surefire
 	FindDepVersion  "org.apache.maven.plugins"  "maven-surefire-plugin"
@@ -764,7 +764,7 @@ fi
 
 # jUnit
 if [[ -e "$WDIR/tests/" ]]; then
-	AddDep  "junit"  "junit"  scope=test
+	AddDep  "org.junit.jupiter"  "junit-jupiter"  scope=test
 \cat >>"$OUT_FILE" <<EOF
 			<!-- Surefire Plugin -->
 			<plugin>
