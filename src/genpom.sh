@@ -403,8 +403,8 @@ if [[ -e "$WDIR/tests/" ]]; then
 	AddPropPlugin  "jacoco-version"  "$FOUND_DEP_VERSION"
 
 	# jxr - cross reference
-	FindDepVersion  "org.apache.maven.jxr"  "jxr"
-	AddPropPlugin  "jxr-version"  "$FOUND_DEP_VERSION"
+	FindDepVersion  "org.apache.maven"  "maven-jxr"
+	AddPropPlugin  "maven-jxr-version"  "$FOUND_DEP_VERSION"
 
 	# reports
 	FindDepVersion  "org.apache.maven.plugins"  "maven-project-info-reports-plugin"
@@ -800,9 +800,9 @@ if [[ -e "$WDIR/tests/" ]]; then
 			</plugin>
 			<!-- JXR - Cross Reference -->
 			<plugin>
-				<groupId>org.apache.maven.jxr</groupId>
-				<artifactId>jxr</artifactId>
-				<version>\${jxr-version}</version>
+				<groupId>org.apache.maven</groupId>
+				<artifactId>maven-jxr</artifactId>
+				<version>\${maven-jxr-version}</version>
 			</plugin>
 			<!-- Reports -->
 			<plugin>
@@ -860,7 +860,7 @@ if [[ -e "$WDIR/tests/" ]]; then
 			</plugin>
 			<!-- Cross-Reference Plugin -->
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
+				<groupId>org.apache.maven</groupId>
 				<artifactId>maven-jxr-plugin</artifactId>
 				<version>\${jxr-version}</version>
 			</plugin>
