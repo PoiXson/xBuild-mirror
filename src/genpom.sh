@@ -465,6 +465,11 @@ fi
 		<maven.compiler.source>$COMPILE_FOR_JAVA_VERSION</maven.compiler.source>
 		<maven.compiler.target>$COMPILE_FOR_JAVA_VERSION</maven.compiler.target>
 EOF
+SNAPSHOT_POSTFIX=""
+if [[ $SNAPSHOT -eq $YES ]]; then
+	SNAPSHOT_POSTFIX="-SNAPSHOT"
+fi
+echo $'\n\t\t<snap>'"${SNAPSHOT_POSTFIX}</snap>"  >>"$OUT_FILE"
 if [[ ! -z $OUT_PROPS ]]; then
 	echo -ne "\n\n"   >>"$OUT_FILE"
 	echo "$OUT_PROPS" >>"$OUT_FILE"
