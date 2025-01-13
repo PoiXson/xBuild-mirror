@@ -37,6 +37,11 @@ if [[ " $ACTIONS " == *" pull-push "* ]]; then
 				\git push  || exit 1
 				echo
 			fi
+			echo_cmd "git push --tags"
+			if [[ $IS_DRY -eq $NO ]]; then
+				\git push   --tags  || exit 1
+				echo
+			fi
 		\popd >/dev/null
 		COUNT_ACT=$((COUNT_ACT+1))
 	fi
