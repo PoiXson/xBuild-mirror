@@ -95,8 +95,8 @@ while [ $# -gt 0 ]; do
 			OUT_VERSION="$1"
 		fi
 	;;
-	--release=*)   OUT_VERSION=${1#*=}  ;;
-	--snapshot=*)  OUT_VERSION=${1#*=}  ;;
+	--release=*)   OUT_VERSION=${1#*=}  SNAPSHOT=$NO   ;;
+	--snapshot=*)  OUT_VERSION=${1#*=}  SNAPSHOT=$YES  ;;
 	-V|--version)  DisplayVersion ; exit 1  ;;
 	-h|--help)     DisplayHelp    ; exit 1  ;;
 	*)
@@ -453,6 +453,7 @@ fi
 # properties
 \cat >>"$OUT_FILE" <<EOF
 	<properties>
+
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 EOF
@@ -480,7 +481,7 @@ if [[ ! -z $OUT_PROPS_PLUGINS ]]; then
 fi
 if [[ ! -z $OUT_PROPS_DEPS ]]; then
 	echo -e "\n\t\t<!-- Dependencies -->" >>"$OUT_FILE"
-	echo -n "$OUT_PROPS_DEPS"             >>"$OUT_FILE"
+	echo    "$OUT_PROPS_DEPS"             >>"$OUT_FILE"
 fi
 echo -e "\t</properties>" >>"$OUT_FILE"
 
