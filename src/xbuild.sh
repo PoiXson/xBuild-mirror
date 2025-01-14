@@ -60,7 +60,9 @@ function DisplayHelp() {
 	echo -e "  ${COLOR_GREEN}--no-deb${COLOR_RESET}                  Skip building .deb packages"
 	fi
 	echo
-	echo -e "  ${COLOR_GREEN}--pp, --pull-push${COLOR_RESET}         Run git clone/pull/push'"
+	echo -e "  ${COLOR_GREEN}--pp, --pull-push${COLOR_RESET}         Run git clone/pull/push"
+	echo -e "  ${COLOR_GREEN}--pull${COLOR_RESET}                    Run git pull"
+	echo -e "  ${COLOR_GREEN}--push${COLOR_RESET}                    Run git push"
 	echo -e "  ${COLOR_GREEN}--gg, --git-gui${COLOR_RESET}           Open git-gui for each project"
 	echo
 	echo -e "  ${COLOR_GREEN}-c, --clean, --cleanup${COLOR_RESET}    Cleanup workspace; delete generated files"
@@ -679,6 +681,8 @@ while [ $# -gt 0 ]; do
 	--no-deb) DO_ALIEN=$NO  ;;
 
 	--pp|--pull-push|--push-pull|pp|pull-push) ACTIONS="$ACTIONS pull-push" ;;
+	--pull)                                    ACTIONS="$ACTIONS pull"      ;;
+	--push)                                    ACTIONS="$ACTIONS push"      ;;
 	--gg|--git-gui|gg|git-gui)                 ACTIONS="$ACTIONS git-gui"   ;;
 
 	-c|--clean|--clear|--cleanup|clean|cleanup)  ACTIONS="$ACTIONS clean"  ;;
