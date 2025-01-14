@@ -1,9 +1,9 @@
 Name    : xbuild
 Summary : A tool to simplify building and managing projects in your workspace
-Version : 2.1.%{?build_number}%{!?build_number:x}
+Version : 2.2.%{?build_number}%{!?build_number:x}
 Release : 1
 
-Requires   : pxnscripts >= 2.1.0
+Requires   : pxnscripts >= 2.2.0
 Requires   : bash, bc, zip, unzip, grep
 Recommends : rpmbuild, fakeroot, alien, composer
 Recommends : automake, autogen, autoconf, libtool
@@ -20,7 +20,7 @@ Prefix: %{_bindir}/pxn/scripts
 
 %package -n xdeploy
 Summary  : Auto deploy a project or website
-Requires : pxnscripts >= 2.1.0
+Requires : pxnscripts >= 2.2.0
 Requires : git, composer
 
 
@@ -28,7 +28,7 @@ Requires : git, composer
 %package -n xbuild-repos
 Summary  : Setup and maintain yum/dnf and apt software repositories
 Provides : xbuild-repo
-Requires : pxnscripts >= 2.1.0
+Requires : pxnscripts >= 2.2.0
 Requires : bash, gnupg
 Recommends: createrepo_c, dpkg-dev
 
