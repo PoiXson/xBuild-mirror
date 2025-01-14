@@ -2,16 +2,15 @@ Name    : xbuild
 Summary : A tool to simplify building and managing projects in your workspace
 Version : 2.2.%{?build_number}%{!?build_number:x}
 Release : 1
+BuildArch : noarch
+Packager  : PoiXson <support@poixson.com>
+License   : AGPLv3
+URL       : https://poixson.com/
 
 Requires   : pxnscripts >= 2.2.0
 Requires   : bash, bc, zip, unzip, grep
 Recommends : rpmbuild, fakeroot, alien, composer
 Recommends : automake, autogen, autoconf, libtool
-
-BuildArch : noarch
-Packager  : PoiXson <support@poixson.com>
-License   : AGPLv3
-URL       : https://poixson.com/
 
 Prefix: %{_bindir}/pxn/scripts
 %define _rpmfilename  %%{NAME}-%%{VERSION}-%%{RELEASE}.%%{ARCH}.rpm
@@ -42,6 +41,7 @@ echo "Install.."
 
 # create dirs
 %{__install} -d -m 0755  \
+	"%{buildroot}%{_bindir}/"  \
 	"%{buildroot}%{prefix}/"                     \
 	"%{buildroot}%{_sysconfdir}/profile.d/"      \
 	"%{buildroot}%{_sysconfdir}/java/"           \

@@ -10,7 +10,7 @@ if [[ " $ACTIONS " == *" git-gui "* ]]; then
 				GIT_CONFIG_FILE="$PROJECT_PATH/.git/config"
 				if [[ -f "$GIT_CONFIG_FILE" ]]; then
 #TODO: move this to a config file
-GIT_GUI_GEOMETRY="1920x2061+1920+0 231 223"
+GIT_GUI_GEOMETRY="1920x2061+1920+0 422 1049"
 					if \grep -q  "^\s*geometry\s*=\s*$GIT_GUI_GEOMETRY$"  "$GIT_CONFIG_FILE"; then
 						:
 					# modify existing line
