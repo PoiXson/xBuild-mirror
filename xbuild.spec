@@ -18,13 +18,6 @@ Prefix: %{_bindir}/pxn/scripts
 
 
 
-%package -n xdeploy
-Summary  : Auto deploy a project or website
-Requires : pxnscripts >= 2.2.0
-Requires : git, composer
-
-
-
 %package -n xbuild-repos
 Summary  : Setup and maintain yum/dnf and apt software repositories
 Provides : xbuild-repo
@@ -36,9 +29,6 @@ Recommends: createrepo_c, dpkg-dev
 
 %description
 A tool to simplify building and managing projects in your workspace.
-
-%description -n xdeploy
-Auto deploy a project or website.
 
 %description -n xbuild-repos
 Setup and maintain yum/dnf and apt software repositories.
@@ -64,7 +54,6 @@ echo "Install.."
 \pushd  "%{_topdir}/../src/"  >/dev/null  || exit 1
 	# tools
 	%{__install} -m 0644  "xbuild.sh"        "%{buildroot}%{_bindir}/xbuild"        || exit 1
-	%{__install} -m 0644  "xdeploy.sh"       "%{buildroot}%{_bindir}/xdeploy"       || exit 1
 	%{__install} -m 0644  "genautotools.sh"  "%{buildroot}%{_bindir}/genautotools"  || exit 1
 	%{__install} -m 0644  "genpom.sh"        "%{buildroot}%{_bindir}/genpom"        || exit 1
 	%{__install} -m 0644  "genspec.sh"       "%{buildroot}%{_bindir}/genspec"       || exit 1
@@ -79,7 +68,6 @@ echo "Install.."
 # /etc/profile.d/
 \pushd  "%{_topdir}/../src/profile.d/"  >/dev/null  || exit 1
 	%{__install} -m 0644  "xbuild.sh"        "%{buildroot}%{_sysconfdir}/profile.d/xbuild.sh"        || exit 1
-	%{__install} -m 0644  "xdeploy.sh"       "%{buildroot}%{_sysconfdir}/profile.d/xdeploy.sh"       || exit 1
 	%{__install} -m 0644  "xbuild-repos.sh"  "%{buildroot}%{_sysconfdir}/profile.d/xbuild-repos.sh"  || exit 1
 \popd  >/dev/null
 \pushd  "%{_topdir}/../src/xbuild-stages/"  >/dev/null  || exit 1
@@ -93,7 +81,6 @@ echo "Install.."
 \popd  >/dev/null
 \pushd  "%{_topdir}/../"  >/dev/null  || exit 1
 	# /etc/xbuild/
-	%{__install} -m 0644  "xdeploy-example.conf"         "%{buildroot}/xdeploy.conf"         || exit 1
 	%{__install} -m 0644  "maven-versions.conf.example"  "%{buildroot}%{_sysconfdir}/java/"  || exit 1
 	# /etc/xbuild/stubs/
 	%{__install} -m 0644  \
@@ -155,12 +142,6 @@ fi
 %attr(0644,-,-) %{_sysconfdir}/xbuild/stages/70-test.sh
 %attr(0644,-,-) %{_sysconfdir}/xbuild/stages/80-pack.sh
 %attr(0644,-,-) %{_sysconfdir}/xbuild/stages/90-git-gui.sh
-
-%files -n xdeploy
-%defattr(0555, root, root, 0755)
-%{_bindir}/xdeploy
-%{_sysconfdir}/profile.d/xdeploy.sh
-%attr(0600,-,-) %config(noreplace) /xdeploy.conf
 
 %files -n xbuild-repos
 %defattr(0555, root, root, 0755)
