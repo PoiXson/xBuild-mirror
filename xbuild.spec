@@ -1,27 +1,29 @@
-Name    : xbuild
-Summary : A tool to simplify building and managing projects in your workspace
-Version : 2.2.%{?build_number}%{!?build_number:x}
-Release : 1
+Name      : xbuild
+Summary   : A tool to simplify building and managing projects in your workspace
+Version   : 2.2.%{?build_number}%{!?build_number:x}
+Release   : 1
 BuildArch : noarch
 Packager  : PoiXson <support@poixson.com>
 License   : AGPLv3
 URL       : https://poixson.com/
 
-Requires   : pxnscripts >= 2.2.0
-Requires   : bash, bc, zip, unzip, grep
-Recommends : rpmbuild, fakeroot, alien, composer
-Recommends : automake, autogen, autoconf, libtool
+Requires  : pxnscripts >= 2.2.0
+Requires  : bash, bc, zip, unzip, grep
+Recommends: rpmbuild, fakeroot, alien, composer
+Recommends: automake, autogen, autoconf, libtool
 
 Prefix: %{_bindir}/pxn/scripts
 %define _rpmfilename  %%{NAME}-%%{VERSION}-%%{RELEASE}.%%{ARCH}.rpm
+%global source_date_epoch_from_changelog 0
+%define source_date_epoch 0
 
 
 
 %package -n xbuild-repos
-Summary  : Setup and maintain yum/dnf and apt software repositories
-Provides : xbuild-repo
-Requires : pxnscripts >= 2.2.0
-Requires : bash, gnupg
+Summary   : Setup and maintain yum/dnf and apt software repositories
+Provides  : xbuild-repo
+Requires  : pxnscripts >= 2.2.0
+Requires  : bash, gnupg
 Recommends: createrepo_c, dpkg-dev
 
 

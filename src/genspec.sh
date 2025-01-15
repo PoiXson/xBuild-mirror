@@ -162,6 +162,10 @@ else
 fi
 \cat >>"$OUT_FILE" <<EOF
 Summary : $SUMMARY
+BuildArch : $ARCH
+Packager  : PoiXson <support@poixson.com>
+License   : $LICENSE
+URL       : $URL
 
 EOF
 
@@ -170,11 +174,6 @@ if [[ ! -z $OUT_POSTHEAD ]]; then
 fi
 
 \cat >>"$OUT_FILE" <<EOF
-BuildArch : $ARCH
-Packager  : PoiXson <support@poixson.com>
-License   : $LICENSE
-URL       : $URL
-
 Prefix: $PREFIX
 %define _rpmfilename  %%{NAME}-%%{VERSION}-%%{RELEASE}.%%{ARCH}.rpm
 
