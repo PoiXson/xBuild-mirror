@@ -91,13 +91,6 @@ if [[ " $ACTIONS " == *" build "* ]]; then
 			if [[ $IS_DRY -eq $NO ]]; then
 				\mvn  $FLAG_TRANSFER_PROGRESS  clean install  || exit 1
 			fi
-			# ide projects
-			if [[ $DO_IDE -eq $YES ]]; then
-				echo_cmd "mvn eclipse:eclipse"
-				if [[ $IS_DRY -eq $NO ]]; then
-					\mvn  $FLAG_TRANSFER_PROGRESS  eclipse:eclipse  || exit 1
-				fi
-			fi
 			# restore pom.xml
 			if [[ $DO_CI -eq $YES             ]] \
 			&& [[ -f "$PROJECT_PATH/pom.conf" ]]; then
@@ -122,19 +115,6 @@ if [[ " $ACTIONS " == *" build "* ]]; then
 			if [[ $IS_DRY -eq $NO ]]; then
 				\gradle  build  || exit 1
 				echo
-			fi
-			# ide projects
-			if [[ $DO_IDE -eq $YES ]]; then
-				echo_cmd "gradle cleanEclipse"
-				if [[ $IS_DRY -eq $NO ]]; then
-					\gradle  cleanEclipse  || exit 1
-					echo
-				fi
-				echo_cmd "gradle eclipse"
-				if [[ $IS_DRY -eq $NO ]]; then
-					\gradle  eclipse  || exit 1
-					echo
-				fi
 			fi
 		\popd >/dev/null
 		[[ $IS_DRY -eq $YES ]] && echo

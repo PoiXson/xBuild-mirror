@@ -102,9 +102,6 @@ function DisplayHelp() {
 	[[ $FULL -eq $YES ]] && \
 	echo -e "  ${COLOR_GREEN}--tests${COLOR_RESET}                   Compile and run tests for the project"
 	echo -e "  ${COLOR_GREEN}-p, --pack, --package${COLOR_RESET}     Build distributable packages"
-	[[ $FULL -eq $YES ]] && \
-	echo -e "  ${COLOR_GREEN}-i, --ide${COLOR_RESET}                 Create IDE project imports (while building)"
-	echo
 	if [[ $FULL -eq $YES ]]; then
 	echo -e "  ${COLOR_GREEN}-u, --super-clean${COLOR_RESET}         Remove more files than a simple clean"
 	echo
@@ -154,7 +151,6 @@ NO_COLORS=$NO
 DO_RECURSIVE=$NO
 DO_ALIEN=$NO
 DO_CI=$NO
-DO_IDE=$NO
 DO_SUPER_CLEAN=$NO
 IS_DRY=$NO
 DEBUG_FLAGS=$NO
@@ -721,7 +717,6 @@ while [ $# -gt 0 ]; do
 	-b|--build|--compile|build|compile)          ACTIONS="$ACTIONS build"  ;;
 	--test|--tests|--testing|test|tests|testing) ACTIONS="$ACTIONS test"   ;;
 	-p|--pack|--package|pack|package)            ACTIONS="$ACTIONS pack"   ;;
-	-i|--ide|ide)                                DO_IDE=$YES               ;;
 
 	-u|--superclean|--super-clean|--deepclean|--deep-clean|--extraclean|--extra-clean)
 		DO_SUPER_CLEAN=$YES ; ACTIONS="$ACTIONS clean" ;;

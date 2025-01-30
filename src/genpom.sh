@@ -405,10 +405,6 @@ AddPropPlugin  "versions-maven-plugin-version"  "$FOUND_DEP_VERSION"
 FindDepVersion  "org.apache.maven.plugins"  "maven-source-plugin"
 AddPropPlugin  "maven-source-plugin-version"  "$FOUND_DEP_VERSION"
 
-# eclipse plugin
-FindDepVersion  "org.apache.maven.plugins"  "maven-eclipse-plugin"
-AddPropPlugin  "maven-eclipse-plugin-version"  "$FOUND_DEP_VERSION"
-
 # git commit id plugin
 FindDepVersion  "pl.project13.maven"  "git-commit-id-plugin"
 AddPropPlugin  "git-commit-id-version"  "$FOUND_DEP_VERSION"
@@ -753,29 +749,6 @@ EOF
 						</goals>
 					</execution>
 				</executions>
-			</plugin>
-EOF
-
-# eclipse plugin
-\cat >>"$OUT_FILE" <<EOF
-			<!-- Eclipse Plugin -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-eclipse-plugin</artifactId>
-				<version>\${maven-eclipse-plugin-version}</version>
-				<configuration>
-					<projectNameTemplate>\${project.name}</projectNameTemplate>
-					<downloadSources>true</downloadSources>
-					<downloadJavadocs>true</downloadJavadocs>
-					<additionalConfig>
-						<file>
-							<name>.settings/org.eclipse.core.resources.prefs</name>
-							<content>
-								<![CDATA[eclipse.preferences.version=1\${line.separator}encoding/<project>=\${project.build.sourceEncoding}\${line.separator}]]>
-							</content>
-						</file>
-					</additionalConfig>
-				</configuration>
 			</plugin>
 EOF
 
