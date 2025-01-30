@@ -545,6 +545,40 @@ if [[ ! -z $CI_NAME ]] && [[ ! -z $CI_URL ]]; then
 EOF
 fi
 
+# license
+if [[ ! -z $LICENSE ]]; then
+	echo -e "\t<licenses>" >>"$OUT_FILE"
+	# AGPLv3
+	if [[ "$LICENSE" == "AGPL"   ]] \
+	|| [[ "$LICENSE" == "AGPLv3" ]]; then
+\cat >>"$OUT_FILE" <<EOF
+		<license>
+			<name>AGPLv3</name>
+			<url>https://www.gnu.org/licenses/agpl-3.0.html</url>
+		</license>
+EOF
+	# AGPLv3 + ADD-PXN-V1
+	elif [[ "$LICENSE" == "AGPLv3+ADD-PXN-V1" ]]; then
+\cat >>"$OUT_FILE" <<EOF
+		<license>
+			<name>AGPLv3+ADD-PXN-V1</name>
+			<url>https://www.gnu.org/licenses/agpl-3.0.html</url>
+		</license>
+		<license>
+			<name>ADD-PXN-V1</name>
+			<url>https://dl.poixson.com/ADD-PXN-V1.txt</url>
+		</license>
+EOF
+	else
+\cat >>"$OUT_FILE" <<EOF
+		<license>
+			<name>$LICENSE</name>
+		</license>
+EOF
+	fi
+	echo -e "\t</licenses>" >>"$OUT_FILE"
+fi
+
 # build
 \cat >>"$OUT_FILE" <<EOF
 	<build>
