@@ -71,7 +71,7 @@ fi
 
 # defaults
 ARCH="noarch"
-LICENSE="GPLv3"
+LICENSE="AGPLv3+ADD-PXN-V1"
 URL="https://poixson.com"
 PREFIX="%{_bindir}"
 OWNER="root"
