@@ -73,6 +73,7 @@ COMPILE_FOR_JAVA_VERSION="21"
 
 MAVEN_VERSIONS_FILE="maven-versions.conf"
 SHADE=$NO
+ASSEMBLE=$NO
 SNAPSHOT=$YES
 
 OUT_VERSION=""
@@ -413,6 +414,12 @@ AddPropPlugin  "git-commit-id-version"  "$FOUND_DEP_VERSION"
 if [[ $SHADE -eq $YES ]]; then
 	FindDepVersion  "org.apache.maven.plugins"  "maven-shade-plugin"
 	AddPropPlugin  "maven-shade-plugin-version"  "$FOUND_DEP_VERSION"
+fi
+
+# assemble
+if [[ $ASSEMBLE -eq $YES ]]; then
+	FindDepVersion  "org.apache.maven.plugins"  "maven-dependency-plugin"
+	AddPropPlugin  "maven-dependency-plugin-version"  "$FOUND_DEP_VERSION"
 fi
 
 if [[ -e "$WDIR/tests/" ]]; then
@@ -802,6 +809,34 @@ if [[ $SHADE -eq $YES ]]; then
 						</filter>
 					</filters>
 				</configuration>
+			</plugin>
+EOF
+fi
+
+# assemble jar
+if [[ $ASSEMBLE -eq $YES ]]; then
+\cat >>"$OUT_FILE" <<EOF
+			<!-- Dependency Plugin -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>\${maven-dependency-plugin-version}</version>
+				<executions>
+					<execution>
+						<id>copy-dependencies</id>
+						<phase>package</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>\${project.basedir}/resources/libs</outputDirectory>
+							<excludeTransitive>true</excludeTransitive>
+							<overWriteReleases>true</overWriteReleases>
+							<overWriteSnapshots>true</overWriteSnapshots>
+							<overWriteIfNewer>true</overWriteIfNewer>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 EOF
 fi
