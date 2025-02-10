@@ -698,6 +698,20 @@ if [[ ! -z $MAINCLASS ]]; then
 				</configuration>
 EOF
 fi
+# Project-tests.jar
+if [[ -e "$WDIR/tests/" ]]; then
+\cat >>"$OUT_FILE" <<EOF
+				<executions>
+					<execution>
+						<id>test-jar</id>
+						<phase>package</phase>
+						<goals>
+							<goal>test-jar</goal>
+						</goals>
+					</execution>
+				</executions>
+EOF
+fi
 echo -e "\t\t\t</plugin>" >>"$OUT_FILE"
 
 # maven version plugin
