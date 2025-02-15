@@ -12,7 +12,7 @@ if [[ " $ACTIONS " == *" build "* ]]; then
 	for ENTRY in "${RUN_BUILD[@]}"; do
 		notice "Running: $ENTRY"
 		if [[ $IS_DRY -eq $NO ]]; then
-			eval "$ENTRY" || exit 1
+			eval  "$ENTRY"  || exit 1
 		fi
 	done
 	# automake

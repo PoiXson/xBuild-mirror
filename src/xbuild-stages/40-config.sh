@@ -18,7 +18,7 @@ if [[ " $ACTIONS " == *" config "* ]]; then
 	for ENTRY in "${RUN_CONFIG[@]}"; do
 		notice "Running: $ENTRY"
 		if [[ $IS_DRY -eq $NO ]]; then
-			. "$ENTRY" || exit 1
+			eval  "$ENTRY"  || exit 1
 		fi
 	done
 	# stub files
