@@ -83,14 +83,15 @@ if [[ " $ACTIONS " == *" build "* ]]; then
 					echo
 				fi
 			fi
-			FLAG_TRANSFER_PROGRESS=""
+			FLAGS=""
 			if [[ $DO_CI -eq $YES ]]; then
-				FLAG_TRANSFER_PROGRESS="--no-transfer-progress"
+				FLAGS="${FLAGS}--no-transfer-progress"
 			fi
+			[[ -z $FLAGS ]] || FLAGS=" $FLAGS "
 			# build
-			echo_cmd "mvn clean install"
+			echo_cmd "mvn $FLAGS clean install"
 			if [[ $IS_DRY -eq $NO ]]; then
-				\mvn  $FLAG_TRANSFER_PROGRESS  clean install  || exit 1
+				\mvn $FLAGS clean install  || exit 1
 			fi
 			# restore pom.xml
 			if [[ $DO_CI -eq $YES             ]] \
