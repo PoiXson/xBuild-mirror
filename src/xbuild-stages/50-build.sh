@@ -13,6 +13,7 @@ if [[ " $ACTIONS " == *" build "* ]]; then
 		notice "Running: $ENTRY"
 		if [[ $IS_DRY -eq $NO ]]; then
 			eval  "$ENTRY"  || exit 1
+			did_something=$YES
 		fi
 	done
 	# automake
