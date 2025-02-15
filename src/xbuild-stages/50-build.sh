@@ -85,7 +85,7 @@ if [[ " $ACTIONS " == *" build "* ]]; then
 			fi
 			FLAGS=""
 			if [[ $DEBUG_FLAGS -eq $YES ]]; then
-				FLAGS="--update-snapshots --update-plugins"
+				FLAGS="--update-snapshots"
 			fi
 			if [[ $DO_CI -eq $YES ]]; then
 				[[ -z $FLAGS ]] || FLAGS="$FLAGS "
