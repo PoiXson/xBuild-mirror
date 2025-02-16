@@ -73,7 +73,6 @@ COMPILE_FOR_JAVA_VERSION="21"
 
 MAVEN_VERSIONS_FILE="maven-versions.conf"
 SHADE=$NO
-ASSEMBLE=$NO
 SNAPSHOT=$YES
 
 OUT_VERSION=""
@@ -85,6 +84,7 @@ OUT_DEPS=""
 OUT_REPOS=""
 OUT_RES=""
 OUT_BIN=""
+OUT_LIB=""
 
 
 
@@ -269,6 +269,13 @@ function AddBin() {
 	fi
 	OUT_BIN="$OUT_BIN"$'\t\t\t\t\t'"<include>$1</include>"$'\n'
 }
+function AddLib() {
+	if [[ -z $1 ]]; then
+		failure "AddLib requires a file argument to include"
+		failure ; exit 1
+	fi
+	OUT_LIB="$OUT_LIB"$'\t\t\t\t\t'"<include>$1</include>"$'\n'
+}
 
 
 
@@ -416,8 +423,8 @@ if [[ $SHADE -eq $YES ]]; then
 	AddPropPlugin  "maven-shade-plugin-version"  "$FOUND_DEP_VERSION"
 fi
 
-# assemble
-if [[ $ASSEMBLE -eq $YES ]]; then
+# assemble with libs
+if [[ ! -z $OUT_LIB ]]; then
 	FindDepVersion  "org.apache.maven.plugins"  "maven-dependency-plugin"
 	AddPropPlugin  "maven-dependency-plugin-version"  "$FOUND_DEP_VERSION"
 fi
@@ -598,8 +605,10 @@ fi
 # resources
 if [[ -e "$WDIR/resources/" ]]; then
 	if [[ ! -z $OUT_RES ]] \
-	|| [[ ! -z $OUT_BIN ]]; then
+	|| [[ ! -z $OUT_BIN ]] \
+	|| [[ ! -z $OUT_LIB ]]; then
 		echo -e "\t\t<resources>" >> "$OUT_FILE"
+		# resources/ text
 		if [[ ! -z $OUT_RES ]]; then
 \cat >>"$OUT_FILE" <<EOF
 			<resource>
@@ -613,6 +622,7 @@ echo -n "$OUT_RES" >> "$OUT_FILE"
 			</resource>
 EOF
 		fi
+		# resources/ bin
 		if [[ ! -z $OUT_BIN ]]; then
 \cat >>"$OUT_FILE" <<EOF
 			<resource>
@@ -626,9 +636,24 @@ echo -n "$OUT_BIN" >> "$OUT_FILE"
 			</resource>
 EOF
 		fi
+		# assemble with libs
+		if [[ ! -z $OUT_LIB ]]; then
+\cat >>"$OUT_FILE" <<EOF
+			<resource>
+				<directory>\${project.basedir}</directory>
+				<filtering>false</filtering>
+				<includes>
+EOF
+echo -n "$OUT_LIB" >> "$OUT_FILE"
+\cat >>"$OUT_FILE" <<EOF
+				</includes>
+			</resource>
+EOF
+		fi
 		echo -e "\t\t</resources>" >> "$OUT_FILE"
 	fi
 fi
+# testresources/
 if [[ -e "$WDIR/testresources/" ]]; then
 \cat >>"$OUT_FILE" <<EOF
 		<testResources>
@@ -874,8 +899,8 @@ if [[ $SHADE -eq $YES ]]; then
 EOF
 fi
 
-# assemble jar
-if [[ $ASSEMBLE -eq $YES ]]; then
+# assemble with libs
+if [[ ! -z $OUT_LIB ]]; then
 \cat >>"$OUT_FILE" <<EOF
 			<!-- Dependency Plugin -->
 			<plugin>
