@@ -915,7 +915,7 @@ if [[ ! -z $OUT_LIB ]]; then
 							<goal>copy-dependencies</goal>
 						</goals>
 						<configuration>
-							<outputDirectory>\${project.basedir}/resources/libs</outputDirectory>
+							<outputDirectory>\${project.basedir}/libs/</outputDirectory>
 							<excludeTransitive>true</excludeTransitive>
 							<overWriteReleases>true</overWriteReleases>
 							<overWriteSnapshots>true</overWriteSnapshots>
