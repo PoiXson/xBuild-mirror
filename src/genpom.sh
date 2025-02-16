@@ -654,8 +654,55 @@ if [[ -e "$WDIR/resources/" ]] \
 					<encoding>\${project.build.sourceEncoding}</encoding>
 					<nonFilteredFileExtensions>
 						<nonFilteredFileExtension>png</nonFilteredFileExtension>
+						<nonFilteredFileExtension>jpg</nonFilteredFileExtension>
+						<nonFilteredFileExtension>gif</nonFilteredFileExtension>
+						<nonFilteredFileExtension>ico</nonFilteredFileExtension>
+						<nonFilteredFileExtension>pdf</nonFilteredFileExtension>
+						<nonFilteredFileExtension>bin</nonFilteredFileExtension>
+						<nonFilteredFileExtension>jar</nonFilteredFileExtension>
+						<nonFilteredFileExtension>zip</nonFilteredFileExtension>
+						<nonFilteredFileExtension>gz</nonFilteredFileExtension>
+						<nonFilteredFileExtension>tar</nonFilteredFileExtension>
+						<nonFilteredFileExtension>tgz</nonFilteredFileExtension>
+						<nonFilteredFileExtension>rar</nonFilteredFileExtension>
+						<nonFilteredFileExtension>rpm</nonFilteredFileExtension>
+						<nonFilteredFileExtension>deb</nonFilteredFileExtension>
+						<nonFilteredFileExtension>app</nonFilteredFileExtension>
 						<nonFilteredFileExtension>so</nonFilteredFileExtension>
 						<nonFilteredFileExtension>dll</nonFilteredFileExtension>
+						<nonFilteredFileExtension>phar</nonFilteredFileExtension>
+						<nonFilteredFileExtension>bin</nonFilteredFileExtension>
+						<nonFilteredFileExtension>hex</nonFilteredFileExtension>
+						<nonFilteredFileExtension>so</nonFilteredFileExtension>
+						<nonFilteredFileExtension>exe</nonFilteredFileExtension>
+						<nonFilteredFileExtension>cmd</nonFilteredFileExtension>
+						<nonFilteredFileExtension>scr</nonFilteredFileExtension>
+						<nonFilteredFileExtension>iso</nonFilteredFileExtension>
+						<nonFilteredFileExtension>class</nonFilteredFileExtension>
+						<nonFilteredFileExtension>o</nonFilteredFileExtension>
+						<nonFilteredFileExtension>a</nonFilteredFileExtension>
+						<nonFilteredFileExtension>obj</nonFilteredFileExtension>
+						<nonFilteredFileExtension>dll</nonFilteredFileExtension>
+						<nonFilteredFileExtension>lib</nonFilteredFileExtension>
+						<nonFilteredFileExtension>dylib</nonFilteredFileExtension>
+						<nonFilteredFileExtension>apk</nonFilteredFileExtension>
+						<nonFilteredFileExtension>war</nonFilteredFileExtension>
+						<nonFilteredFileExtension>ear</nonFilteredFileExtension>
+						<nonFilteredFileExtension>dump</nonFilteredFileExtension>
+						<nonFilteredFileExtension>db</nonFilteredFileExtension>
+						<nonFilteredFileExtension>out</nonFilteredFileExtension>
+						<nonFilteredFileExtension>output</nonFilteredFileExtension>
+						<nonFilteredFileExtension>swp</nonFilteredFileExtension>
+						<nonFilteredFileExtension>map</nonFilteredFileExtension>
+						<nonFilteredFileExtension>woff</nonFilteredFileExtension>
+						<nonFilteredFileExtension>woff2</nonFilteredFileExtension>
+						<nonFilteredFileExtension>mp3</nonFilteredFileExtension>
+						<nonFilteredFileExtension>mp4</nonFilteredFileExtension>
+						<nonFilteredFileExtension>ogg</nonFilteredFileExtension>
+						<nonFilteredFileExtension>avi</nonFilteredFileExtension>
+						<nonFilteredFileExtension>mkv</nonFilteredFileExtension>
+						<nonFilteredFileExtension>wav</nonFilteredFileExtension>
+						<nonFilteredFileExtension>ttf</nonFilteredFileExtension>
 					</nonFilteredFileExtensions>
 				</configuration>
 			</plugin>
