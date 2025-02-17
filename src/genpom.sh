@@ -74,6 +74,7 @@ COMPILE_FOR_JAVA_VERSION="21"
 MAVEN_VERSIONS_FILE="maven-versions.conf"
 SHADE=$NO
 SNAPSHOT=$YES
+ENABLE_NMS=$NO
 
 OUT_VERSION=""
 OUT_PROPS=""
@@ -416,6 +417,22 @@ AddPropPlugin  "maven-source-plugin-version"  "$FOUND_DEP_VERSION"
 # git commit id plugin
 FindDepVersion  "pl.project13.maven"  "git-commit-id-plugin"
 AddPropPlugin  "git-commit-id-version"  "$FOUND_DEP_VERSION"
+
+# paper-nms plugin
+if [[ $ENABLE_NMS -eq $YES ]]; then
+	# bytecode.space repo
+	AddRepo  "bytecode-space-releases"   "https://repo.bytecode.space/repository/maven-releases/"
+	AddRepo  "bytecode-space-snapshots"  "https://repo.bytecode.space/repository/maven-snapshots/"     snapshots
+	AddRepo  "sponge-powered-releases"   "https://repo.spongepowered.org/repository/maven-releases/"
+	AddRepo  "sponge-powered-snapshots"  "https://repo.spongepowered.org/repository/maven-snapshots/"  snapshots
+	AddRepo  "sonatype-oss-releases"     "https://oss.sonatype.org/content/repositories/releases/"
+	AddRepo  "sonatype-oss-snapshots"    "https://oss.sonatype.org/content/repositories/snapshots/"    snapshots
+	# paper-nms plugin
+	FindDepVersion  "ca.bkaw"  "paper-nms-maven-plugin"
+	AddPropPlugin  "paper-nms-maven-plugin-version"  "$FOUND_DEP_VERSION"
+	# paper-nms mappings
+	AddDep  "ca.bkaw"  "paper-nms"
+fi
 
 # shade jar
 if [[ $SHADE -eq $YES ]]; then
@@ -766,6 +783,16 @@ if [[ ! -z $MAINCLASS ]]; then
 						<manifest>
 							<mainClass>$MAINCLASS</mainClass>
 						</manifest>
+EOF
+# papermc mojang mappings
+if [[ $ENABLE_NMS -eq $YES ]]; then
+\cat >>"$OUT_FILE" <<EOF
+						<manifestEntries>
+							<paperweight-mappings-namespace>mojang</paperweight-mappings-namespace>
+						</manifestEntries>
+EOF
+fi
+\cat >>"$OUT_FILE" <<EOF
 					</archive>
 				</configuration>
 EOF
@@ -866,6 +893,18 @@ EOF
 				</configuration>
 			</plugin>
 EOF
+
+# paper-nms plugin
+if [[ $ENABLE_NMS -eq $YES ]]; then
+\cat >>"$OUT_FILE" <<EOF
+			<!-- Paper-NMS Plugin -->
+			<plugin>
+				<groupId>ca.bkaw</groupId>
+				<artifactId>paper-nms-maven-plugin</artifactId>
+				<version>\${paper-nms-maven-plugin-version}</version>
+			</plugin>
+EOF
+fi
 
 # shade jar
 if [[ $SHADE -eq $YES ]]; then
