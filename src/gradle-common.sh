@@ -82,7 +82,7 @@ function FetchGradleVersion() {
 		failure ; exit 1
 	fi
 	GRADLE_VERSION=$( echo $GRADLE_VERSION_DATA | \sed "s/.*\"version\" *: *\"\([^\"]*\)\".*/\1/" )
-	GRADLE_DL_URL=$( echo $GRADLE_VERSION_DATA | \sed "s/.*\"downloadUrl\" *: *\"\([^\"]*\)\".*/\1/" | \sed 's/\\\\//g' )
+	GRADLE_DL_URL=$(  echo $GRADLE_VERSION_DATA | \sed "s/.*\"downloadUrl\" *: *\"\([^\"]*\)\".*/\1/" | \sed 's/\\\\//g' )
 	if [[ -z $GRADLE_VERSION ]]; then
 		failure "Invalid gradle version: $ARG_VERSION"
 		failure ; exit 1

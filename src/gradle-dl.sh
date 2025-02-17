@@ -151,12 +151,12 @@ while [ $# -gt 0 ]; do
 		FORCE_GRADLE_VERSION="$VERS"
 	;;
 
-	-v|--verbose) VERBOSE=$YES ;;
-	-q|--quiet)   QUIET=$YES   ;;
+	-v|--verbose)           VERBOSE=$YES                    ;;
+	-q|--quiet)             QUIET=$YES                      ;;
 	--color|--colors)       NO_COLORS=$NO  ; enable_colors  ;;
 	--no-color|--no-colors) NO_COLORS=$YES ; disable_colors ;;
-	-V|--version) DisplayVersion   ; exit 1 ;;
-	-h|--help)    DisplayHelp $YES ; exit 1 ;;
+	-V|--version)           DisplayVersion   ; exit 1       ;;
+	-h|--help)              DisplayHelp $YES ; exit 1       ;;
 
 	-*)
 		failure "Unknown flag: $1"
@@ -187,7 +187,8 @@ FetchGradleVersion  "$FORCE_GRADLE_VERSION"
 if [[ $DO_DOWNLOAD -eq $YES ]]; then
 	DownloadGradle
 	\alternatives --install  /usr/bin/gradle  gradle  \
-		"/var/lib/gradle/gradle-${GRADLE_VERSION}/bin/gradle"  99  || exit 1
+		"/var/lib/gradle/gradle-${GRADLE_VERSION}/bin/gradle"  99  \
+			|| exit 1
 fi
 
 

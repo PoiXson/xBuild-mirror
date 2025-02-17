@@ -108,10 +108,7 @@ while [ $# -gt 0 ]; do
 	-h|--help)     DisplayHelp    ; exit 1  ;;
 	*)
 		failure "Unknown argument: $1"
-		failure
-		DisplayHelp
-		exit 1
-	;;
+		failure ; DisplayHelp ; exit 1 ;;
 	esac
 	\shift
 done

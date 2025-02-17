@@ -95,10 +95,7 @@ while [ $# -gt 0 ]; do
 	-h|--help)     DisplayHelp    ; exit 1  ;;
 	*)
 		failure "Unknown argument: $1"
-		failure
-		DisplayHelp
-		exit 1
-	;;
+		failure ; DisplayHelp ; exit 1 ;;
 	esac
 	\shift
 done
@@ -110,7 +107,7 @@ if [ ! -f "$WDIR/autotools.conf" ]; then
 	failure "autotools.conf file not found here"
 	failure ; exit 1
 fi
-source "$WDIR/autotools.conf"  || exit 1
+source  "$WDIR/autotools.conf"  || exit 1
 
 
 

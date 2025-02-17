@@ -117,15 +117,13 @@ while [ $# -gt 0 ]; do
 	-R|--release)
 		SNAPSHOT=$NO
 		if [[ ! -z $2 ]] && [[ "$2" != "-"* ]]; then
-			\shift
-			OUT_VERSION="$1"
+			\shift ; OUT_VERSION="$1"
 		fi
 	;;
 	-S|--snapshot)
 		SNAPSHOT=$YES
 		if [[ ! -z $2 ]] && [[ "$2" != "-"* ]]; then
-			\shift
-			OUT_VERSION="$1"
+			\shift ; OUT_VERSION="$1"
 		fi
 	;;
 	--release=*)   OUT_VERSION=${1#*=}  SNAPSHOT=$NO   ;;
@@ -134,9 +132,7 @@ while [ $# -gt 0 ]; do
 	-h|--help)     DisplayHelp    ; exit 1  ;;
 	*)
 		failure "Unknown argument: $1"
-		failure
-		DisplayHelp
-		exit 1
+		failure ; DisplayHelp ; exit 1
 	;;
 	esac
 	\shift
@@ -161,7 +157,7 @@ function AddPropPlugin() {
 function AddDep() {
 	local GROUP="$1"
 	local ARTIFACT="$2"
-	shift ; shift
+	\shift ; \shift
 	local SCOPE=""
 	local VERSION=""
 	while [ $# -gt 0 ]; do
@@ -173,7 +169,7 @@ function AddDep() {
 			failure ; exit 1
 		;;
 		esac
-		shift
+		\shift
 	done
 	if [[ -z $GROUP ]]; then
 		failure "Dependency group not set"
@@ -214,19 +210,17 @@ EOF
 function AddRepo() {
 	local NAME="$1"
 	local URL="$2"
-	shift ; shift
+	\shift ; \shift
 	local ALLOW_SNAPSHOTS=$NO
 	while [ $# -gt 0 ]; do
 		case "$1" in
 		"snap"|"snaps"|"snapshot"|"snapshots"|"SNAP"|"SNAPS"|"SNAPSHOT"|"SNAPSHOTS")
-			ALLOW_SNAPSHOTS=$YES
-			;;
+			ALLOW_SNAPSHOTS=$YES ;;
 		*)
 			failure "Unknown repository argument: $1"
-			failure ; exit 1
-		;;
+			failure ; exit 1 ;;
 		esac
-		shift
+		\shift
 	done
 	if [[ -z $NAME ]]; then
 		failure "Repo Name argument is required"
@@ -244,12 +238,8 @@ function AddRepo() {
 		<repository>
 			<id>$NAME</id>
 			<url>$URL</url>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-			<snapshots>
-				<enabled>$ENABLE_SNAPSHOTS</enabled>
-			</snapshots>
+			<releases><enabled>true</enabled></releases>
+			<snapshots><enabled>$ENABLE_SNAPSHOTS</enabled></snapshots>
 		</repository>
 EOF
 	)
@@ -289,8 +279,8 @@ function FindDepVersion() {
 	FOUND_DEP_VERSION=""
 	# home dir
 	if [[ -e "~/$MAVEN_VERSIONS_FILE" ]]; then
-		source "~/$MAVEN_VERSIONS_FILE"  || exit 1
-		[[ ! -z $FOUND_DEP_VERSION ]] && return
+		source  "~/$MAVEN_VERSIONS_FILE"  || exit 1
+		[[ -z $FOUND_DEP_VERSION ]] || return
 		DID_SOMETHING=$YES
 	fi
 	# search current dir and parents
@@ -300,20 +290,20 @@ function FindDepVersion() {
 			P="$P/.."
 		if [[ -e "$P/$MAVEN_VERSIONS_FILE" ]]; then
 			source  "$P/$MAVEN_VERSIONS_FILE"  || exit 1
-			[[ ! -z $FOUND_DEP_VERSION ]] && return
+			[[ -z $FOUND_DEP_VERSION ]] || return
 			DID_SOMETHING=$YES
 		fi
 	done
 	# /etc
 	if [[ -e "/etc/$MAVEN_VERSIONS_FILE" ]]; then
-		source "/etc/$MAVEN_VERSIONS_FILE"  || exit 1
-		[[ ! -z $FOUND_DEP_VERSION ]] && return
+		source  "/etc/$MAVEN_VERSIONS_FILE"  || exit 1
+		[[ -z $FOUND_DEP_VERSION ]] || return
 		DID_SOMETHING=$YES
 	fi
 	# /etc/java
 	if [[ -e "/etc/java/$MAVEN_VERSIONS_FILE" ]]; then
-		source "/etc/java/$MAVEN_VERSIONS_FILE"  || exit 1
-		[[ ! -z $FOUND_DEP_VERSION ]] && return
+		source  "/etc/java/$MAVEN_VERSIONS_FILE"  || exit 1
+		[[ -z $FOUND_DEP_VERSION ]] || return
 		DID_SOMETHING=$YES
 	fi
 	if [[ $DID_SOMETHING -ne $YES ]]; then
@@ -333,9 +323,8 @@ function ADD_VERSION() {
 	[[ -z $FIND_DEP_BY_GROUP    ]] && return;
 	# found match
 	if [[ "$1" == "$FIND_DEP_BY_GROUP" ]]; then
-		if [[ "$2" == "$FIND_DEP_BY_ARTIFACT" ]]; then
+		[[ "$2" == "$FIND_DEP_BY_ARTIFACT" ]] && \
 			FOUND_DEP_VERSION="$3"
-		fi
 	fi
 }
 
@@ -346,7 +335,7 @@ if [[ ! -f "$WDIR/pom.conf" ]]; then
 	failure "pom.conf file not found here"
 	failure ; exit 1
 fi
-source "$WDIR/pom.conf"  || exit 1
+source  "$WDIR/pom.conf"  || exit 1
 
 
 
@@ -446,28 +435,23 @@ if [[ ! -z $OUT_LIB ]]; then
 	AddPropPlugin  "maven-dependency-plugin-version"  "$FOUND_DEP_VERSION"
 fi
 
+# unit testing
 if [[ -e "$WDIR/tests/" ]]; then
-
 	# junit
 	FindDepVersion  "org.junit.jupiter"  "junit-jupiter"
 	AddPropPlugin  "junit-jupiter-version"  "$FOUND_DEP_VERSION"
-
 	# surefire
 	FindDepVersion  "org.apache.maven.plugins"  "maven-surefire-plugin"
 	AddPropPlugin  "surefire-version"  "$FOUND_DEP_VERSION"
-
 	# jacoco
 	FindDepVersion  "org.jacoco"  "jacoco-maven-plugin"
 	AddPropPlugin  "jacoco-version"  "$FOUND_DEP_VERSION"
-
 	# jxr - cross reference
 	FindDepVersion  "org.apache.maven"  "maven-jxr"
 	AddPropPlugin  "maven-jxr-version"  "$FOUND_DEP_VERSION"
-
 	# reports
 	FindDepVersion  "org.apache.maven.plugins"  "maven-project-info-reports-plugin"
 	AddPropPlugin  "project-info-reports-version"  "$FOUND_DEP_VERSION"
-
 fi
 
 
@@ -544,7 +528,9 @@ fi
 echo -e "\t</properties>" >>"$OUT_FILE"
 
 # scm
-if [[ ! -z $REPO_URL ]] || [[ ! -z $REPO_PUB ]] || [[ ! -z $REPO_DEV ]]; then
+if [[ ! -z $REPO_URL ]] \
+|| [[ ! -z $REPO_PUB ]] \
+|| [[ ! -z $REPO_DEV ]]; then
 	echo -e "\t<scm>" >>"$OUT_FILE"
 	[[ -z $REPO_URL ]] || echo $'\t\t'"<url>$REPO_URL</url>"                                 >>"$OUT_FILE"
 	[[ -z $REPO_PUB ]] || echo $'\t\t'"<connection>$REPO_PUB</connection>"                   >>"$OUT_FILE"
@@ -553,7 +539,8 @@ if [[ ! -z $REPO_URL ]] || [[ ! -z $REPO_PUB ]] || [[ ! -z $REPO_DEV ]]; then
 fi
 
 # issue tracking
-if [[ ! -z $BUG_TRACK_NAME ]] && [[ ! -z $BUG_TRACK_URL ]]; then
+if [[ ! -z $BUG_TRACK_NAME ]] \
+&& [[ ! -z $BUG_TRACK_URL  ]]; then
 \cat >>"$OUT_FILE" <<EOF
 	<issueManagement>
 		<system>$BUG_TRACK_NAME</system>
@@ -563,7 +550,8 @@ EOF
 fi
 
 # ci
-if [[ ! -z $CI_NAME ]] && [[ ! -z $CI_URL ]]; then
+if [[ ! -z $CI_NAME ]] \
+&& [[ ! -z $CI_URL  ]]; then
 \cat >>"$OUT_FILE" <<EOF
 	<ciManagement>
 		<system>$CI_NAME</system>
@@ -780,9 +768,7 @@ if [[ ! -z $MAINCLASS ]]; then
 				<!-- Main Class -->
 				<configuration>
 					<archive>
-						<manifest>
-							<mainClass>$MAINCLASS</mainClass>
-						</manifest>
+						<manifest><mainClass>$MAINCLASS</mainClass></manifest>
 EOF
 # papermc mojang mappings
 if [[ $ENABLE_NMS -eq $YES ]]; then
@@ -804,9 +790,7 @@ if [[ -e "$WDIR/tests/" ]]; then
 					<execution>
 						<id>test-jar</id>
 						<phase>package</phase>
-						<goals>
-							<goal>test-jar</goal>
-						</goals>
+						<goals><goal>test-jar</goal></goals>
 					</execution>
 				</executions>
 EOF
@@ -824,15 +808,9 @@ echo -e "\t\t\t</plugin>" >>"$OUT_FILE"
 				<executions>
 					<execution>
 						<id>enforce-maven-version</id>
-						<goals>
-							<goal>enforce</goal>
-						</goals>
+						<goals><goal>enforce</goal></goals>
 						<configuration>
-							<rules>
-								<requireMavenVersion>
-									<version>3.8.5</version>
-								</requireMavenVersion>
-							</rules>
+							<rules><requireMavenVersion><version>3.8.5</version></requireMavenVersion></rules>
 							<fail>true</fail>
 						</configuration>
 					</execution>
@@ -864,9 +842,7 @@ EOF
 				<executions>
 					<execution>
 						<id>attach-sources</id>
-						<goals>
-							<goal>jar</goal>
-						</goals>
+						<goals><goal>jar</goal></goals>
 					</execution>
 				</executions>
 			</plugin>
@@ -882,10 +858,8 @@ EOF
 				<executions>
 					<execution>
 						<id>get-the-git-infos</id>
-						<goals>
-							<goal>revision</goal>
-						</goals>
 						<phase>validate</phase>
+						<goals><goal>revision</goal></goals>
 					</execution>
 				</executions>
 				<configuration>
@@ -917,9 +891,7 @@ if [[ $SHADE -eq $YES ]]; then
 				<executions>
 					<execution>
 						<phase>package</phase>
-						<goals>
-							<goal>shade</goal>
-						</goals>
+						<goals><goal>shade</goal></goals>
 					</execution>
 				</executions>
 				<configuration>
@@ -950,9 +922,7 @@ if [[ ! -z $OUT_LIB ]]; then
 					<execution>
 						<id>copy-dependencies</id>
 						<phase>package</phase>
-						<goals>
-							<goal>copy-dependencies</goal>
-						</goals>
+						<goals><goal>copy-dependencies</goal></goals>
 						<configuration>
 							<outputDirectory>\${project.basedir}/libs/</outputDirectory>
 							<excludeTransitive>true</excludeTransitive>
@@ -989,16 +959,12 @@ if [[ -e "$WDIR/tests/" ]]; then
 				<version>\${jacoco-version}</version>
 				<executions>
 					<execution>
-						<goals>
-							<goal>prepare-agent</goal>
-						</goals>
+						<goals><goal>prepare-agent</goal></goals>
 					</execution>
 					<execution>
 						<id>report</id>
 						<phase>test</phase>
-						<goals>
-							<goal>report</goal>
-						</goals>
+						<goals><goal>report</goal></goals>
 					</execution>
 				</executions>
 			</plugin>
@@ -1045,13 +1011,7 @@ if [[ -e "$WDIR/tests/" ]]; then
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
 				<version>\${jacoco-version}</version>
-				<reportSets>
-					<reportSet>
-						<reports>
-							<report>report</report>
-						</reports>
-					</reportSet>
-				</reportSets>
+				<reportSets><reportSet><reports><report>report</report></reports></reportSet></reportSets>
 			</plugin>
 			<!-- Reports Plugin -->
 			<plugin>

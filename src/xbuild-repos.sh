@@ -136,8 +136,7 @@ function REPO() {
 #			deb) doREPO_DEB ;;
 			*)
 				failure "Unknown repo type: $REPO_TYPE"
-				failure ; exit 1
-			;;
+				failure ; exit 1 ;;
 			esac
 			echo ; echo
 			doCleanupVars
@@ -346,38 +345,15 @@ if [[ $# -eq 0 ]]; then
 fi
 while [ $# -gt 0 ]; do
 	case "$1" in
-	# all repos
-	-a|--all)
-		FILTER_PATHS="ALL $FILTER_PATHS"
-	;;
-	# cleanup
-	-c|--clean|--cleanup)
-		DO_CLEAN=$YES
-	;;
-	# dry mode
-	-D|--dry)
-		IS_DRY=$YES
-	;;
-	# verbose logging
-	-v|--verbose)
-		VERBOSE=$YES
-	;;
-	# display version
-	-V|--version)
-		DisplayVersion
-		exit 1
-	;;
-	# display help
-	-h|--help)
-		DisplayHelp
-		exit 1
-	;;
+	-a|--all)              FILTER_PATHS="ALL $FILTER_PATHS" ;; # all repos
+	-c|--clean|--cleanup)  DO_CLEAN=$YES                    ;; # cleanup
+	-D|--dry)              IS_DRY=$YES                      ;; # dry mode
+	-v|--verbose)          VERBOSE=$YES                     ;; # verbose logging
+	-V|--version)          DisplayVersion ; exit 1          ;; # display version
+	-h|--help)             DisplayHelp    ; exit 1          ;; # display help
 	-*)
 		failure "Unknown argument: $1"
-		failure
-		DisplayHelp
-		exit 1
-	;;
+		failure ; DisplayHelp ; exit 1 ;;
 	*)
 		if [[ -e "$WDIR/$1" ]]; then
 			FILTER_PATHS="$FILTER_PATHS $1"
