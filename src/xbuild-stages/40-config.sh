@@ -196,6 +196,16 @@ if [[ " $ACTIONS " == *" config "* ]]; then
 						fi
 					fi
 				fi
+				# paper-nms
+				if [[ $( \grep paper-nms pom.xml ) ]]; then
+					if [[ $DEBUG_FLAGS -eq $YES ]] \
+					|| [[ ! -e "~/.m2/repository/ca/bkaw/paper-nms/" ]]; then
+						echo_cmd "mvn paper-nms:init"
+						if [[ $IS_DRY -eq $NO ]]; then
+							\mvn  paper-nms:init
+						fi
+					fi
+				fi
 			\popd >/dev/null
 			echo
 			did_something=$YES
