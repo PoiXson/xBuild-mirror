@@ -624,13 +624,12 @@ if [[ -e "$WDIR/tests/" ]]; then
 fi
 
 # resources
-if [[ -e "$WDIR/resources/" ]]; then
-	if [[ ! -z $OUT_RES ]] \
-	|| [[ ! -z $OUT_BIN ]] \
-	|| [[ ! -z $OUT_LIB ]]; then
-		echo -e "\t\t<resources>" >> "$OUT_FILE"
-		# resources/ text
-		if [[ ! -z $OUT_RES ]]; then
+if [[ ! -z $OUT_RES ]] \
+|| [[ ! -z $OUT_BIN ]] \
+|| [[ ! -z $OUT_LIB ]]; then
+	echo -e "\t\t<resources>" >> "$OUT_FILE"
+	# resources/ text
+	if [[ ! -z $OUT_RES ]]; then
 \cat >>"$OUT_FILE" <<EOF
 			<resource>
 				<directory>resources/</directory>
@@ -642,9 +641,9 @@ echo -n "$OUT_RES" >> "$OUT_FILE"
 				</includes>
 			</resource>
 EOF
-		fi
-		# resources/ bin
-		if [[ ! -z $OUT_BIN ]]; then
+	fi
+	# resources/ bin
+	if [[ ! -z $OUT_BIN ]]; then
 \cat >>"$OUT_FILE" <<EOF
 			<resource>
 				<directory>resources/</directory>
@@ -656,9 +655,9 @@ echo -n "$OUT_BIN" >> "$OUT_FILE"
 				</includes>
 			</resource>
 EOF
-		fi
-		# assemble with libs
-		if [[ ! -z $OUT_LIB ]]; then
+	fi
+	# assemble with libs
+	if [[ ! -z $OUT_LIB ]]; then
 \cat >>"$OUT_FILE" <<EOF
 			<resource>
 				<directory>\${project.basedir}</directory>
@@ -670,9 +669,8 @@ echo -n "$OUT_LIB" >> "$OUT_FILE"
 				</includes>
 			</resource>
 EOF
-		fi
-		echo -e "\t\t</resources>" >> "$OUT_FILE"
 	fi
+	echo -e "\t\t</resources>" >> "$OUT_FILE"
 fi
 # testresources/
 if [[ -e "$WDIR/testresources/" ]]; then
