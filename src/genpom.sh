@@ -611,6 +611,7 @@ fi
 
 # build
 \cat >>"$OUT_FILE" <<EOF
+
 	<build>
 		<directory>target/</directory>
 		<sourceDirectory>src/</sourceDirectory>
@@ -1001,6 +1002,7 @@ fi
 \cat >>"$OUT_FILE" <<EOF
 		</plugins>
 	</build>
+
 EOF
 
 # 3rd party repositories
@@ -1008,6 +1010,7 @@ if [[ ! -z $OUT_REPOS ]]; then
 	echo -e "\t<repositories>"   >>"$OUT_FILE"
 	echo -n "$OUT_REPOS"         >>"$OUT_FILE"
 	echo -e "\t</repositories>"  >>"$OUT_FILE"
+	echo                         >>"$OUT_FILE"
 fi
 
 # dependencies
@@ -1015,6 +1018,7 @@ if [[ ! -z $OUT_DEPS ]]; then
 	echo -e "\t<dependencies>"   >>"$OUT_FILE"
 	echo -n "$OUT_DEPS"          >>"$OUT_FILE"
 	echo -e "\t</dependencies>"  >>"$OUT_FILE"
+	echo                         >>"$OUT_FILE"
 fi
 
 if [[ -e "$WDIR/tests/" ]]; then
@@ -1045,6 +1049,7 @@ if [[ -e "$WDIR/tests/" ]]; then
 			</plugin>
 		</plugins>
 	</reporting>
+
 EOF
 fi
 
