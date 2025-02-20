@@ -75,6 +75,7 @@ MAVEN_VERSIONS_FILE="maven-versions.conf"
 SHADE=$NO
 SNAPSHOT=$YES
 ENABLE_NMS=$NO
+FIND_BUKKIT_VERSION=$NO
 
 OUT_VERSION=""
 OUT_PROPS=""
@@ -373,6 +374,19 @@ if [[ "$OUT_VERSION" == *"-"* ]]; then
 fi
 if [[ $SNAPSHOT -eq $YES ]]; then
 	OUT_VERSION="$OUT_VERSION-SNAPSHOT"
+fi
+
+
+
+# bukkit api
+if [[ $FIND_BUKKIT_VERSION -eq $YES ]]; then
+	# find bukkit api version
+	FindDepVersion  "bukkit-short"  "bukkit-short"
+	if [[ -z $FOUND_DEP_VERSION ]]; then
+		failure "Failed to find bukkit api short version"
+		exit 1
+	fi
+	AddPropDep  "bukkit-short-version"  "$FOUND_DEP_VERSION"
 fi
 
 
