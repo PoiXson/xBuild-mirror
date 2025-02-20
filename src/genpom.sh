@@ -339,24 +339,7 @@ source  "$WDIR/pom.conf"  || exit 1
 
 
 
-if [[ ! -z $VERSION ]]; then
-	failure "Version in conf not supported"
-	failure ; exit 1
-fi
-if [[ ! -z $OUT_VERSION ]]; then
-	[[ "$OUT_VERSION" == *"SNAPSHOT"* ]] && \
-		SNAPSHOT=$YES
-fi
-if [[ "$OUT_VERSION" == *"-"* ]]; then
-	OUT_VERSION=${OUT_VERSION%%-*}
-fi
-if [[ $SNAPSHOT -eq $YES ]]; then
-	OUT_VERSION="$OUT_VERSION-SNAPSHOT"
-fi
-
-
-
-# check values
+# check pom.conf values
 if [[ -z $NAME ]]; then
 	failure "Name not set"
 	failure ; exit 1
@@ -372,6 +355,24 @@ fi
 if [[ -z $OUT_VERSION ]]; then
 	failure "Version not set"
 	failure ; exit 1
+fi
+
+# deprecated version field
+if [[ ! -z $VERSION ]]; then
+	failure "Version in conf not supported"
+	failure ; exit 1
+fi
+
+# snapshot/release
+if [[ ! -z $OUT_VERSION ]]; then
+	[[ "$OUT_VERSION" == *"SNAPSHOT"* ]] && \
+		SNAPSHOT=$YES
+fi
+if [[ "$OUT_VERSION" == *"-"* ]]; then
+	OUT_VERSION=${OUT_VERSION%%-*}
+fi
+if [[ $SNAPSHOT -eq $YES ]]; then
+	OUT_VERSION="$OUT_VERSION-SNAPSHOT"
 fi
 
 
