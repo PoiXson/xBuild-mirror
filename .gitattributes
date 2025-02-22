@@ -4,6 +4,8 @@
 .gitignore text
 .gitattributes text
 README text
+
+/gradlew text eol=lf
 build.gradle text
 settings.gradle text
 *.properties text
@@ -28,7 +30,7 @@ settings.gradle text
 *.yaml text
 *.svg text
 *.sh text
-*.bat text
+*.bat text eol=crlf
 
 *.png binary
 *.jpg binary
