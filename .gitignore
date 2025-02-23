@@ -10,7 +10,6 @@ run/
 *.fifo
 *.sock
 *.socket
-.paper-nms/
 
 debug
 DEBUG
