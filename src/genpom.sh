@@ -84,9 +84,10 @@ OUT_PROPS_PLUGINS=""
 OUT_PLUGINS=""
 OUT_DEPS=""
 OUT_REPOS=""
-OUT_RES=""
-OUT_BIN=""
-OUT_LIB=""
+OUT_RES_TAG=""
+OUT_RES_TXT=""
+OUT_RES_BIN=""
+OUT_LIBS=""
 
 
 
@@ -247,26 +248,36 @@ EOF
 	OUT_REPOS+=$'\n'
 }
 
-function AddRes() {
+function AddResTag() {
 	if [[ -z $1 ]]; then
-		failure "AddRes requires a file argument to include"
+		failure "AddResTag requires a file argument to include"
 		failure ; exit 1
 	fi
-	OUT_RES="$OUT_RES"$'\t\t\t\t\t'"<include>$1</include>"$'\n'
+	OUT_RES_TAG="$OUT_RES_TAG"$'\t\t\t\t\t'"<include>$1</include>"$'\n'
 }
-function AddBin() {
+
+function AddResTxt() {
 	if [[ -z $1 ]]; then
-		failure "AddBin requires a file argument to include"
+		failure "AddResTxt requires a file argument to include"
 		failure ; exit 1
 	fi
-	OUT_BIN="$OUT_BIN"$'\t\t\t\t\t'"<include>$1</include>"$'\n'
+	OUT_RES_TXT="$OUT_RES_TXT"$'\t\t\t\t\t'"<include>$1</include>"$'\n'
 }
+
+function AddResBin() {
+	if [[ -z $1 ]]; then
+		failure "AddResBin requires a file argument to include"
+		failure ; exit 1
+	fi
+	OUT_RES_BIN="$OUT_RES_BIN"$'\t\t\t\t\t'"<include>$1</include>"$'\n'
+}
+
 function AddLib() {
 	if [[ -z $1 ]]; then
 		failure "AddLib requires a file argument to include"
 		failure ; exit 1
 	fi
-	OUT_LIB="$OUT_LIB"$'\t\t\t\t\t'"<include>$1</include>"$'\n'
+	OUT_LIBS="$OUT_LIBS"$'\t\t\t\t\t'"<include>$1</include>"$'\n'
 }
 
 
@@ -445,7 +456,7 @@ if [[ $SHADE -eq $YES ]]; then
 fi
 
 # assemble with libs
-if [[ ! -z $OUT_LIB ]]; then
+if [[ ! -z $OUT_LIBS ]]; then
 	FindDepVersion  "org.apache.maven.plugins"  "maven-dependency-plugin"
 	AddPropPlugin  "maven-dependency-plugin-version"  "$FOUND_DEP_VERSION"
 fi
@@ -624,47 +635,62 @@ if [[ -e "$WDIR/tests/" ]]; then
 fi
 
 # resources
-if [[ ! -z $OUT_RES ]] \
-|| [[ ! -z $OUT_BIN ]] \
-|| [[ ! -z $OUT_LIB ]]; then
+if [[ ! -z $OUT_RES_TAG ]] \
+|| [[ ! -z $OUT_RES_TXT ]] \
+|| [[ ! -z $OUT_RES_BIN ]] \
+|| [[ ! -z $OUT_LIBS    ]]; then
 	echo -e "\t\t<resources>" >> "$OUT_FILE"
-	# resources/ text
-	if [[ ! -z $OUT_RES ]]; then
+	# resources/ text with tags
+	if [[ ! -z $OUT_RES_TAG ]]; then
 \cat >>"$OUT_FILE" <<EOF
 			<resource>
 				<directory>resources/</directory>
 				<filtering>true</filtering>
 				<includes>
 EOF
-echo -n "$OUT_RES" >> "$OUT_FILE"
+echo -n "$OUT_RES_TAG" >> "$OUT_FILE"
 \cat >>"$OUT_FILE" <<EOF
 				</includes>
 			</resource>
 EOF
 	fi
-	# resources/ bin
-	if [[ ! -z $OUT_BIN ]]; then
+	# resources/ text
+	if [[ ! -z $OUT_RES_TXT ]]; then
 \cat >>"$OUT_FILE" <<EOF
 			<resource>
 				<directory>resources/</directory>
 				<filtering>false</filtering>
 				<includes>
 EOF
-echo -n "$OUT_BIN" >> "$OUT_FILE"
+echo -n "$OUT_RES_TXT" >> "$OUT_FILE"
+\cat >>"$OUT_FILE" <<EOF
+				</includes>
+			</resource>
+EOF
+	fi
+	# resources/ bin
+	if [[ ! -z $OUT_RES_BIN ]]; then
+\cat >>"$OUT_FILE" <<EOF
+			<resource>
+				<directory>resources/</directory>
+				<filtering>false</filtering>
+				<includes>
+EOF
+echo -n "$OUT_RES_BIN" >> "$OUT_FILE"
 \cat >>"$OUT_FILE" <<EOF
 				</includes>
 			</resource>
 EOF
 	fi
 	# assemble with libs
-	if [[ ! -z $OUT_LIB ]]; then
+	if [[ ! -z $OUT_LIBS ]]; then
 \cat >>"$OUT_FILE" <<EOF
 			<resource>
 				<directory>\${project.basedir}</directory>
 				<filtering>false</filtering>
 				<includes>
 EOF
-echo -n "$OUT_LIB" >> "$OUT_FILE"
+echo -n "$OUT_LIBS" >> "$OUT_FILE"
 \cat >>"$OUT_FILE" <<EOF
 				</includes>
 			</resource>
@@ -925,7 +951,7 @@ EOF
 fi
 
 # assemble with libs
-if [[ ! -z $OUT_LIB ]]; then
+if [[ ! -z $OUT_LIBS ]]; then
 \cat >>"$OUT_FILE" <<EOF
 			<!-- Dependency Plugin -->
 			<plugin>
