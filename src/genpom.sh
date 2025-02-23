@@ -334,9 +334,9 @@ function ADD_VERSION() {
 	[[ -z $FIND_DEP_BY_ARTIFACT ]] && return;
 	[[ -z $FIND_DEP_BY_GROUP    ]] && return;
 	# found match
-	if [[ "$1" == "$FIND_DEP_BY_GROUP" ]]; then
-		[[ "$2" == "$FIND_DEP_BY_ARTIFACT" ]] && \
-			FOUND_DEP_VERSION="$3"
+	if [[ "$1" == "$FIND_DEP_BY_GROUP"    ]] \
+	&& [[ "$2" == "$FIND_DEP_BY_ARTIFACT" ]]; then
+		FOUND_DEP_VERSION="$3"
 	fi
 }
 
@@ -377,8 +377,9 @@ fi
 
 # snapshot/release
 if [[ ! -z $OUT_VERSION ]]; then
-	[[ "$OUT_VERSION" == *"SNAPSHOT"* ]] && \
+	if [[ "$OUT_VERSION" == *"SNAPSHOT"* ]]; then
 		SNAPSHOT=$YES
+	fi
 fi
 if [[ "$OUT_VERSION" == *"-"* ]]; then
 	OUT_VERSION=${OUT_VERSION%%-*}
@@ -395,7 +396,7 @@ if [[ $FIND_BUKKIT_VERSION -eq $YES ]]; then
 	FindDepVersion  "bukkit-short"  "bukkit-short"
 	if [[ -z $FOUND_DEP_VERSION ]]; then
 		failure "Failed to find bukkit api short version"
-		exit 1
+		failure ; exit 1
 	fi
 	AddPropDep  "bukkit-short-version"  "$FOUND_DEP_VERSION"
 fi
@@ -403,7 +404,7 @@ fi
 
 
 # resources
-if [[ -e "$WDIR/resources/" ]] \
+if [[ -e "$WDIR/resources/"     ]] \
 || [[ -e "$WDIR/testresources/" ]]; then
 	FindDepVersion  "org.apache.maven.plugins"  "maven-resources-plugin"
 	AddPropPlugin  "maven-resources-plugin-version"  "$FOUND_DEP_VERSION"
@@ -712,7 +713,7 @@ fi
 echo -e "\t\t<plugins>" >>"$OUT_FILE"
 
 # resources
-if [[ -e "$WDIR/resources/" ]] \
+if [[ -e "$WDIR/resources/"     ]] \
 || [[ -e "$WDIR/testresources/" ]]; then
 \cat >>"$OUT_FILE" <<EOF
 			<!-- Resource Plugin -->
