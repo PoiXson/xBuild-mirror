@@ -73,9 +73,15 @@ function DisplayHelp() {
 	echo -e "  ${COLOR_GREEN}-q, --quiet${COLOR_RESET}               Hide extra logs"
 	echo -e "  ${COLOR_GREEN}--colors${COLOR_RESET}                  Enable console colors"
 	echo -e "  ${COLOR_GREEN}--no-colors${COLOR_RESET}               Disable console colors"
+	echo -e "  ${COLOR_GREEN}-V, --version${COLOR_RESET}             Display the version"
 	echo -e "  ${COLOR_GREEN}-h, --help${COLOR_RESET}                Display this help message and exit"
 	echo
 	exit 1
+}
+
+function DisplayVersion() {
+	echo -e "${COLOR_BROWN}xBuild${COLOR_RESET} ${COLOR_GREEN}$XBUILD_VERSION${COLOR_RESET}"
+	echo
 }
 
 
@@ -302,7 +308,8 @@ while [ $# -gt 0 ]; do
 	-q|--quiet)             QUIET=$YES   ;;
 	--color|--colors)       NO_COLORS=$NO  ; enable_colors  ;;
 	--no-color|--no-colors) NO_COLORS=$YES ; disable_colors ;;
-	-h|--help) DisplayHelp ; exit 1 ;;
+	-V|--version) DisplayVersion  ; exit 1 ;;
+	-h|--help)    DisplayHelp     ; exit 1 ;;
 
 	-*)
 		failure "Unknown flag: $1"
