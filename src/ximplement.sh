@@ -65,7 +65,7 @@ source  "/usr/bin/pxn/scripts/common.sh"  || exit 1
 function DisplayHelp() {
 	local FULL=$1
 	echo -e "${COLOR_BROWN}Usage:${COLOR_RESET}"
-	echo    "  provision.sh [options] <group>"
+	echo    "  $SELF [options] [src-path] [dest-path]"
 	echo
 	echo -e "${COLOR_BROWN}Options:${COLOR_RESET}"
 	echo -e "  ${COLOR_GREEN}-D, --dry${COLOR_RESET}                 Dry-run, no changes will be performed by actions"

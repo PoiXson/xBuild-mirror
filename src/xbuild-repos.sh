@@ -67,7 +67,7 @@ source  "/usr/bin/pxn/scripts/common.sh"  || exit 1
 
 function DisplayHelp() {
 	echo -e "${COLOR_BROWN}Usage:${COLOR_RESET}"
-	echo "  xbuild-repos [options] [path]"
+	echo    "  $SELF [options] [path]"
 	echo
 	echo -e "${COLOR_BROWN}Options:${COLOR_RESET}"
 	echo -e "  ${COLOR_GREEN}-a, --all${COLOR_RESET}                 Use all .dev files found"

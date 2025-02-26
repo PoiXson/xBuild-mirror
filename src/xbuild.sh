@@ -68,7 +68,7 @@ source  "/usr/bin/pxn/scripts/common.sh"  || exit 1
 function DisplayHelp() {
 	local FULL=$1
 	echo -e "${COLOR_BROWN}Usage:${COLOR_RESET}"
-	echo    "  xbuild [options] <group>"
+	echo    "  $SELF [options] <group>"
 	echo
 	echo -e "${COLOR_BROWN}Options:${COLOR_RESET}"
 	echo -e "  ${COLOR_GREEN}-r, --recursive${COLOR_RESET}           Recursively load xbuild.conf files"

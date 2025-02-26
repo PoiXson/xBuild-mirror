@@ -67,7 +67,7 @@ source  "/usr/bin/pxn/scripts/common.sh"  || exit 1
 
 function DisplayHelp() {
 	echo -e "${COLOR_BROWN}Usage:${COLOR_RESET}"
-	echo    "  genautotools [options] <group>"
+	echo    "  $SELF [options] <group>"
 	echo
 	echo -e "${COLOR_BROWN}Options:${COLOR_RESET}"
 	echo -e "  ${COLOR_GREEN}-V, --version${COLOR_RESET}             Display the version"

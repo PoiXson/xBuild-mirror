@@ -73,7 +73,7 @@ fi
 
 function DisplayHelp() {
 	echo -e "${COLOR_BROWN}Usage:${COLOR_RESET}"
-	echo    "  gradle-dl [options]"
+	echo    "  $SELF [options]"
 	echo
 	echo -e "${COLOR_BROWN}Options:${COLOR_RESET}"
 	echo -e "  ${COLOR_GREEN}-d, --dl, --download${COLOR_RESET}      Download Gradle"

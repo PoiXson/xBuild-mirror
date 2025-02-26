@@ -89,7 +89,7 @@ OUT_LIBS=""
 
 function DisplayHelp() {
 	echo -e "${COLOR_BROWN}Usage:${COLOR_RESET}"
-	echo    "  genpom [options] <group>"
+	echo    "  $SELF [options] <group>"
 	echo
 	echo -e "${COLOR_BROWN}Options:${COLOR_RESET}"
 	echo -e "  ${COLOR_GREEN}-R, --release [version]${COLOR_RESET}   Build a production release"
