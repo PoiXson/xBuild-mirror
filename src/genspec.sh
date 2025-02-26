@@ -139,7 +139,7 @@ if [[ ! -f "$WDIR/spec.conf" ]]; then
 	failure "spec.conf file not found here"
 	failure ; exit 1
 fi
-source "$WDIR/spec.conf"  || exit 1
+source  "$WDIR/spec.conf"  || exit 1
 
 
 

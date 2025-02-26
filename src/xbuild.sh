@@ -134,7 +134,7 @@ function DisplayVersion() {
 
 
 
-# ----------------------------------------
+# -------------------------------------------------------------------------------
 
 
 
@@ -442,7 +442,7 @@ function doProject() {
 	fi
 	# run build stages
 	for ENTRY in $( \ls -1 -v "$BUILD_STAGES_PATH" ); do
-		source "$BUILD_STAGES_PATH/$ENTRY"
+		source  "$BUILD_STAGES_PATH/$ENTRY"  || exit 1
 	done
 	# project finished
 	COUNT_PRJ=$((COUNT_PRJ+1))
@@ -486,7 +486,7 @@ function LoadConf() {
 	DetectGitTag "$CURRENT_PATH"
 	\pushd  "$CURRENT_PATH"  >/dev/null  || exit 1
 		# load xbuild.conf
-		source "$CURRENT_PATH/xbuild.conf" || exit 1
+		source  "$CURRENT_PATH/xbuild.conf"  || exit 1
 		# last project in conf file
 		doProject
 		CleanupProjectVars
@@ -631,7 +631,7 @@ function restoreProjectTags() {
 
 
 
-# ----------------------------------------
+# -------------------------------------------------------------------------------
 # parse args
 
 
@@ -744,8 +744,8 @@ while [ $# -gt 0 ]; do
 		VERBOSE=$YES ; ALLOW_RELEASE=$YES
 	;;
 
-	-v|--verbose) VERBOSE=$YES ;;
-	-q|--quiet)   QUIET=$YES   ;;
+	-v|--verbose)           VERBOSE=$YES ;;
+	-q|--quiet)             QUIET=$YES   ;;
 	--color|--colors)       NO_COLORS=$NO  ; enable_colors  ;;
 	--no-color|--no-colors) NO_COLORS=$YES ; disable_colors ;;
 	-V|--version) DisplayVersion   ; exit 1 ;;
@@ -755,6 +755,7 @@ while [ $# -gt 0 ]; do
 		failure "Unknown flag: $1"
 		failure ; DisplayHelp $NO ; exit 1
 	;;
+
 	*)
 		failure "Unknown argument: $1"
 		failure ; DisplayHelp $NO ; exit 1
@@ -776,37 +777,37 @@ if [[ ! -f "$WDIR/xbuild.conf" ]]; then
 	failure ; exit 1
 fi
 
-did_notice=$NO
+DID_NOTICE=$NO
 if [[ "$SELF" != "/usr/"* ]]; then
 	F="$WDIR/${SELF%/*}/xbuild-stages"
 	if [[ -d "$F" ]]; then
-		did_notice=$YES
+		DID_NOTICE=$YES
 		BUILD_STAGES_PATH="$F"
 		notice "Using local stage scripts: $F"
 	fi
 fi
 if [[ $QUIET -ne $YES ]]; then
 	if [[ $IS_DRY -eq $YES ]]; then
-		did_notice=$YES
+		DID_NOTICE=$YES
 		notice "Dry-run"
 	fi
 	if [[ $DEBUG_FLAGS -eq $YES ]]; then
-		did_notice=$YES
+		DID_NOTICE=$YES
 		notice "Enable debug flags"
 	fi
 	if [[ $DO_CI -eq $YES ]]; then
-		did_notice=$YES
+		DID_NOTICE=$YES
 		notice "Continuous Integration Mode"
 		if [[ $DEBUG_FLAGS -eq $YES ]]; then
 			warning "Production mode and debug mode are active at the same time"
 		fi
 	fi
 	if [[ " $ACTIONS " == *" pack "* ]]; then
-		did_notice=$YES
+		DID_NOTICE=$YES
 		notice "Deploy to: $TARGET_PATH"
 	fi
 	if [[ ! -z $PROJECT_FILTERS ]]; then
-		did_notice=$YES
+		DID_NOTICE=$YES
 		if [[ "$PROJECT_FILTERS" == " "*" "* ]]; then
 			notice "Filters:"
 			for FILTER in $PROJECT_FILTERS; do
@@ -817,7 +818,7 @@ if [[ $QUIET -ne $YES ]]; then
 		fi
 	fi
 fi
-[[ $did_notice -eq $YES ]] && echo
+[[ $DID_NOTICE -eq $YES ]] && echo
 
 
 
@@ -850,7 +851,7 @@ LoadConf "$WDIR/xbuild.conf"
 
 
 
-# ----------------------------------------
+# -------------------------------------------------------------------------------
 # finished
 
 
@@ -889,9 +890,10 @@ fi
 
 
 
-echo -ne " ${COLOR_GREEN}Performed ${COLOR_BLUE}${COUNT_ACT}${COLOR_GREEN} operation"
-[[ $COUNT_ACT -gt 1 ]] && echo -n "s"
-[[ $COUNT_PRJ -gt 1 ]] && echo -ne " on ${COLOR_BLUE}${COUNT_PRJ}${COLOR_GREEN} projects"
+[[ $COUNT_ACT -eq 1 ]] && S="" || S="s"
+	echo -ne " ${COLOR_GREEN}Performed ${COLOR_BLUE}$COUNT_ACT${COLOR_GREEN} operation$S"
+[[ $COUNT_PRJ -gt 1 ]] && \
+	echo -ne " on ${COLOR_BLUE}$COUNT_PRJ${COLOR_GREEN} projects"
 echo -e "${COLOR_RESET}"
 
 if [[ $RM_GROUPS -gt 0 ]] \
@@ -899,19 +901,20 @@ if [[ $RM_GROUPS -gt 0 ]] \
 	echo -e " ${COLOR_GREEN}Removed ${COLOR_BLUE}${RM_TOTAL}${COLOR_GREEN} files/dirs in ${COLOR_BLUE}${RM_GROUPS}${COLOR_GREEN} groups"
 fi
 
+DID_NOTICE=$NO
 TIME_END=$( \date "+%s%N" )
 ELAPSED=$( echo "scale=3;($TIME_END - $TIME_START) / 1000 / 1000 / 1000" | \bc )
 [[ "$ELAPSED" == "."* ]] && ELAPSED="0$ELAPSED"
 echo -e " ${COLOR_GREEN}Finished in $ELAPSED seconds${COLOR_RESET}"
 if [[ $IS_DRY -eq $YES ]]; then
-	echo
+	DID_NOTICE=$YES
 	notice "Dry-run"
 fi
 if [[ " $ACTIONS " == *" pack "* ]]; then
-	did_notice=$YES
+	DID_NOTICE=$YES
 	notice "Deploy to: $TARGET_PATH"
 fi
-echo
+[[ $DID_NOTICE -eq $YES ]] && echo
 
 if [[ ! -z $PACKAGES_ALL ]]; then
 	echo -e " ${COLOR_BLUE}Packages finished:${COLOR_RESET}"

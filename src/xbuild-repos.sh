@@ -1,5 +1,5 @@
 #!/usr/bin/bash
-##==============================================================================
+## ================================================================================
 ##  xBuild-Repos
 ## Copyright (c) 2019-2025 Mattsoft/PoiXson
 ## <https://mattsoft.net> <https://poixson.com>
@@ -380,7 +380,7 @@ fi
 
 # load repos.conf
 doCleanupVars
-source "$WDIR/repos.conf"  || exit 1
+source  "$WDIR/repos.conf"  || exit 1
 # do last
 REPO
 
