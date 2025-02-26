@@ -127,7 +127,7 @@ fi
 %{_bindir}/genspec
 %{prefix}/gradle-common.sh
 %{_bindir}/gradle-dl
-%{_bindir}/ximplement.sh
+%{_bindir}/ximplement
 %{_sysconfdir}/profile.d/xbuild.sh
 %attr(0644,-,-) %{_sysconfdir}/java/maven-versions.conf.example
 %dir %{_sysconfdir}/xbuild/
