@@ -61,6 +61,7 @@ echo "Install.."
 	%{__install} -m 0644  "genspec.sh"       "%{buildroot}%{_bindir}/genspec"       || exit 1
 	%{__install} -m 0644  "xbuild-repos.sh"  "%{buildroot}%{_bindir}/xbuild-repos"  || exit 1
 	%{__install} -m 0644  "gradle-dl.sh"     "%{buildroot}%{_bindir}/gradle-dl"     || exit 1
+	%{__install} -m 0644  "ximplement.sh"    "%{buildroot}%{_bindir}/ximplement"    || exit 1
 	# /usr/bin/pxn/scripts/
 	%{__install} -m 0644  \
 		"gradle-common.sh"  \
@@ -126,6 +127,7 @@ fi
 %{_bindir}/genspec
 %{prefix}/gradle-common.sh
 %{_bindir}/gradle-dl
+%{_bindir}/ximplement.sh
 %{_sysconfdir}/profile.d/xbuild.sh
 %attr(0644,-,-) %{_sysconfdir}/java/maven-versions.conf.example
 %dir %{_sysconfdir}/xbuild/
