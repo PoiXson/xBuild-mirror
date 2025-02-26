@@ -59,13 +59,9 @@ GENPOM_VERSION="{{{VERSION}}}"
 
 
 
-source /usr/bin/pxn/scripts/common.sh  || exit 1
-
-if [[ -z $WDIR ]]; then
-	echo
-	failure "Failed to find current working directory"
-	failure ; exit 1
-fi
+echo
+SELF="$0"
+source  "/usr/bin/pxn/scripts/common.sh"  || exit 1
 
 
 

@@ -59,14 +59,9 @@ BUILD_STAGES_PATH="/etc/xbuild/stages"
 
 
 
-source /usr/bin/pxn/scripts/common.sh  || exit 1
 echo
-
-if [[ -z $WDIR ]]; then
-	echo
-	failure "Failed to find current working directory"
-	failure ; exit 1
-fi
+SELF="$0"
+source  "/usr/bin/pxn/scripts/common.sh"  || exit 1
 
 
 
@@ -645,7 +640,6 @@ if [[ $# -eq 0 ]]; then
 	DisplayHelp $NO
 	exit 1
 fi
-SELF="$0"
 while [ $# -gt 0 ]; do
 	case "$1" in
 

@@ -55,8 +55,10 @@ GRADLE_DL_VERSION="{{{VERSION}}}"
 
 
 
-source /usr/bin/pxn/scripts/common.sh         || exit 1
-source /usr/bin/pxn/scripts/gradle-common.sh  || exit 1
+echo
+SELF="$0"
+source  "/usr/bin/pxn/scripts/common.sh"         || exit 1
+source  "/usr/bin/pxn/scripts/gradle-common.sh"  || exit 1
 
 
 
@@ -113,7 +115,6 @@ if [[ $# -eq 0 ]]; then
 	DisplayHelp $NO
 	exit 1
 fi
-echo
 while [ $# -gt 0 ]; do
 	case "$1" in
 
