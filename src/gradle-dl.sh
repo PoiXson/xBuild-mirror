@@ -51,7 +51,7 @@
 ##    terms of the AGPL and this Addendum.
 ## ================================================================================
 # gradle-dl.sh
-GRADLE_DL_VERSION="{{{VERSION}}}"
+XBUILD_VERSION="{{{VERSION}}}"
 
 
 
@@ -89,7 +89,7 @@ function DisplayHelp() {
 }
 
 function DisplayVersion() {
-	echo -e "${COLOR_BROWN}gradle-dl${COLOR_RESET} ${COLOR_GREEN}${GRADLE_DL_VERSION}${COLOR_RESET}"
+	echo -e "${COLOR_BROWN}xBuild${COLOR_RESET} ${COLOR_GREEN}$XBUILD_VERSION${COLOR_RESET}"
 	echo
 }
 

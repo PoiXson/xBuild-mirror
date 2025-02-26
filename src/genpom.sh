@@ -55,7 +55,7 @@
 ##    terms of the AGPL and this Addendum.
 ## ================================================================================
 # genpom.sh
-GENPOM_VERSION="{{{VERSION}}}"
+XBUILD_VERSION="{{{VERSION}}}"
 
 
 
@@ -102,7 +102,7 @@ function DisplayHelp() {
 }
 
 function DisplayVersion() {
-	echo -e "${COLOR_BROWN}GenPom${COLOR_RESET} ${COLOR_GREEN}${GENPOM_VERSION}${COLOR_RESET}"
+	echo -e "${COLOR_BROWN}xBuild${COLOR_RESET} ${COLOR_GREEN}$XBUILD_VERSION${COLOR_RESET}"
 	echo
 }
 

@@ -52,7 +52,7 @@
 ##    terms of the AGPL and this Addendum.
 ## ================================================================================
 # ximplement.sh
-XIMPLEMENT_VERSION="{{{VERSION}}}"
+XBUILD_VERSION="{{{VERSION}}}"
 
 
 

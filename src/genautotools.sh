@@ -77,7 +77,7 @@ function DisplayHelp() {
 }
 
 function DisplayVersion() {
-	echo -e "${COLOR_BROWN}GenAutoTools${COLOR_RESET} ${COLOR_GREEN}${GENAUTOTOOLS_VERSION}${COLOR_RESET}"
+	echo -e "${COLOR_BROWN}GenAutoTools${COLOR_RESET} ${COLOR_GREEN}$GENAUTOTOOLS_VERSION${COLOR_RESET}"
 	echo
 }
 

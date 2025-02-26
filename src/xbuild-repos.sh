@@ -82,7 +82,7 @@ function DisplayHelp() {
 }
 
 function DisplayVersion() {
-	echo -e "${COLOR_BROWN}xBuild-Repos${COLOR_RESET} ${COLOR_GREEN}${XBUILD_REPOS_VERSION}${COLOR_RESET}"
+	echo -e "${COLOR_BROWN}xRepos${COLOR_RESET} ${COLOR_GREEN}$XBUILD_REPOS_VERSION${COLOR_RESET}"
 	echo
 }
 

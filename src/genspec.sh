@@ -55,7 +55,7 @@
 ##    terms of the AGPL and this Addendum.
 ## ================================================================================
 # genspec.sh
-GENSPEC_VERSION="{{{VERSION}}}"
+XBUILD_VERSION="{{{VERSION}}}"
 
 
 
@@ -90,7 +90,7 @@ function DisplayHelp() {
 }
 
 function DisplayVersion() {
-	echo -e "${COLOR_BROWN}GenSpec${COLOR_RESET} ${COLOR_GREEN}${GENSPEC_VERSION}${COLOR_RESET}"
+	echo -e "${COLOR_BROWN}xBuild${COLOR_RESET} ${COLOR_GREEN}$XBUILD_VERSION${COLOR_RESET}"
 	echo
 }
 
