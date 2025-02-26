@@ -90,21 +90,13 @@ function DisplayVersion() {
 
 
 
-PATH_SRC=$( \realpath "$WDIR/../skel" )
-PATH_DST=$( \realpath "$WDIR"         )
-if [[ -z $PATH_SRC ]]; then
-	failure "Failed to find resource SRC"
-	failure ; exit 1
-fi
-if [[ -z $PATH_DST ]]; then
-	failure "Failed to find resource DST"
-	failure ; exit 1
-fi
-
 VERBOSE=$NO
 QUIET=$NO
 NO_COLORS=$NO
 IS_DRY=$NO
+
+PATH_SRC=""
+PATH_DST=""
 
 let COUNT_TOTAL=0
 let COUNT_COPY=0
@@ -316,8 +308,14 @@ while [ $# -gt 0 ]; do
 		failure ; DisplayHelp ; exit 1
 	;;
 	*)
-		failure "Unknown argument: $1"
-		failure ; DisplayHelp $NO ; exit 1
+		if [[ -z $PATH_SRC ]]; then
+			PATH_SRC="$1"
+		elif [[ -z $PATH_DST ]]; then
+			PATH_DST="$1"
+		else
+			failure "Unknown argument: $1"
+			failure ; exit 1
+		fi
 	;;
 
 	esac
@@ -333,11 +331,31 @@ if [[ $IS_DRY -eq $YES ]]; then
 fi
 [[ $DID_NOTICE -eq $YES ]] && echo
 
-echo -e " Source:      ${COLOR_CYAN}$PATH_SRC${COLOR_RESET}"
-echo -e " Destination: ${COLOR_CYAN}$PATH_DST${COLOR_RESET}"
+
+
+# source/destination paths
+if [[ -z $PATH_SRC ]]; then
+	PATH_SRC="$WDIR/../skel"
+fi
+if [[ -z $PATH_DST ]]; then
+	PATH_DST="$WDIR"
+fi
+REAL_PATH_SRC=$( \realpath "$PATH_SRC" )
+REAL_PATH_DST=$( \realpath "$PATH_DST" )
+if [[ -z $REAL_PATH_SRC ]]; then
+	failure "Failed to find resource SRC: $PATH_SRC"
+	failure ; exit 1
+fi
+if [[ -z $REAL_PATH_DST ]]; then
+	failure "Failed to find resource DST: $PATH_DST"
+	failure ; exit 1
+fi
+
+echo -e " Source:      ${COLOR_CYAN}$REAL_PATH_SRC${COLOR_RESET}"
+echo -e " Destination: ${COLOR_CYAN}$REAL_PATH_DST${COLOR_RESET}"
 echo
 
-if [[ "$PATH_SRC" == "$PATH_DST" ]]; then
+if [[ "$REAL_PATH_SRC" == "$REAL_PATH_DST" ]]; then
 	failure "Source is the same as destination"
 	failure ; exit 1
 fi
