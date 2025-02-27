@@ -197,8 +197,7 @@ function DisplayTimeProject() {
 	[[ $QUIET -eq $YES ]] && return
 	local TIME_CURRENT=$( \date "+%s%N" )
 	local ELAPSED=$( echo "scale=3;($TIME_CURRENT - $TIME_START_PRJ) / 1000 / 1000 / 1000" | bc )
-	[[ "$ELAPSED" == "."* ]] && \
-		ELAPSED="0$ELAPSED"
+	[[ "$ELAPSED" == "."* ]] && ELAPSED="0$ELAPSED"
 	echo -e " ${COLOR_CYAN}Finished project in ${COLOR_GREEN}${ELAPSED}${COLOR_CYAN} seconds: ${PROJECT_NAME}${COLOR_RESET}"
 	echo -e " ${COLOR_CYAN}--------------------------------------------------${COLOR_RESET}"
 	echo
@@ -252,20 +251,17 @@ function AddGitAttrib() {
 
 
 function RunConfig() {
-	if [[ ! -z $1 ]]; then
-		RUN_CONFIG+=("$*")
-	fi
+	[[ -z $1 ]] || RUN_CONFIG+=("$*")
 }
 function RunBuild() {
-	if [[ ! -z $1 ]]; then
-		RUN_BUILD+=("$*")
-	fi
+	[[ -z $1 ]] || RUN_BUILD+=("$*")
 }
 
 
 
 function CopyFile() {
-	if [[ -z $1 ]] || [[ -z $2 ]]; then
+	if [[ -z $1 ]] \
+	|| [[ -z $2 ]]; then
 		failure "CopyFile() requires arguments"
 		failure ; exit 1
 	fi
@@ -291,9 +287,7 @@ function MakeSymlink() {
 		failure "MakeSymlink() requires arguments"
 		failure ; exit 1
 	fi
-	if [[ ! -e "$1" ]]; then
-		warning "File not found for symlink: $1"
-	fi
+	[[ -e "$1" ]] || warning "File not found for symlink: $1"
 	echo_cmd -n "Symlink: "
 	echo -ne "${COLOR_CYAN}"
 	local RESULT=0
@@ -414,12 +408,10 @@ function doProject() {
 	if [[ -f "$PROJECT_PATH/xbuild.conf" ]]; then
 		if [[ "$PROJECT_PATH" != "$CURRENT_PATH" ]]; then
 			if [[ $DO_RECURSIVE -eq $YES ]]; then
-				[[ $VERBOSE -eq $YES ]] && \
-					notice "Recursive: $PROJECT_PATH"
+				[[ $VERBOSE -eq $YES ]] && notice "Recursive: $PROJECT_PATH"
 				LoadConf "$PROJECT_PATH/xbuild.conf"
 			else
-				[[ $VERBOSE -eq $YES ]] && \
-					notice "Skipping recursive"
+				[[ $VERBOSE -eq $YES ]] && notice "Skipping recursive"
 			fi
 			CleanupProjectVars
 			return
@@ -560,8 +552,7 @@ function doProjectTags() {
 	[[ $PROJECT_TAGS_DONE -eq $YES ]] && return
 	PROJECT_TAGS_DONE=$YES
 	for F in $PROJECT_TAG_FILES; do
-		[[ $VERBOSE -eq $YES ]] && \
-			notice "Replacing tags in: $F"
+		[[ $VERBOSE -eq $YES ]] && notice "Replacing tags in: $F"
 		if [[ ! -f "$PROJECT_PATH/$F" ]] \
 		&& [[ ! -f "$PROJECT_PATH/${F}.xbuild_temp" ]]; then
 			failure "File not found: $F"
@@ -570,23 +561,25 @@ function doProjectTags() {
 #TODO: handle dry
 		# file already tagged
 		if [[ -e "$PROJECT_PATH/${F}.xbuild_temp" ]]; then
-			[[ $VERBOSE -eq $YES ]] && \
-				notice "File already exists: ${F}.xbuild_temp"
 			# restore original
-			[[ $VERBOSE -eq $YES ]] && \
+			if [[ $VERBOSE -eq $YES ]]; then
+				notice "File already exists: ${F}.xbuild_temp"
 				echo_cmd "rm -f $F"
-			[[ $IS_DRY -eq $NO ]] && \
+			fi
+			if [[ $IS_DRY -eq $NO ]]; then
 				\rm -fv  "$PROJECT_PATH/$F"  || exit 1
+			fi
 		else
-			[[ $VERBOSE -eq $YES ]] && \
-				echo_cmd "mv $F ${F}.xbuild_temp"
-			[[ $IS_DRY -eq $NO ]] && \
+			[[ $VERBOSE -eq $YES ]] && echo_cmd "mv $F ${F}.xbuild_temp"
+			if [[ $IS_DRY -eq $NO ]]; then
 				\mv -v  "$PROJECT_PATH/$F"  "$PROJECT_PATH/${F}.xbuild_temp"  || exit 1
+			fi
 		fi
 		[[ $VERBOSE -eq $YES ]] && \
 			echo_cmd "cp ${F}.xbuild_temp $F"
-		[[ $IS_DRY -eq $NO ]] && \
+		if [[ $IS_DRY -eq $NO ]]; then
 			\cp -v  "$PROJECT_PATH/${F}.xbuild_temp"  "$PROJECT_PATH/$F"  || exit 1
+		fi
 		# tags
 		if [[ ! -z $PROJECT_VERSION ]]; then
 			# special case for rust/cargo
@@ -596,15 +589,17 @@ function doProjectTags() {
 					local VERS_GUESS=${PROJECT_VERSION%.*}".0"
 					[[ $VERBOSE -eq $YES ]] && \
 						echo_cmd "sed -i 's/$VERS_GUESS/$PROJECT_VERSION/' $F"
-					[[ $IS_DRY -eq $NO ]] && \
+					if [[ $IS_DRY -eq $NO ]]; then
 						\sed -i  "s/$VERS_GUESS/$PROJECT_VERSION/"  "$PROJECT_PATH/$F"  || exit 1
+					fi
 				fi
 			# {VERSION} tag
 			else
 				[[ $VERBOSE -eq $YES ]] && \
 					echo_cmd "sed -i 's/{{""{VERSION}}}/$PROJECT_VERSION/' $F"
-				[[ $IS_DRY -eq $NO ]] && \
+				if [[ $IS_DRY -eq $NO ]]; then
 					\sed -i  "s/{{""{VERSION}}}/$PROJECT_VERSION/"  "$PROJECT_PATH/$F"  || exit 1
+				fi
 			fi
 		fi
 	done
