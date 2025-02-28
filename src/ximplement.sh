@@ -196,7 +196,7 @@ function CopyIfDiff() {
 	if [[ "$STATE" == "+" ]] \
 	|| [[ "$STATE" == "U" ]]; then
 		if [[ $IS_DRY -eq $NO ]]; then
-			\cp -v  "$FILE_TMP"  "$FILE_DST"  || exit 1
+			\cp -v  "$FILE_SRC"  "$FILE_DST"  || exit 1
 			echo -ne "${COLOR_RESET}"
 		else
 			echo -e "dry-cp  SRC -> $FILE${COLOR_RESET}"
