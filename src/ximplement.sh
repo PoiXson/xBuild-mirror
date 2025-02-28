@@ -95,6 +95,11 @@ QUIET=$NO
 NO_COLORS=$NO
 IS_DRY=$NO
 
+PROJECT_NAME=""
+PROJECT_NAME_LOWER=""
+PROJECT_TITLE=""
+PROJECT_SERVER=""
+
 PATH_SRC=""
 PATH_DST=""
 
@@ -171,6 +176,22 @@ function CopyIfDiff() {
 		COUNT_TOTAL=$((COUNT_TOTAL+1))
 		COUNT_COPY=$((COUNT_COPY+1))
 	fi
+}
+
+
+
+function DoTags() {
+	local FILE="$1"
+	if [[ -z $FILE ]]; then
+		failure "DoTags() function requires arguments"
+		failure ; exit 1
+	fi
+	local TIMESTAMP=$( \date )
+	\sed -i                                          "s/{{""{TIMESTAMP}}}/$TIMESTAMP/"            "$FILE"  || exit 1
+	if [[ ! -z $PROJECT_SERVER     ]]; then \sed -i  "s/{{""{SERVER}}}/$PROJECT_SERVER/"          "$FILE"  || exit 1 ; fi
+	if [[ ! -z $PROJECT_TITLE      ]]; then \sed -i  "s/{{""{TITLE}}}/$PROJECT_TITLE/"            "$FILE"  || exit 1 ; fi
+	if [[ ! -z $PROJECT_NAME       ]]; then \sed -i  "s/{{""{NAME}}}/$PROJECT_NAME/"              "$FILE"  || exit 1 ; fi
+	if [[ ! -z $PROJECT_NAME_LOWER ]]; then \sed -i  "s/{{""{NAME-LOWER}}}/$PROJECT_NAME_LOWER/"  "$FILE"  || exit 1 ; fi
 #TODO: use IS_TEXT_WITH_COMMENT_HEADER
 #	echo    "// Generated for: $TITLE"           >"$TEMP_FILE"
 #	echo -n "// "                               >>"$TEMP_FILE"
