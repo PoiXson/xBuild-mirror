@@ -235,10 +235,6 @@ function DoTags() {
 	if [[ ! -z $PROJECT_TITLE      ]]; then \sed -i  "s/{{""{TITLE}}}/$PROJECT_TITLE/"            "$FILE"  || exit 1 ; fi
 	if [[ ! -z $PROJECT_NAME       ]]; then \sed -i  "s/{{""{NAME}}}/$PROJECT_NAME/"              "$FILE"  || exit 1 ; fi
 	if [[ ! -z $PROJECT_NAME_LOWER ]]; then \sed -i  "s/{{""{NAME-LOWER}}}/$PROJECT_NAME_LOWER/"  "$FILE"  || exit 1 ; fi
-#TODO: use IS_TEXT_WITH_COMMENT_HEADER
-#	echo    "// Generated for: $TITLE"           >"$TEMP_FILE"
-#	echo -n "// "                               >>"$TEMP_FILE"
-#	\date                                       >>"$TEMP_FILE"
 }
 
 
@@ -263,14 +259,6 @@ function DoHashFile() {
 	[[ -z $TYPE ]] && TYPE="bin"
 	# file doesn't exist
 	[[ ! -e $FILE ]] && return 0
-	if [[ "$TYPE" == "txt" ]]; then
-		# has \n newline within first 200 bytes
-		if \od --read-bytes=200 --output-duplicates --format=c "$FILE" | \grep -q '\n'; then
-			TYPE="txt"
-		else
-			TYPE="bin"
-		fi
-	fi
 	case "$TYPE" in
 	# binary file
 	bin)
@@ -278,8 +266,8 @@ function DoHashFile() {
 		local RESULT=$?
 		[[ $RESULT -ne 0   ]] && return $RESULT
 		[[ -z $HASH_RESULT ]] && return 1
-		[[ "$HASH_RESULT" == *" "* ]] \
-			&& HASH_RESULT="${HASH_RESULT%% *}"
+		[[ "$HASH_RESULT" == *" "* ]] && \
+			HASH_RESULT="${HASH_RESULT%% *}"
 		return $?
 	;;
 	# text file
@@ -309,8 +297,8 @@ function DoHashFile() {
 					local RESULT=$?
 					[[ $RESULT -ne 0   ]] && return $RESULT
 					[[ -z $HASH_RESULT ]] && return 1
-					[[ "$HASH_RESULT" == *" "* ]] \
-						&& HASH_RESULT="${HASH_RESULT%% *}"
+					[[ "$HASH_RESULT" == *" "* ]] && \
+						HASH_RESULT="${HASH_RESULT%% *}"
 					return $?
 				fi
 				if [[ -z $FILE_TMP ]]; then
@@ -328,17 +316,13 @@ function DoHashFile() {
 		HASH_RESULT=$( \md5sum "$FILE_TMP" )
 		local RESULT=$?
 		local FLAG_VERB_QUIET=""
-		if [[ $VERBOSE -eq $YES ]]; then
-			FLAG_VERB_QUIET="-v"
+		[[ $VERBOSE -eq $YES ]] && \
 			echo_cmd  "rm $FILE_TMP"
-		elif [[ $QUIET -eq $YES ]]; then
-			FLAG_VERB_QUIET="-q"
-		fi
-		\rm  -f  $FLAG_VERB_QUIET  --preserve-root  "$FILE_TMP"
+		\rm -f --preserve-root  "$FILE_TMP"
 		[[ $RESULT -ne 0   ]] && return $RESULT
 		[[ -z $HASH_RESULT ]] && return 1
-		[[ "$HASH_RESULT" == *" "* ]] \
-			&& HASH_RESULT="${HASH_RESULT%% *}"
+		[[ "$HASH_RESULT" == *" "* ]] && \
+			HASH_RESULT="${HASH_RESULT%% *}"
 		return 0
 	;;
 	*)
