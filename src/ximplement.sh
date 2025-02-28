@@ -121,6 +121,7 @@ function CopyIfDiff() {
 	case "$1" in
 	bin) TYPE="bin" ; \shift ;;
 	txt) TYPE="txt" ; \shift ;;
+	tag) TYPE="tag" ; \shift ;;
 	*) ;;
 	esac
 	local FILE_SRC="$1"
@@ -140,41 +141,83 @@ function CopyIfDiff() {
 		failure "Source is the same as destination"
 		failure ; exit 1
 	fi
+	local PATH_DST=${FILE_DST%/*}
+	if [[ -z $PATH_DST ]]; then
+		failure "Failed to detect destination dir"
+		failure ; exit 1
+	fi
+	if [[ ! -d "$PATH_DST" ]]; then
+		failure "Destination dir not found: $PATH_DST"
+		failure ; exit 1
+#		echo_cmd  "mkdir  $PATH_DST"
+#		\mkdir -p  "$PATH_DST"  || exit 1
+	fi
 	local FILE=$( \basename "$FILE_DST" )
+	local FILE_SRC_ORIGINAL="$FILE_SRC"
+	local FILE_TMP=""
+	if [[ "$TYPE" == "tag" ]]; then
+		FILE_TMP=$( \mktemp )
+		if [[ -z $FILE_TMP ]]; then
+			failure "Failed to create a temp file"
+			failure ; exit 1
+		fi
+		[[ $VERBOSE -eq $YES ]] && \
+			echo_cmd  "cp  $FILE  $FILE_TMP"
+		\cp  "$FILE_SRC"  "$FILE_TMP"  || exit 1
+		DoTags  "$FILE_TMP"            || exit 1
+		FILE_SRC="$FILE_TMP"
+	fi
 	DoHashFile  "$TYPE"  "$FILE_SRC"  || exit 1 ; HASH_SRC="$HASH_RESULT" ; HASH_HEAD_LINES=$COUNT_HEAD_LINES
-	DoHashFile  "$TYPE"  "$FILE_DST"  || exit 1 ; HASH_DST="$HASH_RESULT" ; HASH_HEAD_LINES=$COUNT_HEAD_LINES
+	DoHashFile  "$TYPE"  "$FILE_DST"  || exit 1 ; HASH_DST="$HASH_RESULT"
 	if [[ -z $HASH_SRC ]]; then
 		failure "Failed to hash SRC: $FILE_SRC"
 		failure ; exit 1
 	fi
+	local STATE=""
 	# [+] extract new file
 	if [[ -z $HASH_DST ]]; then
-		echo -ne " ${COLOR_GREEN}[+] ${COLOR_CYAN}"
-		if [[ $IS_DRY -eq $YES ]]; then
-			echo "dry-cp <src> -> $FILE"
-		else
-			\cp -v  "$FILE_SRC"  "$FILE_DST"  || exit 1
-		fi
-		echo -ne "${COLOR_RESET}"
-		COUNT_TOTAL=$((COUNT_TOTAL+1))
-		COUNT_COPY=$((COUNT_COPY+1))
+		STATE="+"
 	# [=] match
 	elif [[ "$HASH_SRC" == "$HASH_DST" ]]; then
-		echo -e " ${COLOR_BLUE}[=] ${COLOR_CYAN}$FILE${COLOR_RESET}"
-		COUNT_TOTAL=$((COUNT_TOTAL+1))
+		STATE="="
 	# [U] update
 	else
-		echo -ne " ${COLOR_YELLOW}[U] ${COLOR_CYAN}"
-		if [[ $IS_DRY -eq $YES ]]; then
-			echo "dry-cp <src> -> $FILE"
+		STATE="U"
+	fi
+	# log file state
+	case "$STATE" in
+	"=") echo -ne   "   ${COLOR_BLUE}[=] " ;;
+	"+") echo -ne  "   ${COLOR_GREEN}[+] " ;;
+	"U") echo -ne "   ${COLOR_YELLOW}[U] " ;;
+	*) ;;
+	esac
+	echo -ne "${COLOR_CYAN}"
+	# needs extracting
+	if [[ "$STATE" == "+" ]] \
+	|| [[ "$STATE" == "U" ]]; then
+		if [[ $IS_DRY -eq $NO ]]; then
+			\cp -v  "$FILE_TMP"  "$FILE_DST"  || exit 1
+			echo -ne "${COLOR_RESET}"
 		else
-			\cp -v  "$FILE_SRC"  "$FILE_DST"  || exit 1
+			echo -e "dry-cp  SRC -> $FILE${COLOR_RESET}"
 		fi
-		echo -ne "${COLOR_RESET}"
-		echo "  SRC: $HASH_SRC $FILE_SRC"
-		echo "  DST: $HASH_DST $FILE_DST"
-		COUNT_TOTAL=$((COUNT_TOTAL+1))
+		if [[ $VERBOSE -eq $YES ]]; then
+			echo -e "     ${COLOR_CYAN}SRC:  ${COLOR_GREEN}$HASH_SRC  ${COLOR_CYAN}$FILE_SRC_ORIGINAL${COLOR_RESET}"
+			echo -e "     ${COLOR_CYAN}DST:  ${COLOR_GREEN}${HASH_DST:- - - - - - <missing> - - - - -  }  ${COLOR_CYAN}$FILE_DST${COLOR_RESET}"
+		fi
 		COUNT_COPY=$((COUNT_COPY+1))
+	# existing file is ok
+	else
+		echo -e "$FILE${COLOR_RESET}"
+	fi
+	COUNT_TOTAL=$((COUNT_TOTAL+1))
+	# remove temp file
+	if [[ ! -z $FILE_TMP ]]; then
+		if [[ $VERBOSE -eq $YES ]]; then
+			echo -n "    "
+			echo_cmd  "rm $FILE_TMP"
+		fi
+		\rm -f  --preserve-root  "$FILE_TMP"
 	fi
 }
 
@@ -240,7 +283,7 @@ function DoHashFile() {
 		return $?
 	;;
 	# text file
-	txt)
+	txt|tag)
 		local FILE_TMP=""
 		local IS_HEAD=$YES
 		local FIRST=$YES
@@ -383,15 +426,29 @@ fi
 
 
 
-# resources/
-CopyIfDiff  txt  "$PATH_SRC/logo.svg"  "$PATH_DST/resources/logo.svg"  || exit 1
-CopyIfDiff  bin  "$PATH_SRC/logo.png"  "$PATH_DST/resources/logo.png"  || exit 1
-
-# resources/languages/
-CopyIfDiff  txt  "$PATH_SRC/languages/en.json"  "$PATH_DST/resources/languages/en.json"  || exit 1
-
-# src/
-CopyIfDiff  txt  "$PATH_SRC/PoiXsonPluginLoader.java"  "$PATH_DST/src/com/poixson/PoiXsonPluginLoader.java"  || exit 1
+# load ximplement.conf
+FOUND_FILE=$NO
+# from current dir
+if [[ -f "$WDIR/ximplement.conf" ]]; then
+	source  "$WDIR/ximplement.conf"  || exit 1
+	FOUND_FILE=$YES
+fi
+# from destination path
+if [[ "$REAL_PATH_DST" != "$WDIR"         ]] \
+&& [[ -f "$REAL_PATH_DST/ximplement.conf" ]]; then
+	source  "$REAL_PATH_DST/ximplement.conf"  || exit 1
+	FOUND_FILE=$YES
+fi
+# from source path
+if [[ -f "$REAL_PATH_SRC/ximplement.conf" ]]; then
+	source  "$REAL_PATH_SRC/ximplement.conf"  || exit 1
+	FOUND_FILE=$YES
+fi
+# ximplement.conf not found
+if [[ $FOUND_FILE -eq $NO ]]; then
+	failure "ximplement.conf file not found in source path: $REAL_PATH_SRC"
+	failure ; exit 1
+fi
 
 
 
