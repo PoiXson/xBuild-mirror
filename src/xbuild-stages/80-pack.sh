@@ -4,7 +4,7 @@
 
 if [[ " $ACTIONS " == *" pack "* ]]; then
 	ACTIONS_FOUND="$ACTIONS_FOUND pack"
-	did_something=$NO
+	DID_SOMETHING=$NO
 	doProjectTags
 	[[ $QUIET -eq $NO ]] && \
 		title C  "Package"  "$PROJECT_NAME"
@@ -17,7 +17,7 @@ if [[ " $ACTIONS " == *" pack "* ]]; then
 			fi
 		\popd >/dev/null
 		echo
-		did_something=$YES
+		DID_SOMETHING=$YES
 	fi
 	# find .spec file
 	SPEC_FILE_COUNT=$( \ls -1 "$PROJECT_PATH/"*.spec 2>/dev/null | \wc -l )
@@ -127,10 +127,10 @@ if [[ " $ACTIONS " == *" pack "* ]]; then
 			echo -e "   ${COLOR_CYAN}DRY${COLOR_RESET}"
 		fi
 		echo -e " ${COLOR_CYAN}-----------------------------------------------${COLOR_RESET}"
-		did_something=$YES
+		DID_SOMETHING=$YES
 	fi
 	# nothing to do
-	if [[ $did_something -eq $YES ]]; then
+	if [[ $DID_SOMETHING -eq $YES ]]; then
 		DisplayTime "Package"
 		COUNT_ACT=$((COUNT_ACT+1))
 	else

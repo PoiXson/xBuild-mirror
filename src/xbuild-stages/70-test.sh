@@ -4,7 +4,7 @@
 
 if [[ " $ACTIONS " == *" test "* ]]; then
 	ACTIONS_FOUND="$ACTIONS_FOUND test"
-	did_something=$NO
+	DID_SOMETHING=$NO
 	doProjectTags
 	[[ $QUIET -eq $NO ]] && \
 		title C  "Testing"  "$PROJECT_NAME"
@@ -18,7 +18,7 @@ if [[ " $ACTIONS " == *" test "* ]]; then
 		\popd >/dev/null
 		echo
 #TODO: exec test program
-		did_something=$YES
+		DID_SOMETHING=$YES
 	fi
 	# phpunit
 	if [[ -f "$PROJECT_PATH/phpunit.xml" ]]; then
@@ -29,10 +29,10 @@ if [[ " $ACTIONS " == *" test "* ]]; then
 			fi
 		\popd >/dev/null
 		echo
-		did_something=$YES
+		DID_SOMETHING=$YES
 	fi
 	# nothing to do
-	if [[ $did_something -eq $YES ]]; then
+	if [[ $DID_SOMETHING -eq $YES ]]; then
 		DisplayTime "Tested"
 		COUNT_ACT=$((COUNT_ACT+1))
 	else

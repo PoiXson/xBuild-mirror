@@ -12,14 +12,14 @@ if [[ " $ACTIONS " == *" config "* ]]; then
 		echo
 		return
 	fi
-	did_something=$NO
+	DID_SOMETHING=$NO
 	doProjectTags
 	# run commands
 	for ENTRY in "${RUN_CONFIG[@]}"; do
 		notice "Running: $ENTRY"
 		if [[ $IS_DRY -eq $NO ]]; then
 			eval  "$ENTRY"  || exit 1
-			did_something=$YES
+			DID_SOMETHING=$YES
 		fi
 	done
 	# stub files
@@ -115,7 +115,7 @@ if [[ " $ACTIONS " == *" config "* ]]; then
 					echo_cmd "cat $SRC_FILE > $PROJECT_PATH/$FILENAME"
 					if [[ $IS_DRY -eq $NO ]]; then
 						\cat  "$SRC_FILE"  >"$PROJECT_PATH/$FILENAME"  || exit 1
-						did_something=$YES
+						DID_SOMETHING=$YES
 					fi
 				fi
 				# cleanup temp
@@ -144,7 +144,7 @@ if [[ " $ACTIONS " == *" config "* ]]; then
 					fi
 				\popd >/dev/null
 				echo
-				did_something=$YES
+				DID_SOMETHING=$YES
 			fi
 			# automake
 			if [[ -f "$PROJECT_PATH/configure.ac" ]]; then
@@ -157,7 +157,7 @@ if [[ " $ACTIONS " == *" config "* ]]; then
 					fi
 				\popd >/dev/null
 				echo
-				did_something=$YES
+				DID_SOMETHING=$YES
 			fi
 		fi
 		# generate pom.xml file
@@ -208,7 +208,7 @@ if [[ " $ACTIONS " == *" config "* ]]; then
 				fi
 			\popd >/dev/null
 			echo
-			did_something=$YES
+			DID_SOMETHING=$YES
 		fi
 		# generate .spec file
 		if [[ -f "$PROJECT_PATH/spec.conf" ]]; then
@@ -223,7 +223,7 @@ if [[ " $ACTIONS " == *" config "* ]]; then
 				fi
 			\popd >/dev/null
 			echo
-			did_something=$YES
+			DID_SOMETHING=$YES
 		fi
 		# composer
 		if [[ -f "$PROJECT_PATH/composer.json" ]]; then
@@ -259,11 +259,11 @@ if [[ " $ACTIONS " == *" config "* ]]; then
 				fi
 			\popd >/dev/null
 			echo
-			did_something=$YES
+			DID_SOMETHING=$YES
 		fi
 	fi
 	# nothing to do
-	if [[ $did_something -eq $YES ]]; then
+	if [[ $DID_SOMETHING -eq $YES ]]; then
 		DisplayTime "Configured"
 		COUNT_ACT=$((COUNT_ACT+1))
 	else

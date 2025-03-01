@@ -4,7 +4,7 @@
 
 if [[ " $ACTIONS " == *" build "* ]]; then
 	ACTIONS_FOUND="$ACTIONS_FOUND build"
-	did_something=$NO
+	DID_SOMETHING=$NO
 	[[ $QUIET -eq $NO ]] && \
 		title C  "Build"  "$PROJECT_NAME"
 	doProjectTags
@@ -13,7 +13,7 @@ if [[ " $ACTIONS " == *" build "* ]]; then
 		notice "Running: $ENTRY"
 		if [[ $IS_DRY -eq $NO ]]; then
 			eval  "$ENTRY"  || exit 1
-			did_something=$YES
+			DID_SOMETHING=$YES
 		fi
 	done
 	# automake
@@ -29,7 +29,7 @@ if [[ " $ACTIONS " == *" build "* ]]; then
 			fi
 		\popd >/dev/null
 		echo
-		did_something=$YES
+		DID_SOMETHING=$YES
 	fi
 	# make
 	if [[ -f "$PROJECT_PATH/Makefile" ]]; then
@@ -50,7 +50,7 @@ if [[ " $ACTIONS " == *" build "* ]]; then
 			fi
 		\popd >/dev/null
 		echo
-		did_something=$YES
+		DID_SOMETHING=$YES
 	fi
 	# maven
 	if [[ -f "$PROJECT_PATH/pom.xml" ]]; then
@@ -111,7 +111,7 @@ if [[ " $ACTIONS " == *" build "* ]]; then
 			fi
 		\popd >/dev/null
 		echo
-		did_something=$YES
+		DID_SOMETHING=$YES
 	fi
 	# gradle
 	if [[ -f "$PROJECT_PATH/build.gradle" ]]; then
@@ -124,7 +124,7 @@ if [[ " $ACTIONS " == *" build "* ]]; then
 			fi
 		\popd >/dev/null
 		[[ $IS_DRY -eq $YES ]] && echo
-		did_something=$YES
+		DID_SOMETHING=$YES
 	fi
 	# rust/cargo
 	if [[ -f "$PROJECT_PATH/Cargo.toml" ]]; then
@@ -157,10 +157,10 @@ if [[ " $ACTIONS " == *" build "* ]]; then
 			fi
 		\popd >/dev/null
 		echo
-		did_something=$YES
+		DID_SOMETHING=$YES
 	fi
 	# nothing to do
-	if [[ $did_something -eq $YES ]]; then
+	if [[ $DID_SOMETHING -eq $YES ]]; then
 		DisplayTime "Built"
 		COUNT_ACT=$((COUNT_ACT+1))
 	else
