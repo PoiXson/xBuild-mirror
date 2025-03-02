@@ -187,7 +187,8 @@ if [[ " $ACTIONS " == *" config "* ]]; then
 					fi
 #TODO: capture the output of this
 					# check for dependency updates
-					if [[ $DEBUG_FLAGS -eq $YES ]]; then
+					if [[ $DO_FAST -eq $NO      ]] \
+					&& [[ $DEBUG_FLAGS -eq $YES ]]; then
 						[[ $QUIET -eq $NO ]] && \
 							title C  "Check dependency updates"  "$PROJECT_NAME"
 						echo_cmd "mvn versions:display-dependency-updates versions:display-plugin-updates"
@@ -197,12 +198,13 @@ if [[ " $ACTIONS " == *" config "* ]]; then
 					fi
 				fi
 				# paper-nms
-				if [[ $( \grep paper-nms pom.xml ) ]]; then
-					if [[ $DEBUG_FLAGS -eq $YES ]] \
-					|| [[ ! -e "~/.m2/repository/ca/bkaw/paper-nms/" ]]; then
-						echo_cmd "mvn paper-nms:init"
-						if [[ $IS_DRY -eq $NO ]]; then
-							\mvn  paper-nms:init
+				if [[ $DO_FAST -eq $NO ]]; then
+					if [[ $( \grep paper-nms pom.xml ) ]]; then
+						if [[ $DEBUG_FLAGS -eq $YES ]] \
+						|| [[ ! -e "~/.m2/repository/ca/bkaw/paper-nms/" ]]; then
+							echo_cmd "mvn paper-nms:init"
+							[[ $IS_DRY -eq $NO ]] && \
+								\mvn  paper-nms:init
 						fi
 					fi
 				fi

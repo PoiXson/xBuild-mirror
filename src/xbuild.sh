@@ -78,6 +78,7 @@ function DisplayHelp() {
 	echo -e "  ${COLOR_GREEN}-n, --build-number <n>${COLOR_RESET}    Build number to use for builds and packages"
 	if [[ $FULL -eq $YES ]]; then
 	echo -e "  ${COLOR_GREEN}-d, --debug-flags${COLOR_RESET}         Build with debug flags"
+	echo -e "  ${COLOR_GREEN}--fast${COLOR_RESET}                    Skip non-essential tasks that take longer"
 	echo -e "  ${COLOR_GREEN}--target <path>${COLOR_RESET}           Sets the destination path for finished binaries"
 	echo                                "                              default: target/"
 	echo -e "  ${COLOR_GREEN}-F, --filter <project>${COLOR_RESET}    Skip all projects except these"
@@ -149,6 +150,7 @@ DO_CI=$NO
 DO_SUPER_CLEAN=$NO
 IS_DRY=$NO
 DEBUG_FLAGS=$NO
+DO_FAST=$NO
 
 BUILD_NUMBER=""
 TARGET_PATH=""
@@ -642,6 +644,7 @@ while [ $# -gt 0 ]; do
 	-R|--not-recursive)                    DO_RECURSIVE=$NO  ;;
 	-D|--dry|--dry-run)                    IS_DRY=$YES       ;;
 	-d|--debug|--debug-flag|--debug-flags) DEBUG_FLAGS=$YES  ;;
+	--fast)                                DO_FAST=$YES      ;;
 
 	-n|--build-number)
 		if [[ -z $2 ]] || [[ "$2" == "-"* ]]; then
@@ -789,6 +792,10 @@ if [[ $QUIET -ne $YES ]]; then
 	if [[ $DEBUG_FLAGS -eq $YES ]]; then
 		DID_NOTICE=$YES
 		notice "Enable debug flags"
+	fi
+	if [[ $DO_FAST -eq $YES ]]; then
+		DID_NOTICE=$YES
+		notice "Enable fast"
 	fi
 	if [[ $DO_CI -eq $YES ]]; then
 		DID_NOTICE=$YES
