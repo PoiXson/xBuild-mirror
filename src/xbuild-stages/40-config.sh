@@ -200,11 +200,12 @@ if [[ " $ACTIONS " == *" config "* ]]; then
 				# paper-nms
 				if [[ $DO_FAST -eq $NO ]]; then
 					if [[ $( \grep paper-nms pom.xml ) ]]; then
-						if [[ $DEBUG_FLAGS -eq $YES ]] \
-						|| [[ ! -e "~/.m2/repository/ca/bkaw/paper-nms/" ]]; then
-							echo_cmd "mvn paper-nms:init"
-							[[ $IS_DRY -eq $NO ]] && \
-								\mvn  paper-nms:init
+						if [[ $DEBUG_FLAGS -eq $YES ]]; then
+							if [[ ! -e ~/".m2/repository/ca/bkaw/paper-nms/" ]]; then
+								echo_cmd "mvn paper-nms:init"
+								[[ $IS_DRY -eq $NO ]] && \
+									\mvn  paper-nms:init
+							fi
 						fi
 					fi
 				fi
