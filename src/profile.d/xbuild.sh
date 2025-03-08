@@ -18,3 +18,7 @@ alias cargocov='grcov . --binary-path ./target/debug/ -s . -t html --branch --ig
 if [[ -f "$HOME/.cargo/env" ]]; then
 	. "$HOME/.cargo/env"
 fi
+
+
+alias gorun='go run -x'
+alias cgorun='clear;gorun'
