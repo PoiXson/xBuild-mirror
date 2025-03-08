@@ -213,6 +213,21 @@ if [[ " $ACTIONS " == *" config "* ]]; then
 			echo
 			DID_SOMETHING=$YES
 		fi
+		# golang
+		if [[ -f "$PROJECT_PATH/main.go" ]]; then
+			\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
+				echo_cmd "go get -u"
+				if [[ $IS_DRY -eq $NO ]]; then
+					\go get -u  || exit 1
+				fi
+				echo_cmd "go mod tidy"
+				if [[ $IS_DRY -eq $NO ]]; then
+					\go mod tidy  || exit 1
+				fi
+			\popd >/dev/null
+			echo
+			DID_SOMETHING=$YES
+		fi
 		# generate .spec file
 		if [[ -f "$PROJECT_PATH/spec.conf" ]]; then
 			[[ $QUIET -eq $NO ]] && \

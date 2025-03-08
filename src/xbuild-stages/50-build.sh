@@ -159,6 +159,17 @@ if [[ " $ACTIONS " == *" build "* ]]; then
 		echo
 		DID_SOMETHING=$YES
 	fi
+	# golang
+	if [[ -f "$PROJECT_PATH/main.go" ]]; then
+		\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
+			echo_cmd "go build main.go"
+			if [[ $IS_DRY -eq $NO ]]; then
+				\go build -x main.go  || exit 1
+			fi
+		\popd >/dev/null
+		echo
+		DID_SOMETHING=$YES
+	fi
 	# nothing to do
 	if [[ $DID_SOMETHING -eq $YES ]]; then
 		DisplayTime "Built"
