@@ -958,7 +958,7 @@ if [[ ! -z $OUT_LIBS ]]; then
 				<executions>
 					<execution>
 						<id>copy-dependencies</id>
-						<phase>package</phase>
+						<phase>compile</phase>
 						<goals><goal>copy-dependencies</goal></goals>
 						<configuration>
 							<outputDirectory>\${project.basedir}/libs/</outputDirectory>
