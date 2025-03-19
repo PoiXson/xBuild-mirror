@@ -162,9 +162,13 @@ if [[ " $ACTIONS " == *" build "* ]]; then
 	# golang
 	if [[ -f "$PROJECT_PATH/main.go" ]]; then
 		\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
-			echo_cmd "go build main.go"
+			GO_FLAGS=""
+			if [[ $VERBOSE -eq $YES ]]; then
+				GO_FLAGS="-x"
+			fi
+			echo_cmd "go build $GO_FLAGS"
 			if [[ $IS_DRY -eq $NO ]]; then
-				\go build -x main.go  || exit 1
+				\go build $GO_FLAGS .  || exit 1
 			fi
 		\popd >/dev/null
 		echo
