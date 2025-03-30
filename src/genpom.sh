@@ -1019,9 +1019,43 @@ if [[ -e "$WDIR/tests/" ]]; then
 			</plugin>
 EOF
 fi
+echo -e "\t\t</plugins>"   >>"$OUT_FILE"
+
+
+
+# assemble with libs
+if [[ ! -z $OUT_LIBS ]]; then
+\cat >>"$OUT_FILE" <<EOF
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.eclipse.m2e</groupId>
+					<artifactId>lifecycle-mapping</artifactId>
+					<version>1.0.0</version>
+					<configuration>
+						<lifecycleMappingMetadata>
+							<pluginExecutions>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>org.apache.maven.plugins</groupId>
+										<artifactId>maven-dependency-plugin</artifactId>
+										<versionRange>[3.8.1]</versionRange>
+										<goals><goal>copy-dependencies</goal></goals>
+									</pluginExecutionFilter>
+									<action>ignore</action>
+								</pluginExecution>
+							</pluginExecutions>
+						</lifecycleMappingMetadata>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+EOF
+fi
+
+
 
 \cat >>"$OUT_FILE" <<EOF
-		</plugins>
 	</build>
 
 EOF
