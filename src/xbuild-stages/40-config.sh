@@ -228,6 +228,24 @@ if [[ " $ACTIONS " == *" config "* ]]; then
 			echo
 			DID_SOMETHING=$YES
 		fi
+		# sqlc
+		if [[ -f "$PROJECT_PATH/sqlc.yml"  ]] \
+		|| [[ -f "$PROJECT_PATH/sqlc.yaml" ]] \
+		|| [[ -f "$PROJECT_PATH/sqlc.json" ]]; then
+			\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
+				if [[ $PROJECT_RELEASE -eq $YES ]]; then
+					echo_cmd "sqlc compile"
+					\sqlc  compile  || exit 1
+				elif [[ $DEBUG_FLAGS -eq $YES ]]; then
+					echo_cmd "sqlc generate"
+					if [[ $IS_DRY -eq $NO ]]; then
+						\sqlc  generate  || exit 1
+					fi
+				fi
+			\popd >/dev/null
+			echo
+			DID_SOMETHING=$YES
+		fi
 		# generate .spec file
 		if [[ -f "$PROJECT_PATH/spec.conf" ]]; then
 			[[ $QUIET -eq $NO ]] && \
