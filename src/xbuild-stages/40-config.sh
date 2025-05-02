@@ -214,7 +214,7 @@ if [[ " $ACTIONS " == *" config "* ]]; then
 			DID_SOMETHING=$YES
 		fi
 		# golang
-		if [[ -f "$PROJECT_PATH/main.go" ]]; then
+		if [[ -f "$PROJECT_PATH/go.mod" ]]; then
 			\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
 				echo_cmd "go get -u"
 				if [[ $IS_DRY -eq $NO ]]; then
