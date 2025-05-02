@@ -161,18 +161,21 @@ if [[ " $ACTIONS " == *" build "* ]]; then
 	fi
 	# golang
 	if [[ -f "$PROJECT_PATH/go.mod" ]]; then
-		\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
-			GO_FLAGS=""
-			if [[ $VERBOSE -eq $YES ]]; then
-				GO_FLAGS="-x"
-			fi
-			echo_cmd "go build $GO_FLAGS"
-			if [[ $IS_DRY -eq $NO ]]; then
-				\go build $GO_FLAGS .  || exit 1
-			fi
-		\popd >/dev/null
-		echo
-		DID_SOMETHING=$YES
+		COUNT_GO_FILES=$( \ls -1 "$PROJECT_PATH/"*.go 2>/dev/null | wc -l )
+		if [[ $COUNT_GO_FILES -gt 0 ]]; then
+			\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
+				GO_FLAGS=""
+				if [[ $VERBOSE -eq $YES ]]; then
+					GO_FLAGS="-x"
+				fi
+				echo_cmd "go build $GO_FLAGS"
+				if [[ $IS_DRY -eq $NO ]]; then
+					\go build $GO_FLAGS .  || exit 1
+				fi
+			\popd >/dev/null
+			echo
+			DID_SOMETHING=$YES
+		fi
 	fi
 	# nothing to do
 	if [[ $DID_SOMETHING -eq $YES ]]; then

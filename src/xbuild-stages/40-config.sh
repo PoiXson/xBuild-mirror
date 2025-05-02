@@ -216,10 +216,21 @@ if [[ " $ACTIONS " == *" config "* ]]; then
 		# golang
 		if [[ -f "$PROJECT_PATH/go.mod" ]]; then
 			\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
-				echo_cmd "go get -u"
-				if [[ $IS_DRY -eq $NO ]]; then
-					\go get -u  || exit 1
+				HAS_DEPS=$NO
+				\grep require go.mod >/dev/null
+				if [[ $? -eq 0 ]]; then
+					HAS_DEPS=$YES
 				fi
+				# update
+				if [[ $HAS_DEPS        -eq $YES ]] \
+				&& [[ $DEBUG_FLAGS     -eq $YES ]] \
+				&& [[ $PROJECT_RELEASE -eq $NO  ]]; then
+					echo_cmd "go get -u"
+					if [[ $IS_DRY -eq $NO ]]; then
+						\go get -u  || exit 1
+					fi
+				fi
+				# tidy
 				echo_cmd "go mod tidy"
 				if [[ $IS_DRY -eq $NO ]]; then
 					\go mod tidy  || exit 1

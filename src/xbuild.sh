@@ -836,6 +836,16 @@ if [[ " $ACTIONS " == *" clean "* ]]; then
 		doClean  "target build bin run rpmbuild"
 		if [[ $DO_SUPER_CLEAN -eq $YES ]]; then
 			doClean  ".project .classpath .settings gradle .gradle gradlew gradlew.bat vendor"
+			if [[ $DO_SUPER_CLEAN -eq $YES ]]; then
+				DO_SUPER_CLEAN=""
+				if [[ $VERBOSE -eq $YES ]]; then
+					DO_SUPER_CLEAN="-x"
+				fi
+				echo_cmd "go clean --cache --modcache"
+				if [[ $IS_DRY -eq $NO ]]; then
+					\go clean --cache --modcache $FLAGS
+				fi
+			fi
 		fi
 	\popd >/dev/null
 	echo
