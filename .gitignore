@@ -16,6 +16,11 @@ DEBUG
 .debug
 
 .htdb*
+*.db
+*.sqlite
+*.sqlite3
+*.duckdb
+
 config.php
 public/static/bootstrap
 public/static/bootstrap-icons
@@ -142,6 +147,5 @@ auth.json
 *.war
 *.ear
 *.dump
-*.db
 *.out
 *.output
