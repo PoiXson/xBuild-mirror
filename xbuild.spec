@@ -8,7 +8,7 @@ License   : AGPLv3+ADD-PXN-V1
 URL       : https://poixson.com/
 
 Requires  : pxnscripts >= 2.2.0
-Requires  : bash, bc, zip, unzip, grep
+Requires  : bash, bc, zip, unzip, grep, jq
 Recommends: rpmbuild, fakeroot, alien, composer
 Recommends: automake, autogen, autoconf, libtool
 
