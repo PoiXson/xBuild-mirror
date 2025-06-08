@@ -161,8 +161,8 @@ if [[ " $ACTIONS " == *" build "* ]]; then
 	fi
 	# golang
 	if [[ -f "$PROJECT_PATH/go.mod" ]]; then
-		COUNT_GO_FILES=$( \ls -1 "$PROJECT_PATH/"*.go 2>/dev/null | wc -l )
-		if [[ $COUNT_GO_FILES -gt 0 ]]; then
+		if [[ -f "$PROJECT_PATH/main.go" ]] \
+		|| [[ -f "$PROJECT_PATH/lib.go"  ]]; then
 			\pushd  "$PROJECT_PATH/"  >/dev/null  || exit 1
 				GO_FLAGS=""
 				if [[ $VERBOSE -eq $YES ]]; then
