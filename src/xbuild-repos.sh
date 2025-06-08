@@ -334,7 +334,6 @@ function doCleanupVars() {
 
 
 # parse args
-echo
 if [[ $# -eq 0 ]]; then
 	DisplayHelp
 	exit 1

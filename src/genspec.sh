@@ -97,7 +97,6 @@ function DisplayVersion() {
 
 
 # parse args
-echo
 while [ $# -gt 0 ]; do
 	case "$1" in
 	-V|--version)  DisplayVersion ; exit 1  ;;
