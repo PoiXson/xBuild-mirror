@@ -59,6 +59,7 @@ echo "Install.."
 	%{__install} -m 0644  "genautotools.sh"  "%{buildroot}%{_bindir}/genautotools"  || exit 1
 	%{__install} -m 0644  "genpom.sh"        "%{buildroot}%{_bindir}/genpom"        || exit 1
 	%{__install} -m 0644  "genmaingo.sh"     "%{buildroot}%{_bindir}/genmaingo"     || exit 1
+	%{__install} -m 0644  "gengrpc.sh"       "%{buildroot}%{_bindir}/gengrpc"       || exit 1
 	%{__install} -m 0644  "genspec.sh"       "%{buildroot}%{_bindir}/genspec"       || exit 1
 	%{__install} -m 0644  "xbuild-repos.sh"  "%{buildroot}%{_bindir}/xbuild-repos"  || exit 1
 	%{__install} -m 0644  "gradle-dl.sh"     "%{buildroot}%{_bindir}/gradle-dl"     || exit 1
@@ -126,6 +127,7 @@ fi
 %{_bindir}/genautotools
 %{_bindir}/genpom
 %{_bindir}/genmaingo
+%{_bindir}/gengrpc
 %{_bindir}/genspec
 %{prefix}/gradle-common.sh
 %{_bindir}/gradle-dl
